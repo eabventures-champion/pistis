@@ -16,7 +16,11 @@ class ShopifyService
 
     public function __construct()
     {
-        $this->storeUrl = rtrim(config('services.shopify.store_url', ''), '/');
+        $url = config('services.shopify.store_url', '');
+        if ($url && !str_starts_with($url, 'http://') && !str_starts_with($url, 'https://')) {
+            $url = 'https://' . $url;
+        }
+        $this->storeUrl = rtrim($url, '/');
         $this->accessToken = config('services.shopify.access_token', '');
         $this->apiVersion = config('services.shopify.api_version', '2025-04');
         $this->apiSecret = config('services.shopify.api_secret', '');
@@ -35,6 +39,13 @@ class ShopifyService
      */
     public function testConnection(): array
     {
+        if (!$this->isConfigured()) {
+            return [
+                'success' => false,
+                'error' => 'Shopify is not configured. Please set SHOPIFY_STORE_URL and SHOPIFY_ACCESS_TOKEN in your .env file.',
+            ];
+        }
+
         try {
             $response = $this->request('GET', '/shop.json');
             return ['success' => true, 'shop' => $response['shop'] ?? []];
@@ -287,6 +298,10 @@ class ShopifyService
      */
     private function request(string $method, string $endpoint, array $data = []): array
     {
+        if (empty($this->storeUrl) || empty($this->accessToken)) {
+            throw new \Exception('Shopify is not configured. Please set SHOPIFY_STORE_URL and SHOPIFY_ACCESS_TOKEN in your .env file.');
+        }
+
         $url = "{$this->storeUrl}/admin/api/{$this->apiVersion}" . $endpoint;
 
         $response = Http::withHeaders([
