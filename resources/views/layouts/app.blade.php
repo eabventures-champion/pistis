@@ -28,6 +28,19 @@
                     @if(config('services.shopify.store_url'))
                         <li><a href="{{ config('services.shopify.store_url') }}" target="_blank">Shopify Store ↗</a></li>
                     @endif
+                    <li class="nav-divider-mobile"></li>
+                    @auth('customer')
+                        <li class="mobile-nav-auth"><a href="{{ route('account.index') }}">My Account</a></li>
+                        <li class="mobile-nav-auth">
+                            <form action="{{ route('customer.logout') }}" method="POST" style="margin:0;">
+                                @csrf
+                                <button type="submit" class="mobile-nav-logout-btn">Logout</button>
+                            </form>
+                        </li>
+                    @else
+                        <li class="mobile-nav-auth"><a href="{{ route('customer.login') }}">Login</a></li>
+                        <li class="mobile-nav-auth"><a href="{{ route('customer.register') }}" class="mobile-join-link">Join Pistis</a></li>
+                    @endauth
                 </ul>
 
                 <div class="navbar-actions">
@@ -45,17 +58,23 @@
                     </a>
 
                     @auth('customer')
-                        <a href="{{ route('account.index') }}" class="btn btn-sm btn-secondary">Account</a>
-                        <form action="{{ route('customer.logout') }}" method="POST" style="display:inline;">
+                        <a href="{{ route('account.index') }}" class="btn btn-sm btn-secondary desktop-auth-btn">Account</a>
+                        <form action="{{ route('customer.logout') }}" method="POST" class="desktop-auth-btn" style="display:inline;">
                             @csrf
                             <button type="submit" class="btn btn-sm btn-secondary">Logout</button>
                         </form>
                     @else
-                        <a href="{{ route('customer.login') }}" class="btn btn-sm btn-secondary">Login</a>
-                        <a href="{{ route('customer.register') }}" class="btn btn-sm btn-primary">Join</a>
+                        <a href="{{ route('customer.login') }}" class="btn btn-sm btn-secondary desktop-auth-btn">Login</a>
+                        <a href="{{ route('customer.register') }}" class="btn btn-sm btn-primary desktop-auth-btn">Join</a>
                     @endauth
 
-                    <button class="mobile-toggle" onclick="document.getElementById('nav-links').classList.toggle('open')">☰</button>
+                    <button class="mobile-toggle" aria-label="Toggle navigation" onclick="document.getElementById('nav-links').classList.toggle('open')">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
             </div>
         </nav>
@@ -125,6 +144,17 @@
     </div>
 
     @stack('scripts')
+    <script>
+        document.addEventListener('click', function(e) {
+            const navLinks = document.getElementById('nav-links');
+            const toggle = document.querySelector('.mobile-toggle');
+            if (navLinks && navLinks.classList.contains('open')) {
+                if (!navLinks.contains(e.target) && !toggle.contains(e.target)) {
+                    navLinks.classList.remove('open');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
 
