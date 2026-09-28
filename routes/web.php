@@ -1,0 +1,108 @@
+<?php
+
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\HeroSlideController;
+use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\ShopifySyncController;
+use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CustomerAuthController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ShopController;
+use Illuminate\Support\Facades\Route;
+
+// ─── Storefront ──────────────────────────────────────────────────────
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/shop/{slug}', [ShopController::class, 'show'])->name('shop.show');
+
+// Cart
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::patch('/cart/{item}', [CartController::class, 'update'])->name('cart.update');
+Route::delete('/cart/{item}', [CartController::class, 'destroy'])->name('cart.destroy');
+
+// Checkout
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
+
+// Payment
+Route::get('/payment/callback', [PaymentController::class, 'callback'])->name('payment.callback');
+Route::post('/payment/paypal/create/{order}', [CheckoutController::class, 'createPayPalOrder'])->name('payment.paypal.create');
+Route::post('/payment/paypal/capture/{order}', [CheckoutController::class, 'capturePayPalOrder'])->name('payment.paypal.capture');
+
+
+// ─── Customer Auth ───────────────────────────────────────────────────
+Route::middleware('guest:customer')->group(function () {
+    Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('customer.login');
+    Route::post('/login', [CustomerAuthController::class, 'login']);
+    Route::get('/register', [CustomerAuthController::class, 'showRegister'])->name('customer.register');
+    Route::post('/register', [CustomerAuthController::class, 'register']);
+});
+Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout')
+    ->middleware('auth:customer');
+
+// ─── Customer Account ────────────────────────────────────────────────
+Route::middleware('auth:customer')->prefix('account')->group(function () {
+    Route::get('/', [AccountController::class, 'index'])->name('account.index');
+    Route::get('/orders', [AccountController::class, 'orders'])->name('account.orders');
+    Route::get('/orders/{order}', [AccountController::class, 'orderDetail'])->name('account.order-detail');
+    Route::put('/profile', [AccountController::class, 'updateProfile'])->name('account.update-profile');
+});
+
+// ─── Admin Auth ──────────────────────────────────────────────────────
+Route::prefix('admin')->group(function () {
+    Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
+    Route::post('/login', [AdminAuthController::class, 'login']);
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+});
+
+// ─── Admin Panel ─────────────────────────────────────────────────────
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Products
+    Route::resource('products', ProductController::class);
+
+    // Categories
+    Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit']);
+
+    // Orders
+    Route::post('/orders/bulk-action', [OrderController::class, 'bulkAction'])->name('orders.bulk-action');
+    Route::post('/orders/{order}/archive', [OrderController::class, 'archive'])->name('orders.archive');
+    Route::post('/orders/{order}/unarchive', [OrderController::class, 'unarchive'])->name('orders.unarchive');
+    Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
+
+    // Customers
+    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+    Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+
+    // Shopify Sync
+    Route::post('/shopify/sync/{product}', [ShopifySyncController::class, 'syncProduct'])->name('shopify.sync-product');
+    Route::post('/shopify/sync-all', [ShopifySyncController::class, 'syncAll'])->name('shopify.sync-all');
+    Route::post('/shopify/pull', [ShopifySyncController::class, 'pullFromShopify'])->name('shopify.pull');
+    Route::get('/shopify/logs', [ShopifySyncController::class, 'logs'])->name('shopify.logs');
+    Route::post('/shopify/test-connection', [ShopifySyncController::class, 'testConnection'])->name('shopify.test-connection');
+
+    // Settings
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+
+    // Hero Slides Management
+    Route::post('/hero-slides/reorder', [HeroSlideController::class, 'reorder'])->name('hero-slides.reorder');
+    Route::post('/hero-slides/{hero_slide}/toggle-status', [HeroSlideController::class, 'toggleStatus'])->name('hero-slides.toggle-status');
+    Route::post('/hero-slides/{hero_slide}/duplicate', [HeroSlideController::class, 'duplicate'])->name('hero-slides.duplicate');
+    Route::resource('hero-slides', HeroSlideController::class);
+});

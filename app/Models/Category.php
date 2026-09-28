@@ -1,0 +1,101 @@
+<?php
+ 
+namespace App\Models;
+ 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
+ 
+class Category extends Model
+{
+    protected $fillable = [
+        'name', 'slug', 'description', 'image', 'parent_id', 'sort_order', 'is_active',
+    ];
+ 
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+ 
+    protected static function booted(): void
+    {
+        static::creating(function (Category $category) {
+            if (empty($category->slug)) {
+                $category->slug = Str::slug($category->name);
+            }
+        });
+    }
+ 
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+ 
+    public function children(): HasMany
+    {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
+ 
+    public function products(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+ 
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+ 
+    public function scopeTopLevel($query)
+    {
+        return $query->whereNull('parent_id');
+    }
+ 
+    /**
+     * Get all IDs in this category's hierarchy (self + children).
+     */
+    public function getRecursiveIds(): array
+    {
+        $ids = [$this->id];
+        foreach ($this->children as $child) {
+            $ids = array_merge($ids, $child->getRecursiveIds());
+        }
+        return $ids;
+    }
+ 
+    /**
+     * Calculate total products count recursively.
+     */
+    public function getTotalProductsCountAttribute(): int
+    {
+        $count = $this->products_count ?? $this->products()->count();
+        foreach ($this->children as $child) {
+            $count += $child->total_products_count;
+        }
+        return $count;
+    }
+
+    /**
+     * Get a flattened list of categories with indentation for use in select inputs.
+     */
+    public static function getIndentedList(): array
+    {
+        $categories = self::active()->topLevel()->with('children')->orderBy('sort_order')->get();
+        $list = [];
+
+        foreach ($categories as $category) {
+            $list[$category->id] = $category->name;
+            foreach ($category->children as $child) {
+                $list[$child->id] = '— ' . $child->name;
+                // Support 3rd level if needed
+                if ($child->children()->count() > 0) {
+                     foreach ($child->children as $grandChild) {
+                         $list[$grandChild->id] = '—— ' . $grandChild->name;
+                     }
+                }
+            }
+        }
+
+        return $list;
+    }
+}
