@@ -15,7 +15,7 @@
         <div class="two-col">
             <div>
                 @foreach($cart->items as $item)
-                    <div class="cart-item" style="border:none;border-bottom:1px solid #e5e5e5;padding:24px 0;display:flex;align-items:center;gap:20px;">
+                    <div class="cart-item cart-item-row" style="border:none;border-bottom:1px solid #e5e5e5;padding:24px 0;display:flex;align-items:center;gap:20px;">
                         <div class="cart-item-image" style="width:100px;height:130px;flex-shrink:0;background:#fafafa;">
                             @if($item->product->primary_image)
                                 <img src="{{ asset('storage/' . $item->product->primary_image) }}" alt="{{ $item->product->name }}" style="width:100%;height:100%;object-fit:cover;">
@@ -36,10 +36,10 @@
                                 <input type="number" name="quantity" value="{{ $item->quantity }}" min="1" max="{{ $item->product->stock_quantity }}" class="qty-input" style="width:60px;text-align:center;border:1px solid #e5e5e5;border-radius:0;font-size:0.8rem;" onchange="this.form.submit()">
                             </form>
                         </div>
-                        <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:#000000;min-width:90px;text-align:right;">
+                        <div class="cart-item-subtotal" style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:#000000;min-width:90px;text-align:right;">
                             {{ $currency_symbol }}{{ number_format($item->subtotal, 2) }}
                         </div>
-                        <form action="{{ route('cart.destroy', $item->id) }}" method="POST">
+                        <form action="{{ route('cart.destroy', $item->id) }}" method="POST" class="cart-item-remove">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn btn-icon btn-secondary" title="Remove" style="color:#000000;background:transparent;border:none;font-size:0.8rem;padding:8px;cursor:pointer;">✕</button>
@@ -49,7 +49,7 @@
             </div>
 
             <div>
-                <div class="cart-summary" style="background:#fafafa;border:1px solid #e5e5e5;border-radius:0;padding:32px;">
+                <div class="cart-summary cart-summary-box" style="background:#fafafa;border:1px solid #e5e5e5;border-radius:0;padding:32px;">
                     <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:400;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #e5e5e5;">Order Summary</h3>
                     <div class="cart-summary-row" style="display:flex;justify-content:space-between;margin-bottom:12px;font-size:0.85rem;color:#525252;">
                         <span>Subtotal ({{ $totals['item_count'] }} {{ $totals['item_count'] === 1 ? 'piece' : 'pieces' }})</span>

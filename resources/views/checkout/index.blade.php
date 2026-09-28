@@ -15,7 +15,7 @@
         @csrf
         <div class="two-col">
             <div>
-                <div style="border:1px solid #e5e5e5;padding:32px;">
+                <div class="checkout-form-box" style="border:1px solid #e5e5e5;padding:32px;">
                     @auth('customer')
                         <div style="background:#f7f7f7;border:1px solid #e5e5e5;padding:14px 18px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;">
                             <div>

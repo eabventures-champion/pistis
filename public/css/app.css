@@ -3548,3 +3548,206 @@ body.sidebar-collapsed .admin-main {
     margin-bottom: 36px;
     font-weight: 300;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COMPREHENSIVE MOBILE RESPONSIVE OVERRIDES
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@media screen and (max-width: 768px) {
+    /* ─── 1. Section Header Mobile ─── */
+    .section-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 16px;
+    }
+    .section-header h1,
+    .section-header h2,
+    .section-title {
+        font-size: 2.2rem !important;
+    }
+    .section-header .btn,
+    .section-header a {
+        align-self: flex-start;
+    }
+
+    /* ─── 2. Cart Page Mobile ─── */
+    .cart-item {
+        flex-wrap: wrap !important;
+        gap: 0 !important;
+        padding: 20px 0 !important;
+        position: relative;
+    }
+    .cart-item .cart-item-image {
+        width: 80px !important;
+        height: 100px !important;
+        flex: 0 0 80px !important;
+    }
+    .cart-item .cart-item-info {
+        flex: 1 1 0% !important;
+        min-width: 0;
+        padding-right: 8px;
+    }
+    .cart-item .cart-item-quantity {
+        margin-top: 12px;
+        margin-left: 0;
+    }
+    .cart-item .cart-item-quantity .qty-input {
+        width: 52px !important;
+    }
+    .cart-item .cart-item-subtotal {
+        min-width: 0 !important;
+        margin-top: 12px;
+        margin-left: auto;
+        font-size: 0.95rem !important;
+        text-align: right !important;
+    }
+    .cart-item .cart-item-remove {
+        margin-top: 12px;
+        margin-left: 8px;
+    }
+    .cart-summary,
+    .cart-summary-box {
+        padding: 20px 16px !important;
+    }
+
+    /* ─── 3. Checkout Page Mobile ─── */
+    .checkout-form-box {
+        padding: 16px !important;
+    }
+    .checkout-form-box h3 {
+        font-size: 1.1rem !important;
+    }
+    .checkout-heading,
+    h1.checkout-title {
+        font-size: 2rem !important;
+    }
+    .order-summary-item {
+        padding: 12px 0 !important;
+    }
+
+    /* ─── 5. Account Pages Mobile ─── */
+    .table-responsive,
+    .table-wrapper {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 24px;
+        padding-bottom: 8px;
+    }
+    .table-responsive .table,
+    .table-wrapper .table {
+        min-width: 600px !important;
+    }
+    .account-header,
+    .account-section-header {
+        font-size: 1.8rem !important;
+        margin-bottom: 16px !important;
+    }
+    .account-card .card-body,
+    .card-body {
+        padding: 16px !important;
+    }
+
+    /* ─── 6. Product Detail Info Mobile ─── */
+    .product-info-wrapper h1,
+    .product-title {
+        font-size: 2.2rem !important;
+    }
+    .product-info-wrapper {
+        padding: 16px 0 !important;
+    }
+    .add-to-cart-form,
+    .add-to-bag-form,
+    form[action*="cart"] {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 16px !important;
+    }
+    .add-to-cart-form .btn,
+    .add-to-bag-btn {
+        width: 100% !important;
+        margin-top: 8px;
+    }
+    
+    /* ─── 7. Shop Filter Sidebar Mobile ─── */
+    .filter-toggle-btn {
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        background: #000000;
+        color: #ffffff;
+        border: none;
+        font-family: 'Inter', sans-serif;
+        font-size: 0.7rem;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+    .filter-toggle-btn svg {
+        stroke: #ffffff;
+    }
+    .filter-sidebar {
+        display: none !important;
+        width: 100% !important;
+        margin-bottom: 24px !important;
+    }
+    .filter-sidebar.open {
+        display: block !important;
+    }
+
+    /* ─── 8. Footer Mobile Enhancement ─── */
+    .site-footer,
+    footer {
+        padding: 40px 20px 20px !important;
+    }
+    .footer-newsletter form,
+    .newsletter-form {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+    .footer-newsletter input,
+    .footer-newsletter button,
+    .newsletter-input,
+    .newsletter-btn {
+        width: 100% !important;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    /* ─── 4. Auth Pages Mobile ─── */
+    .auth-wrapper {
+        padding: 24px 16px !important;
+    }
+    .auth-card {
+        padding: 24px 20px !important;
+        max-width: 100% !important;
+    }
+    .auth-card h1,
+    .auth-title {
+        font-size: 2rem !important;
+    }
+    .auth-card p,
+    .auth-subtitle {
+        margin-bottom: 24px !important;
+    }
+}
+
+/* ─── 9. General Mobile Utilities ─── */
+.mobile-only {
+    display: none !important;
+}
+.desktop-only {
+    display: block !important;
+}
+
+@media screen and (max-width: 768px) {
+    .mobile-only {
+        display: block !important;
+    }
+    .desktop-only {
+        display: none !important;
+    }
+}
