@@ -5,6 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login — Pistis</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ file_exists(public_path('css/app.css')) ? filemtime(public_path('css/app.css')) : time() }}">
+    <style>
+        .password-input-wrapper {
+            position: relative !important;
+            display: flex !important;
+            align-items: center !important;
+            width: 100% !important;
+        }
+        .password-input-wrapper .form-control {
+            padding-right: 44px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .password-toggle-btn {
+            position: absolute !important;
+            right: 12px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            background: transparent !important;
+            border: none !important;
+            padding: 6px !important;
+            cursor: pointer !important;
+            color: #8a8a8a !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 4px !important;
+            line-height: 1 !important;
+            outline: none !important;
+            z-index: 5 !important;
+            box-shadow: none !important;
+        }
+        .password-toggle-btn:hover {
+            color: #000000 !important;
+            background: rgba(0, 0, 0, 0.05) !important;
+        }
+    </style>
 </head>
 <body>
     <div class="auth-wrapper">
@@ -34,9 +70,9 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
-                    <div class="password-input-wrapper">
-                        <input type="password" id="password" name="password" class="form-control" required autocomplete="current-password">
-                        <button type="button" class="password-toggle-btn" id="togglePasswordBtn" aria-label="Show password" title="Show password">
+                    <div class="password-input-wrapper" style="position: relative; display: flex; align-items: center; width: 100%;">
+                        <input type="password" id="password" name="password" class="form-control" style="padding-right: 44px; width: 100%; box-sizing: border-box;" required autocomplete="current-password">
+                        <button type="button" class="password-toggle-btn" id="togglePasswordBtn" aria-label="Show password" title="Show password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: transparent; border: none; padding: 6px; cursor: pointer; color: #8a8a8a; display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; line-height: 1; outline: none; z-index: 5; box-shadow: none;">
                             <svg class="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/>
                                 <circle cx="12" cy="12" r="3"/>
