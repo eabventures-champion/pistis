@@ -17,7 +17,11 @@
         <aside class="admin-sidebar" id="admin-sidebar">
             <div class="sidebar-brand-wrapper">
                 <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
-                    <span class="brand-dot">P</span>
+                    @if(!empty($store_logo))
+                        <img src="{{ $store_logo }}" alt="{{ $store_name ?? 'Pistis' }}" style="max-height: 26px; width: auto; object-fit: contain; display: block;">
+                    @else
+                        <span class="brand-dot">P</span>
+                    @endif
                     <span class="brand-text">Pistis Admin</span>
                 </a>
                 <button type="button" class="sidebar-toggle-btn" id="sidebar-toggle-btn" title="Toggle Sidebar (Collapse/Expand)" onclick="toggleAdminSidebar()">
@@ -37,6 +41,11 @@
                 <li>
                     <a href="{{ route('admin.hero-slides.index') }}" class="{{ request()->routeIs('admin.hero-slides.*') ? 'active' : '' }}" title="Hero Slider">
                         <span class="icon">🖼️</span> <span class="menu-label">Hero Slider</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ route('admin.campaign-video.index') }}" class="{{ request()->routeIs('admin.campaign-video.*') ? 'active' : '' }}" title="Campaign Video">
+                        <span class="icon">🎬</span> <span class="menu-label">Campaign Video</span>
                     </a>
                 </li>
                 <li>

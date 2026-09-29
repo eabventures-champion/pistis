@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\Admin\CampaignVideoController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -99,6 +100,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Settings
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::delete('/settings/remove-logo', [SettingsController::class, 'removeLogo'])->name('settings.remove-logo');
+
+    // Campaign Video Management
+    Route::get('/campaign-video', [CampaignVideoController::class, 'index'])->name('campaign-video.index');
+    Route::post('/campaign-video', [CampaignVideoController::class, 'update'])->name('campaign-video.update');
+    Route::delete('/campaign-video/remove-video', [CampaignVideoController::class, 'removeVideo'])->name('campaign-video.remove-video');
 
     // Hero Slides Management
     Route::post('/hero-slides/reorder', [HeroSlideController::class, 'reorder'])->name('hero-slides.reorder');

@@ -9,7 +9,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ file_exists(public_path('css/app.css')) ? filemtime(public_path('css/app.css')) : time() }}">
+    @php
+        $navHeight = max(76, (($store_logo_height ?? 32) > 52 ? (($store_logo_height ?? 32) + 24) : 76));
+    @endphp
+    <style>
+        :root {
+            --nav-height: {{ $navHeight }}px;
+        }
+        .navbar-brand {
+            line-height: 1;
+        }
+        .brand-logo-img {
+            transition: max-height 0.2s ease;
+            image-rendering: auto;
+        }
+    </style>
     @stack('styles')
 </head>
 <body>
@@ -18,8 +33,14 @@
         <nav class="navbar" id="main-navbar">
             <div class="navbar-inner">
                 <a href="{{ route('home') }}" class="navbar-brand">
-                    <span class="brand-icon">P</span>
-                    PISTIS
+                    @if(!empty($store_logo))
+                        <img src="{{ $store_logo }}" alt="{{ $store_name ?? 'PISTIS' }}" class="brand-logo-img" style="max-height: {{ $store_logo_height ?? 32 }}px; width: auto; object-fit: contain; display: block;">
+                    @else
+                        <span class="brand-icon">P</span>
+                    @endif
+                    @if(empty($store_hide_brand_text))
+                        <span>{{ $store_name ?? 'PISTIS' }}</span>
+                    @endif
                 </a>
 
                 <ul class="navbar-links" id="nav-links">
@@ -140,8 +161,10 @@
                     <span>EDITION 2026 · MONOCHROME ARCHIVE</span>
                 </div>
             </div>
-        </footer>
     </div>
+
+    {{-- Luxury Campaign & Lookbook Video Intro --}}
+    @include('components.campaign-video-modal')
 
     @stack('scripts')
     <script>

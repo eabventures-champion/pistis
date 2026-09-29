@@ -11,6 +11,10 @@ class AdminAuthController extends Controller
 {
     public function showLogin()
     {
+        if (Auth::check() && Auth::user()->is_admin) {
+            return redirect()->route('admin.dashboard');
+        }
+
         return view('auth.admin-login');
     }
 
@@ -21,10 +25,13 @@ class AdminAuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        $remember = $request->boolean('remember');
+
+        if (Auth::attempt($credentials, $remember)) {
             if (!Auth::user()->is_admin) {
                 Auth::logout();
-                return back()->withErrors(['email' => 'You are not authorized to access the admin panel.']);
+                return back()->withErrors(['email' => 'You are not authorized to access the admin panel.'])
+                    ->withInput($request->only('email', 'remember'));
             }
 
             $request->session()->regenerate();
@@ -33,7 +40,7 @@ class AdminAuthController extends Controller
 
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',
-        ])->onlyInput('email');
+        ])->withInput($request->only('email', 'remember'));
     }
 
     public function logout(Request $request)

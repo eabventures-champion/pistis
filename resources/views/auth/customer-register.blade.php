@@ -10,8 +10,15 @@
     <div class="auth-wrapper">
         <div class="auth-card">
             <div class="text-center mb-4">
-                <a href="{{ route('home') }}" class="navbar-brand" style="display:inline-flex;font-size:1.6rem;margin-bottom:24px;">
-                    <span class="brand-icon">P</span> PISTIS
+                <a href="{{ route('home') }}" class="navbar-brand" style="display:inline-flex;font-size:1.6rem;margin-bottom:24px;align-items:center;gap:12px;">
+                    @if(!empty($store_logo))
+                        <img src="{{ $store_logo }}" alt="{{ $store_name ?? 'PISTIS' }}" style="max-height:36px; width:auto; object-fit:contain;">
+                    @else
+                        <span class="brand-icon">P</span>
+                    @endif
+                    @if(empty($store_hide_brand_text))
+                        <span>{{ $store_name ?? 'PISTIS' }}</span>
+                    @endif
                 </a>
             </div>
             <h2 class="auth-title">Create account</h2>

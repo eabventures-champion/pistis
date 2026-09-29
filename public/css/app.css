@@ -775,16 +775,58 @@ textarea.form-control {
     min-height: 100px;
 }
 
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.password-input-wrapper .form-control {
+    padding-right: 44px;
+}
+
+.password-toggle-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-fast), background var(--transition-fast);
+    line-height: 1;
+}
+
+.password-toggle-btn:hover {
+    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.password-toggle-btn:focus {
+    outline: none;
+    color: var(--text-primary);
+}
+
 .form-check {
     display: flex;
     align-items: center;
     gap: 8px;
+    cursor: pointer;
+    user-select: none;
 }
 
 .form-check input[type="checkbox"] {
     width: 18px;
     height: 18px;
     accent-color: var(--primary);
+    cursor: pointer;
 }
 
 .form-error {
@@ -1148,9 +1190,8 @@ textarea.form-control {
     height: 100%;
     object-fit: cover;
     object-position: center;
-    filter: grayscale(100%) contrast(106%);
     transform: scale(1.08);
-    transition: transform 1800ms cubic-bezier(0.16, 1, 0.3, 1), filter 800ms;
+    transition: transform 1800ms cubic-bezier(0.16, 1, 0.3, 1);
     will-change: transform;
 }
 
