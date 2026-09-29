@@ -443,7 +443,7 @@
                 left: 24px;
                 z-index: 9999;
                 background: #000000;
-                border: 1px solid rgba(255, 255, 255, 0.2);
+                border: 1px solid rgba(255, 255, 255, 0.25);
                 color: #ffffff;
                 padding: 10px 18px;
                 border-radius: 30px;
@@ -452,11 +452,43 @@
                 letter-spacing: 0.08em;
                 text-transform: uppercase;
                 cursor: pointer;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 14px rgba(255, 255, 255, 0.2);
                 display: inline-flex;
                 align-items: center;
                 gap: 8px;
                 transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                animation: campaignPulseGlow 3s infinite ease-in-out;
+            }
+
+            .film-icon {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.8)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.5));
+                animation: filmIconGlow 2.5s infinite ease-in-out;
+                transition: transform 0.3s ease;
+            }
+
+            @keyframes filmIconGlow {
+                0%, 100% {
+                    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.7)) drop-shadow(0 0 10px rgba(255, 255, 255, 0.35));
+                    transform: scale(1);
+                }
+                50% {
+                    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 1)) drop-shadow(0 0 18px rgba(255, 255, 255, 0.8));
+                    transform: scale(1.1);
+                }
+            }
+
+            @keyframes campaignPulseGlow {
+                0%, 100% {
+                    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 10px rgba(255, 255, 255, 0.15);
+                    border-color: rgba(255, 255, 255, 0.25);
+                }
+                50% {
+                    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.4), 0 0 35px rgba(255, 255, 255, 0.15);
+                    border-color: rgba(255, 255, 255, 0.6);
+                }
             }
 
             .floating-campaign-film-btn:hover {
@@ -464,7 +496,29 @@
                 color: #000000;
                 border-color: #ffffff;
                 transform: translateY(-2px);
-                box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6);
+                box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 255, 255, 0.6);
+            }
+
+            .floating-campaign-film-btn:hover .film-icon {
+                filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.6));
+            }
+
+            @media (max-width: 768px) {
+                .floating-campaign-film-btn {
+                    bottom: 16px;
+                    left: 16px;
+                    width: 48px;
+                    height: 48px;
+                    padding: 0;
+                    border-radius: 50%;
+                    justify-content: center;
+                }
+                .floating-campaign-film-btn .film-label {
+                    display: none !important;
+                }
+                .floating-campaign-film-btn .film-icon {
+                    font-size: 1.35rem;
+                }
             }
 
             @media (max-width: 640px) {
@@ -504,12 +558,6 @@
                 .campaign-continue-link {
                     text-align: center;
                     padding: 4px;
-                }
-                .floating-campaign-film-btn {
-                    bottom: 16px;
-                    left: 16px;
-                    padding: 8px 14px;
-                    font-size: 0.75rem;
                 }
             }
         </style>
