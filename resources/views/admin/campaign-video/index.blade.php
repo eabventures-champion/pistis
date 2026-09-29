@@ -39,94 +39,100 @@
         {{-- Left Column: Media & Editorial Details --}}
         <div>
             {{-- Video Upload & Current Player Card --}}
-            <div class="card mb-4" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; padding:24px;">
-                <div class="card-header mb-3 pb-3" style="border-bottom:1px solid var(--border-light); display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <h3 style="font-size:1.1rem; font-weight:600; margin:0;">Campaign Video Media</h3>
-                        <p class="text-muted" style="font-size:0.82rem; margin-top:2px;">Upload the lookbook film showcasing your clothing drape, fabric, and styling.</p>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:16px;">
+                        <h3 style="font-size:1.05rem; font-weight:700; margin:0; text-transform:uppercase; letter-spacing:0.04em;">Campaign Video Media</h3>
+                        @if($activeVideoUrl)
+                            <span class="badge badge-success" style="background:#16a34a; color:#fff; padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:600; letter-spacing:0.04em; white-space:nowrap; flex-shrink:0;">VIDEO ACTIVE</span>
+                        @else
+                            <span class="badge badge-warning" style="background:#ca8a04; color:#fff; padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:600; letter-spacing:0.04em; white-space:nowrap; flex-shrink:0;">NO VIDEO LOADED</span>
+                        @endif
                     </div>
+                    <p class="text-muted" style="font-size:0.84rem; margin:6px 0 0 0; line-height:1.5;">
+                        Upload the lookbook film showcasing your clothing drape, fabric, and styling.
+                    </p>
+                </div>
+                <div class="card-body">
+                    {{-- Current Video Preview Player --}}
                     @if($activeVideoUrl)
-                        <span class="badge badge-success" style="background:#16a34a; color:#fff; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">VIDEO ACTIVE</span>
-                    @else
-                        <span class="badge badge-warning" style="background:#ca8a04; color:#fff; padding:4px 10px; border-radius:20px; font-size:0.75rem; font-weight:600;">NO VIDEO LOADED</span>
+                        <div class="current-video-preview mb-4" style="background:#0a0a0a; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.1); position:relative;">
+                            <video id="adminVideoPlayer" src="{{ $activeVideoUrl }}" controls playsinline style="width:100%; max-height:360px; object-fit:cover; display:block;"></video>
+                            <div style="padding:12px 16px; background:#121212; display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.06);">
+                                <div style="font-size:0.8rem; color:#a3a3a3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:70%;">
+                                    <strong>Active Source:</strong> {{ $settings['video_path'] ? basename($settings['video_path']) : $settings['video_url'] }}
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmRemoveVideo()" style="color:#ef4444; border:1px solid #ef4444; background:transparent; padding:4px 12px; border-radius:6px; font-size:0.78rem; cursor:pointer;">
+                                    Remove Video
+                                </button>
+                            </div>
+                        </div>
                     @endif
-                </div>
 
-                {{-- Current Video Preview Player --}}
-                @if($activeVideoUrl)
-                    <div class="current-video-preview mb-4" style="background:#0a0a0a; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.1); position:relative;">
-                        <video id="adminVideoPlayer" src="{{ $activeVideoUrl }}" controls playsinline style="width:100%; max-height:360px; object-fit:cover; display:block;"></video>
-                        <div style="padding:12px 16px; background:#121212; display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.06);">
-                            <div style="font-size:0.8rem; color:#a3a3a3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:70%;">
-                                <strong>Active Source:</strong> {{ $settings['video_path'] ? basename($settings['video_path']) : $settings['video_url'] }}
+                    {{-- File Upload Area --}}
+                    <div class="form-group mb-4">
+                        <label class="form-label" style="font-weight:600; font-size:0.88rem;">Upload Video File</label>
+                        <div id="videoDropArea" style="border:2px dashed var(--border-color); border-radius:10px; padding:28px 20px; text-align:center; background:var(--bg-secondary); cursor:pointer; transition:border-color 0.2s ease;">
+                            <input type="file" name="campaign_video_file" id="campaign_video_file" accept="video/mp4,video/webm,video/ogg,video/quicktime" style="display:none;" onchange="handleVideoFileSelect(this)">
+                            <div id="uploadPlaceholder">
+                                <span style="font-size:2.2rem; display:block; margin-bottom:8px;">🎬</span>
+                                <div style="font-weight:600; font-size:0.95rem; color:var(--text-primary); margin-bottom:4px;">
+                                    Click to select fashion campaign video or drag & drop
+                                </div>
+                                <div class="text-muted" style="font-size:0.8rem;">
+                                    Supported formats: MP4, WebM, MOV · Max file size: 100MB
+                                </div>
                             </div>
-                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmRemoveVideo()" style="color:#ef4444; border:1px solid #ef4444; background:transparent; padding:4px 12px; border-radius:6px; font-size:0.78rem; cursor:pointer;">
-                                Remove Video
-                            </button>
+                            <div id="selectedFileInfo" style="display:none; padding:10px; background:rgba(0,0,0,0.05); border-radius:8px;">
+                                <span style="font-weight:600; color:var(--text-primary);" id="selectedFileName"></span>
+                                <div class="text-muted" style="font-size:0.8rem; margin-top:2px;" id="selectedFileSize"></div>
+                                <video id="clientVideoPreview" controls style="max-width:100%; max-height:220px; margin-top:12px; border-radius:6px; display:none;"></video>
+                            </div>
                         </div>
                     </div>
-                @endif
 
-                {{-- File Upload Area --}}
-                <div class="form-group mb-4">
-                    <label class="form-label" style="font-weight:600; font-size:0.88rem;">Upload Video File</label>
-                    <div id="videoDropArea" style="border:2px dashed var(--border-color); border-radius:10px; padding:28px 20px; text-align:center; background:var(--bg-secondary); cursor:pointer; transition:border-color 0.2s ease;">
-                        <input type="file" name="campaign_video_file" id="campaign_video_file" accept="video/mp4,video/webm,video/ogg,video/quicktime" style="display:none;" onchange="handleVideoFileSelect(this)">
-                        <div id="uploadPlaceholder">
-                            <span style="font-size:2.2rem; display:block; margin-bottom:8px;">🎬</span>
-                            <div style="font-weight:600; font-size:0.95rem; color:var(--text-primary); margin-bottom:4px;">
-                                Click to select fashion campaign video or drag & drop
-                            </div>
-                            <div class="text-muted" style="font-size:0.8rem;">
-                                Supported formats: MP4, WebM, MOV · Max file size: 100MB
-                            </div>
-                        </div>
-                        <div id="selectedFileInfo" style="display:none; padding:10px; background:rgba(0,0,0,0.05); border-radius:8px;">
-                            <span style="font-weight:600; color:var(--text-primary);" id="selectedFileName"></span>
-                            <div class="text-muted" style="font-size:0.8rem; margin-top:2px;" id="selectedFileSize"></div>
-                            <video id="clientVideoPreview" controls style="max-width:100%; max-height:220px; margin-top:12px; border-radius:6px; display:none;"></video>
-                        </div>
+                    {{-- Direct Video URL (Optional Alternative) --}}
+                    <div class="form-group">
+                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">Or External Video Stream URL (Optional CDN link)</label>
+                        <input type="url" name="campaign_video_url" class="form-control" placeholder="https://cdn.example.com/editorial-campaign.mp4" value="{{ old('campaign_video_url', $settings['video_url']) }}">
+                        <small class="text-muted" style="font-size:0.78rem; display:block; margin-top:4px;">Direct link to an .mp4/.webm file hosted on AWS S3, Cloudflare R2, or CDN.</small>
                     </div>
-                </div>
-
-                {{-- Direct Video URL (Optional Alternative) --}}
-                <div class="form-group">
-                    <label class="form-label" style="font-weight:600; font-size:0.85rem;">Or External Video Stream URL (Optional CDN link)</label>
-                    <input type="url" name="campaign_video_url" class="form-control" placeholder="https://cdn.example.com/editorial-campaign.mp4" value="{{ old('campaign_video_url', $settings['video_url']) }}">
-                    <small class="text-muted" style="font-size:0.78rem; display:block; margin-top:4px;">Direct link to an .mp4/.webm file hosted on AWS S3, Cloudflare R2, or CDN.</small>
                 </div>
             </div>
 
             {{-- Apparel & Lookbook Copy Card --}}
-            <div class="card" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; padding:24px;">
-                <div class="card-header mb-3 pb-3" style="border-bottom:1px solid var(--border-light);">
-                    <h3 style="font-size:1.1rem; font-weight:600; margin:0;">Apparel & Editorial Copy</h3>
-                    <p class="text-muted" style="font-size:0.82rem; margin-top:2px;">Text accompanying the video to engage shoppers with the collection.</p>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 style="font-size:1.05rem; font-weight:700; margin:0; text-transform:uppercase; letter-spacing:0.04em;">Apparel & Editorial Copy</h3>
+                    <p class="text-muted" style="font-size:0.84rem; margin:6px 0 0 0; line-height:1.5;">
+                        Text accompanying the video to engage shoppers with the collection.
+                    </p>
                 </div>
-
-                <div class="form-group mb-3">
-                    <label class="form-label" style="font-weight:600; font-size:0.85rem;">Collection Badge / Tagline</label>
-                    <input type="text" name="campaign_video_badge" class="form-control" value="{{ old('campaign_video_badge', $settings['badge']) }}" placeholder="e.g. AUTUMN / WINTER 2026 · RUNWAY PREMIERE">
-                </div>
-
-                <div class="form-group mb-3">
-                    <label class="form-label" style="font-weight:600; font-size:0.85rem;">Campaign Headline <span style="color:#ef4444;">*</span></label>
-                    <input type="text" name="campaign_video_title" class="form-control" required value="{{ old('campaign_video_title', $settings['title']) }}" placeholder="e.g. THE NEW SILHOUETTE IN MOTION">
-                </div>
-
-                <div class="form-group mb-3">
-                    <label class="form-label" style="font-weight:600; font-size:0.85rem;">Description / Lookbook Notes</label>
-                    <textarea name="campaign_video_description" rows="3" class="form-control" placeholder="Describe the tailoring, fabric texture, styling, or craftsmanship...">{{ old('campaign_video_description', $settings['description']) }}</textarea>
-                </div>
-
-                <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-                    <div class="form-group">
-                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">CTA Button Label</label>
-                        <input type="text" name="campaign_video_cta_text" class="form-control" value="{{ old('campaign_video_cta_text', $settings['cta_text']) }}" placeholder="e.g. SHOP THE COLLECTION">
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">Collection Badge / Tagline</label>
+                        <input type="text" name="campaign_video_badge" class="form-control" value="{{ old('campaign_video_badge', $settings['badge']) }}" placeholder="e.g. AUTUMN / WINTER 2026 · RUNWAY PREMIERE">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">CTA Button Target URL</label>
-                        <input type="text" name="campaign_video_cta_url" class="form-control" value="{{ old('campaign_video_cta_url', $settings['cta_url']) }}" placeholder="/shop">
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">Campaign Headline <span style="color:#ef4444;">*</span></label>
+                        <input type="text" name="campaign_video_title" class="form-control" required value="{{ old('campaign_video_title', $settings['title']) }}" placeholder="e.g. THE NEW SILHOUETTE IN MOTION">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">Description / Lookbook Notes</label>
+                        <textarea name="campaign_video_description" rows="3" class="form-control" placeholder="Describe the tailoring, fabric texture, styling, or craftsmanship...">{{ old('campaign_video_description', $settings['description']) }}</textarea>
+                    </div>
+
+                    <div class="form-row" style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+                        <div class="form-group">
+                            <label class="form-label" style="font-weight:600; font-size:0.85rem;">CTA Button Label</label>
+                            <input type="text" name="campaign_video_cta_text" class="form-control" value="{{ old('campaign_video_cta_text', $settings['cta_text']) }}" placeholder="e.g. SHOP THE COLLECTION">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="font-weight:600; font-size:0.85rem;">CTA Button Target URL</label>
+                            <input type="text" name="campaign_video_cta_url" class="form-control" value="{{ old('campaign_video_cta_url', $settings['cta_url']) }}" placeholder="/shop">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -134,67 +140,70 @@
 
         {{-- Right Column: Timing & Rules Settings --}}
         <div>
-            <div class="card mb-4" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px; padding:24px;">
-                <div class="card-header mb-3 pb-3" style="border-bottom:1px solid var(--border-light);">
-                    <h3 style="font-size:1.1rem; font-weight:600; margin:0;">Timing & Display Rules</h3>
-                    <p class="text-muted" style="font-size:0.82rem; margin-top:2px;">Control when and how frequently the video emerges for visitors.</p>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 style="font-size:1.05rem; font-weight:700; margin:0; text-transform:uppercase; letter-spacing:0.04em;">Timing & Display Rules</h3>
+                    <p class="text-muted" style="font-size:0.84rem; margin:6px 0 0 0; line-height:1.5;">
+                        Control when and how frequently the video emerges for visitors.
+                    </p>
                 </div>
-
-                {{-- Active Switch --}}
-                <div class="form-group mb-4" style="padding:14px 16px; background:var(--bg-secondary); border-radius:8px; border:1px solid var(--border-light);">
-                    <label class="form-check" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin:0;">
-                        <div>
-                            <strong style="font-size:0.92rem; display:block; color:var(--text-primary);">Enable Campaign Video</strong>
-                            <span class="text-muted" style="font-size:0.8rem;">When enabled, the video will automatically introduce itself to visitors.</span>
-                        </div>
-                        <input type="checkbox" name="campaign_video_enabled" value="1" {{ old('campaign_video_enabled', $settings['enabled']) ? 'checked' : '' }} style="width:20px; height:20px; cursor:pointer;">
-                    </label>
-                </div>
-
-                {{-- Time Interval / Delay --}}
-                <div class="form-group mb-4">
-                    <label class="form-label" style="font-weight:600; font-size:0.88rem; display:flex; justify-content:space-between;">
-                        <span>Appearance Delay After Arrival:</span>
-                        <span id="delayDisplay" style="font-weight:700; color:var(--primary);">{{ old('campaign_video_delay', $settings['delay']) }} seconds</span>
-                    </label>
-                    <input type="range" name="campaign_video_delay" id="delaySlider" min="1" max="60" step="1" value="{{ old('campaign_video_delay', $settings['delay']) }}" class="form-control" style="cursor:pointer;" oninput="document.getElementById('delayDisplay').innerText = this.value + ' seconds'">
-                    <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
-                        <span>1s (Instant)</span>
-                        <span>5s (Recommended)</span>
-                        <span>15s</span>
-                        <span>60s</span>
+                <div class="card-body">
+                    {{-- Active Switch --}}
+                    <div class="form-group mb-4" style="padding:14px 16px; background:var(--bg-secondary); border-radius:8px; border:1px solid var(--border-light);">
+                        <label class="form-check" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin:0;">
+                            <div>
+                                <strong style="font-size:0.92rem; display:block; color:var(--text-primary);">Enable Campaign Video</strong>
+                                <span class="text-muted" style="font-size:0.8rem;">When enabled, the video will automatically introduce itself to visitors.</span>
+                            </div>
+                            <input type="checkbox" name="campaign_video_enabled" value="1" {{ old('campaign_video_enabled', $settings['enabled']) ? 'checked' : '' }} style="width:20px; height:20px; cursor:pointer;">
+                        </label>
                     </div>
-                    <small class="text-muted" style="font-size:0.78rem; display:block; margin-top:8px;">
-                        The cinematic video smoothly transitions in after the shopper has been on the site for this duration.
-                    </small>
-                </div>
 
-                {{-- Target Page Selection --}}
-                <div class="form-group mb-4">
-                    <label class="form-label" style="font-weight:600; font-size:0.85rem;">Display Location</label>
-                    <select name="campaign_video_target_page" class="form-control">
-                        <option value="homepage" {{ old('campaign_video_target_page', $settings['target_page']) === 'homepage' ? 'selected' : '' }}>Homepage Only (Recommended for lookbooks)</option>
-                        <option value="all" {{ old('campaign_video_target_page', $settings['target_page']) === 'all' ? 'selected' : '' }}>All Storefront Pages</option>
-                    </select>
-                </div>
+                    {{-- Time Interval / Delay --}}
+                    <div class="form-group mb-4">
+                        <label class="form-label" style="font-weight:600; font-size:0.88rem; display:flex; justify-content:space-between;">
+                            <span>Appearance Delay After Arrival:</span>
+                            <span id="delayDisplay" style="font-weight:700; color:var(--primary);">{{ old('campaign_video_delay', $settings['delay']) }} seconds</span>
+                        </label>
+                        <input type="range" name="campaign_video_delay" id="delaySlider" min="1" max="60" step="1" value="{{ old('campaign_video_delay', $settings['delay']) }}" class="form-control" style="cursor:pointer;" oninput="document.getElementById('delayDisplay').innerText = this.value + ' seconds'">
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
+                            <span>1s (Instant)</span>
+                            <span>5s (Recommended)</span>
+                            <span>15s</span>
+                            <span>60s</span>
+                        </div>
+                        <small class="text-muted" style="font-size:0.78rem; display:block; margin-top:8px;">
+                            The cinematic video smoothly transitions in after the shopper has been on the site for this duration.
+                        </small>
+                    </div>
 
-                {{-- Frequency Rule --}}
-                <div class="form-group mb-4">
-                    <label class="form-label" style="font-weight:600; font-size:0.85rem;">Visitor Display Frequency</label>
-                    <select name="campaign_video_frequency" class="form-control">
-                        <option value="once_per_session" {{ old('campaign_video_frequency', $settings['frequency']) === 'once_per_session' ? 'selected' : '' }}>Once Per Browsing Session (Recommended)</option>
-                        <option value="always" {{ old('campaign_video_frequency', $settings['frequency']) === 'always' ? 'selected' : '' }}>Every Visit (Always trigger after delay)</option>
-                        <option value="once_per_day" {{ old('campaign_video_frequency', $settings['frequency']) === 'once_per_day' ? 'selected' : '' }}>Once Every 24 Hours</option>
-                    </select>
-                    <small class="text-muted" style="font-size:0.78rem; display:block; margin-top:4px;">
-                        Even after closing, visitors can re-watch the video anytime via the sleek floating campaign button.
-                    </small>
-                </div>
+                    {{-- Target Page Selection --}}
+                    <div class="form-group mb-4">
+                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">Display Location</label>
+                        <select name="campaign_video_target_page" class="form-control">
+                            <option value="homepage" {{ old('campaign_video_target_page', $settings['target_page']) === 'homepage' ? 'selected' : '' }}>Homepage Only (Recommended for lookbooks)</option>
+                            <option value="all" {{ old('campaign_video_target_page', $settings['target_page']) === 'all' ? 'selected' : '' }}>All Storefront Pages</option>
+                        </select>
+                    </div>
 
-                {{-- Submit Button --}}
-                <button type="submit" class="btn btn-primary btn-lg w-100" style="padding:14px; font-weight:700; letter-spacing:0.05em;">
-                    SAVE SETTINGS & VIDEO
-                </button>
+                    {{-- Frequency Rule --}}
+                    <div class="form-group mb-4">
+                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">Visitor Display Frequency</label>
+                        <select name="campaign_video_frequency" class="form-control">
+                            <option value="once_per_session" {{ old('campaign_video_frequency', $settings['frequency']) === 'once_per_session' ? 'selected' : '' }}>Once Per Browsing Session (Recommended)</option>
+                            <option value="always" {{ old('campaign_video_frequency', $settings['frequency']) === 'always' ? 'selected' : '' }}>Every Visit (Always trigger after delay)</option>
+                            <option value="once_per_day" {{ old('campaign_video_frequency', $settings['frequency']) === 'once_per_day' ? 'selected' : '' }}>Once Every 24 Hours</option>
+                        </select>
+                        <small class="text-muted" style="font-size:0.78rem; display:block; margin-top:4px;">
+                            Even after closing, visitors can re-watch the video anytime via the sleek floating campaign button.
+                        </small>
+                    </div>
+
+                    {{-- Submit Button --}}
+                    <button type="submit" class="btn btn-primary btn-lg w-100" style="padding:14px; font-weight:700; letter-spacing:0.05em;">
+                        SAVE SETTINGS & VIDEO
+                    </button>
+                </div>
             </div>
         </div>
 
