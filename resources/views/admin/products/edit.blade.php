@@ -261,6 +261,24 @@
 @endsection
 
 @push('scripts')
+@php
+    $initialColors = old('colors_json') 
+        ? json_decode(old('colors_json'), true) 
+        : ($product->colors_list ?? []);
+    if (!is_array($initialColors) || empty($initialColors)) {
+        $initialColors = [
+            ['name' => 'Grey', 'code' => '#737373', 'existing_images' => []],
+            ['name' => 'Black', 'code' => '#000000', 'existing_images' => []],
+        ];
+    }
+
+    $initialSizes = old('sizes_json') 
+        ? json_decode(old('sizes_json'), true) 
+        : (!empty($product->sizes_list) ? $product->sizes_list : ['XS', 'S', 'M', 'L', 'XL']);
+    if (!is_array($initialSizes)) {
+        $initialSizes = ['XS', 'S', 'M', 'L', 'XL'];
+    }
+@endphp
 <script>
 const imageInput = document.getElementById('product-images-input');
 const dropzone = document.getElementById('image-dropzone');
@@ -373,7 +391,7 @@ dropzone.addEventListener('drop', (e) => {
 });
 
 // ─── Color Variations & Per-Color Image Galleries Logic ───────────────
-let productColors = @json(old('colors_json') ? json_decode(old('colors_json'), true) : ($product->colors_list ?? []));
+let productColors = {!! json_encode($initialColors) !!};
 if (!Array.isArray(productColors) || productColors.length === 0) {
     productColors = [
         { name: 'Grey', code: '#737373', existing_images: [] },
@@ -734,7 +752,7 @@ function assignExistingImageToActiveColor(imgPath) {
 }
 
 // ─── Dynamic Sizes & Dimensions Logic ─────────────────────────────────
-let productSizes = @json(old('sizes_json') ? json_decode(old('sizes_json'), true) : ($product->sizes_list ?? ['XS', 'S', 'M', 'L', 'XL']));
+let productSizes = {!! json_encode($initialSizes) !!};
 if (!Array.isArray(productSizes)) productSizes = ['XS', 'S', 'M', 'L', 'XL'];
 
 function updateSizesUI() {
