@@ -25,6 +25,7 @@ class CartController extends Controller
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'integer|min:1',
+            'color' => 'nullable|string|max:100',
         ]);
 
         $product = Product::findOrFail($request->product_id);
@@ -33,9 +34,16 @@ class CartController extends Controller
             return back()->with('error', 'This product is out of stock.');
         }
 
-        $this->cartService->addItem($product, $request->input('quantity', 1));
+        $color = $request->input('color');
+        // If product has colors defined and no color was selected, pick the first color as default
+        if (empty($color) && !empty($product->colors_list)) {
+            $color = $product->colors_list[0]['name'] ?? null;
+        }
 
-        return redirect()->route('cart.index')->with('success', "{$product->name} added to cart!");
+        $this->cartService->addItem($product, $request->input('quantity', 1), $color);
+
+        $colorNotice = $color ? " ({$color})" : "";
+        return redirect()->route('cart.index')->with('success', "{$product->name}{$colorNotice} added to cart!");
     }
 
     public function update(Request $request, int $itemId)

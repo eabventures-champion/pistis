@@ -18,7 +18,12 @@
                         <div class="d-flex align-center gap-3" style="padding:12px 20px;border-bottom:1px solid var(--border-color);">
                             <div class="flex-1">
                                 <div style="font-weight:600;color:var(--text-primary);">{{ $item->product_name }}</div>
-                                <div class="text-muted" style="font-size:0.8rem;">SKU: {{ $item->product_sku }} • Qty: {{ $item->quantity }}</div>
+                                <div class="text-muted" style="font-size:0.8rem;">
+                                    SKU: {{ $item->product_sku }} • Qty: {{ $item->quantity }}
+                                    @if($item->color)
+                                        • Color: <span style="color:#000000;font-weight:600;text-transform:uppercase;">{{ $item->color }}</span>
+                                    @endif
+                                </div>
                             </div>
                             <div style="font-weight:600;color:var(--text-primary);">{{ $currency_symbol }}{{ number_format($item->total, 2) }}</div>
                         </div>

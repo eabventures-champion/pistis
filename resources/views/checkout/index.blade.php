@@ -88,7 +88,12 @@
                         <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #e5e5e5;">
                             <div>
                                 <div style="font-size:0.85rem;color:#000000;">{{ $item->product->name }}</div>
-                                <div style="font-size:0.7rem;color:#a3a3a3;letter-spacing:0.05em;text-transform:uppercase;">Qty: {{ $item->quantity }}</div>
+                                <div style="font-size:0.7rem;color:#a3a3a3;letter-spacing:0.05em;text-transform:uppercase;">
+                                    Qty: {{ $item->quantity }}
+                                    @if($item->color)
+                                        &nbsp;·&nbsp; Color: {{ $item->color }}
+                                    @endif
+                                </div>
                             </div>
                             <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:#000000;">{{ $currency_symbol }}{{ number_format($item->subtotal, 2) }}</div>
                         </div>

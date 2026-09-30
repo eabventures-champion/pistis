@@ -50,7 +50,12 @@
                     <div class="d-flex align-center gap-3" style="padding:12px 20px;border-bottom:1px solid var(--border-color);">
                         <div class="flex-1">
                             <div style="font-weight:600;color:var(--text-primary);">{{ $item->product_name }}</div>
-                            <div class="text-muted" style="font-size:0.8rem;">SKU: {{ $item->product_sku }} • Qty: {{ $item->quantity }} × {{ $currency_symbol }}{{ number_format($item->price, 2) }}</div>
+                            <div class="text-muted" style="font-size:0.8rem;">
+                                SKU: {{ $item->product_sku }} • Qty: {{ $item->quantity }} × {{ $currency_symbol }}{{ number_format($item->price, 2) }}
+                                @if($item->color)
+                                    • Color: <span class="badge badge-secondary" style="font-size:0.75rem;padding:2px 8px;text-transform:uppercase;">{{ $item->color }}</span>
+                                @endif
+                            </div>
                         </div>
                         <div style="font-weight:600;color:var(--text-primary);">{{ $currency_symbol }}{{ number_format($item->total, 2) }}</div>
                     </div>

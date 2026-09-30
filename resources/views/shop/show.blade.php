@@ -105,11 +105,46 @@
             @endif
 
             @if($product->is_in_stock)
-                <form action="{{ route('cart.add') }}" method="POST" class="add-to-cart-form" style="display:flex;gap:12px;align-items:stretch;margin-bottom:20px;">
+                <form action="{{ route('cart.add') }}" method="POST" class="add-to-cart-form" style="margin-bottom:20px;">
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
-                    <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock_quantity }}" class="form-control qty-input" style="width:72px;text-align:center;border:1px solid #e5e5e5;border-radius:0;">
-                    <button type="submit" class="btn btn-primary btn-lg flex-1" style="border-radius:0;letter-spacing:0.15em;font-size:0.8rem;">ADD TO BAG</button>
+
+                    {{-- Piece Colors Selector --}}
+                    @if(!empty($product->colors_list) && count($product->colors_list) > 0)
+                        <div class="product-color-selector" style="margin-bottom:24px;">
+                            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
+                                <span style="font-family:'Inter',sans-serif;font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;color:#000000;">
+                                    COLOR &mdash; <strong id="selected-color-label" style="font-weight:600;letter-spacing:0.1em;">{{ $product->colors_list[0]['name'] }}</strong>
+                                </span>
+                                <span style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:#a3a3a3;">
+                                    {{ count($product->colors_list) }} {{ count($product->colors_list) === 1 ? 'COLOR' : 'COLORS' }}
+                                </span>
+                            </div>
+
+                            <div class="color-swatches-container" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
+                                @foreach($product->colors_list as $index => $color)
+                                    <button type="button" 
+                                            class="color-swatch-option {{ $index === 0 ? 'active' : '' }}"
+                                            data-color-name="{{ $color['name'] }}"
+                                            data-color-code="{{ $color['code'] }}"
+                                            data-color-index="{{ $index }}"
+                                            onclick="selectProductColor(this, '{{ addslashes($color['name']) }}', {{ $index }})"
+                                            title="{{ $color['name'] }}"
+                                            aria-label="Select {{ $color['name'] }}"
+                                            style="all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:6px 14px 6px 7px;border:1px solid {{ $index === 0 ? '#000000' : '#e5e5e5' }};background:{{ $index === 0 ? '#000000' : '#ffffff' }};color:{{ $index === 0 ? '#ffffff' : '#000000' }};transition:all 0.2s ease;">
+                                        <span class="swatch-circle" style="width:18px;height:18px;border-radius:50%;background:{{ $color['code'] }};border:1px solid {{ strtolower($color['code']) === '#ffffff' ? '#d4d4d8' : 'rgba(0,0,0,0.15)' }};display:inline-block;flex-shrink:0;box-shadow:inset 0 1px 2px rgba(0,0,0,0.15);"></span>
+                                        <span class="swatch-name" style="font-family:'Inter',sans-serif;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:500;">{{ $color['name'] }}</span>
+                                    </button>
+                                @endforeach
+                            </div>
+                            <input type="hidden" name="color" id="product-selected-color-input" value="{{ $product->colors_list[0]['name'] }}">
+                        </div>
+                    @endif
+
+                    <div style="display:flex;gap:12px;align-items:stretch;">
+                        <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock_quantity }}" class="form-control qty-input" style="width:72px;text-align:center;border:1px solid #e5e5e5;border-radius:0;">
+                        <button type="submit" class="btn btn-primary btn-lg flex-1" style="border-radius:0;letter-spacing:0.15em;font-size:0.8rem;">ADD TO BAG</button>
+                    </div>
                 </form>
             @else
                 <button class="btn btn-secondary btn-lg w-100" disabled style="border-radius:0;letter-spacing:0.15em;font-size:0.8rem;">SOLD OUT</button>
@@ -346,6 +381,54 @@
     window.navigateLightbox = function(direction) {
         navigateGallery(direction);
         updateLightbox();
+    };
+
+    // ─── Color Variant Selection ────────────────────────────────
+    window.selectProductColor = function(btn, colorName, colorIndex) {
+        document.querySelectorAll('.color-swatch-option').forEach(el => {
+            el.classList.remove('active');
+            el.style.background = '#ffffff';
+            el.style.color = '#000000';
+            el.style.borderColor = '#e5e5e5';
+        });
+
+        btn.classList.add('active');
+        btn.style.background = '#000000';
+        btn.style.color = '#ffffff';
+        btn.style.borderColor = '#000000';
+
+        const label = document.getElementById('selected-color-label');
+        if (label) {
+            label.textContent = colorName;
+        }
+
+        const input = document.getElementById('product-selected-color-input');
+        if (input) {
+            input.value = colorName;
+        }
+
+        // If gallery images exist, attempt to jump to matching photo
+        if (typeof window.selectGalleryImage === 'function' && typeof images !== 'undefined' && images.length > 1) {
+            const lowerColor = colorName.toLowerCase();
+            let targetIndex = -1;
+            for (let i = 0; i < images.length; i++) {
+                if (images[i].toLowerCase().includes(lowerColor)) {
+                    targetIndex = i;
+                    break;
+                }
+            }
+            if (targetIndex === -1 && typeof colorIndex !== 'undefined') {
+                const swatches = document.querySelectorAll('.color-swatch-option');
+                const totalSwatches = swatches.length;
+                if (totalSwatches > 1 && images.length >= totalSwatches) {
+                    const step = Math.floor(images.length / totalSwatches);
+                    targetIndex = Math.min(colorIndex * step, images.length - 1);
+                }
+            }
+            if (targetIndex >= 0 && targetIndex < images.length) {
+                window.selectGalleryImage(targetIndex);
+            }
+        }
     };
 
     // Keyboard Navigation

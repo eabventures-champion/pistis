@@ -64,6 +64,7 @@ class ProductController extends Controller
         $validated['slug'] = Str::slug($validated['name']);
         $validated['featured'] = $request->boolean('featured');
         $validated['shopify_sync_enabled'] = $request->boolean('shopify_sync_enabled', true);
+        $validated['colors'] = $this->extractColorsFromRequest($request);
 
         // Handle image uploads
         $imagePaths = [];
@@ -115,6 +116,7 @@ class ProductController extends Controller
         $validated['slug'] = Str::slug($validated['name']);
         $validated['featured'] = $request->boolean('featured');
         $validated['shopify_sync_enabled'] = $request->boolean('shopify_sync_enabled', true);
+        $validated['colors'] = $this->extractColorsFromRequest($request);
 
         // Handle existing images and removals
         $existingImages = is_array($product->images) ? $product->images : [];
@@ -155,6 +157,46 @@ class ProductController extends Controller
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product updated successfully!');
+    }
+
+    private function extractColorsFromRequest(Request $request): ?array
+    {
+        $colors = [];
+        if ($request->filled('colors_json')) {
+            $decoded = json_decode($request->input('colors_json'), true);
+            if (is_array($decoded)) {
+                $colors = $decoded;
+            }
+        } elseif ($request->has('colors') && is_array($request->input('colors'))) {
+            $colors = $request->input('colors');
+        }
+
+        $processedColors = [];
+        foreach ($colors as $c) {
+            if (is_array($c)) {
+                $name = trim($c['name'] ?? '');
+                if ($name !== '') {
+                    $code = trim($c['code'] ?? '');
+                    if ($code === '' || $code === '#') {
+                        $code = Product::defaultHexForColorName($name);
+                    }
+                    $processedColors[] = [
+                        'name' => $name,
+                        'code' => $code,
+                    ];
+                }
+            } elseif (is_string($c)) {
+                $name = trim($c);
+                if ($name !== '') {
+                    $processedColors[] = [
+                        'name' => $name,
+                        'code' => Product::defaultHexForColorName($name),
+                    ];
+                }
+            }
+        }
+
+        return !empty($processedColors) ? $processedColors : null;
     }
 
     public function destroy(Product $product)

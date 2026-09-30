@@ -162,6 +162,7 @@ class CheckoutController extends Controller
                 'product_id' => $cartItem->product_id,
                 'product_name' => $cartItem->product->name,
                 'product_sku' => $cartItem->product->sku,
+                'color' => $cartItem->color,
                 'quantity' => $cartItem->quantity,
                 'price' => $cartItem->price,
                 'total' => $cartItem->price * $cartItem->quantity,

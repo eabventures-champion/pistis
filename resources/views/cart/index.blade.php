@@ -27,6 +27,9 @@
                             <a href="{{ route('shop.show', $item->product->slug) }}" style="text-decoration:none;">
                                 <div style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:#000000;margin-bottom:4px;">{{ $item->product->name }}</div>
                             </a>
+                            @if($item->color)
+                                <div style="font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:#737373;margin-bottom:4px;">COLOR: <strong style="color:#000000;font-weight:600;">{{ $item->color }}</strong></div>
+                            @endif
                             <div style="font-size:0.75rem;color:#737373;letter-spacing:0.05em;">{{ $currency_symbol }}{{ number_format($item->price, 2) }} each</div>
                         </div>
                         <div class="cart-item-quantity">

@@ -41,11 +41,17 @@ class CartService
     /**
      * Add a product to the cart
      */
-    public function addItem(Product $product, int $quantity = 1): CartItem
+    public function addItem(Product $product, int $quantity = 1, ?string $color = null): CartItem
     {
         $cart = $this->getCart();
 
-        $existingItem = $cart->items()->where('product_id', $product->id)->first();
+        $query = $cart->items()->where('product_id', $product->id);
+        if ($color !== null && $color !== '') {
+            $query->where('color', $color);
+        } else {
+            $query->whereNull('color');
+        }
+        $existingItem = $query->first();
 
         if ($existingItem) {
             $newQuantity = $existingItem->quantity + $quantity;
@@ -60,6 +66,7 @@ class CartService
 
         return $cart->items()->create([
             'product_id' => $product->id,
+            'color' => $color ?: null,
             'quantity' => $quantity,
             'price' => $product->price,
         ]);
