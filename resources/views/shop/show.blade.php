@@ -181,7 +181,7 @@
                         <button type="submit" class="btn btn-primary btn-lg flex-1 add-to-bag-button" style="height:50px;border-radius:0;letter-spacing:0.18em;font-size:0.82rem;font-weight:600;background:#000000;color:#ffffff;display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s ease;">
                             <span>ADD TO BAG</span>
                             <span style="opacity:0.35;">·</span>
-                            <span>{{ $product->formatted_price }}</span>
+                            <span id="pdp-add-to-bag-price">{{ $product->formatted_price }}</span>
                         </button>
                     </div>
                 </form>
@@ -256,6 +256,8 @@
 @push('scripts')
 <script>
 (function() {
+    const unitPrice = {{ (float) $product->price }};
+    const currencySymbol = @json(\App\Models\Setting::get('currency_symbol', '$'));
     let images = @json($galleryImages);
     const colorGalleries = @json($product->color_galleries);
     let currentIndex = 0;
@@ -561,13 +563,25 @@
         }
     };
 
-    // ─── Quantity Stepper Logic ────────────────────────────────
+    // ─── Quantity Stepper & Dynamic Total Calculation ──────────
+    function updateAddToBagPrice(quantity) {
+        const priceEl = document.getElementById('pdp-add-to-bag-price');
+        if (!priceEl) return;
+        const total = (unitPrice * quantity).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+        priceEl.textContent = `${currencySymbol}${total}`;
+    }
+
     window.incrementQty = function(max) {
         const input = document.getElementById('pdp-quantity-input');
         if (!input) return;
         let val = parseInt(input.value, 10) || 1;
         if (!max || val < max) {
-            input.value = val + 1;
+            val = val + 1;
+            input.value = val;
+            updateAddToBagPrice(val);
         }
     };
 
@@ -576,9 +590,26 @@
         if (!input) return;
         let val = parseInt(input.value, 10) || 1;
         if (val > 1) {
-            input.value = val - 1;
+            val = val - 1;
+            input.value = val;
+            updateAddToBagPrice(val);
         }
     };
+
+    const qtyInput = document.getElementById('pdp-quantity-input');
+    if (qtyInput) {
+        qtyInput.addEventListener('input', function() {
+            let val = parseInt(this.value, 10);
+            if (isNaN(val) || val < 1) val = 1;
+            updateAddToBagPrice(val);
+        });
+        qtyInput.addEventListener('change', function() {
+            let val = parseInt(this.value, 10);
+            if (isNaN(val) || val < 1) val = 1;
+            this.value = val;
+            updateAddToBagPrice(val);
+        });
+    }
 
     // Keyboard Navigation
     document.addEventListener('keydown', function(e) {
