@@ -141,8 +141,15 @@
             <div class="container">
                 <div class="footer-grid">
                     <div class="footer-brand">
-                        <div class="brand-title">PISTIS</div>
-                        <p>Architectural silhouettes and timeless luxury essentials designed for modern permanence.</p>
+                        <a href="{{ route('home') }}" class="footer-brand-header" style="display:inline-flex;align-items:center;gap:14px;text-decoration:none;margin-bottom:16px;">
+                            @if(!empty($store_logo))
+                                <img src="{{ $store_logo }}" alt="{{ $store_name ?? 'PISTIS' }}" class="footer-logo-img" style="height:44px;width:44px;object-fit:contain;border-radius:50%;border:1px solid rgba(255,255,255,0.25);background:#000000;display:block;flex-shrink:0;">
+                            @else
+                                <span class="brand-icon" style="width:40px;height:40px;border-radius:50%;background:#ffffff;color:#000000;display:inline-flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.2rem;flex-shrink:0;">P</span>
+                            @endif
+                            <span class="brand-title" style="font-family:'Inter',sans-serif;font-size:1.25rem;font-weight:800;letter-spacing:0.28em;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;text-transform:uppercase;margin:0;">{{ $store_name ?? 'PISTIS' }}</span>
+                        </a>
+                        <p style="font-size:0.85rem;line-height:1.8;color:#a3a3a3 !important;-webkit-text-fill-color:#a3a3a3 !important;max-width:320px;margin:0;">Architectural silhouettes and timeless luxury essentials designed for modern permanence.</p>
                     </div>
                     <div class="footer-col">
                         <h4>Collection</h4>

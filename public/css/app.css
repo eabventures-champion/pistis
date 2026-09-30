@@ -2097,14 +2097,14 @@ textarea.form-control {
 }
 
 .footer-brand {
-    font-family: 'Outfit', sans-serif;
-    font-size: 1.3rem;
-    font-weight: 800;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    -webkit-text-fill-color: initial !important;
+    background-clip: initial !important;
 }
 
 .footer-desc {
@@ -3477,16 +3477,48 @@ body.sidebar-collapsed .admin-main {
     font-size: 1.25rem;
     font-weight: 800;
     letter-spacing: 0.28em;
-    color: #ffffff;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
     text-transform: uppercase;
+    margin-bottom: 0;
+}
+
+.footer-brand-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
     margin-bottom: 16px;
+}
+
+.footer-brand-header:hover {
+    text-decoration: none;
+}
+
+.footer-brand-header .footer-logo-img {
+    height: 44px;
+    width: 44px;
+    object-fit: contain;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: #000000;
+    display: block;
+    flex-shrink: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.footer-brand-header:hover .footer-logo-img {
+    opacity: 0.85;
+    transform: scale(1.04);
 }
 
 .footer-brand p {
     font-size: 0.85rem;
     line-height: 1.8;
-    color: #8a8a8a;
+    color: #a3a3a3 !important;
+    -webkit-text-fill-color: #a3a3a3 !important;
     max-width: 320px;
+    margin: 0;
 }
 
 .footer-col h4 {
