@@ -57,7 +57,7 @@
                 <div class="card-header d-flex justify-between align-center">
                     <div>
                         <h3 style="font-size:1rem;margin:0;">Piece Colors & Palette</h3>
-                        <p class="text-muted" style="font-size:0.75rem;margin:4px 0 0;">Default colors are <strong>Grey</strong> and <strong>Black</strong>. Add dynamic extra colors or select from presets.</p>
+                        <p class="text-muted" style="font-size:0.75rem;margin:4px 0 0;">Default colors are <strong>Grey</strong> and <strong>Black</strong>. Add dynamic custom colors below.</p>
                     </div>
                 </div>
                 <div class="card-body">
@@ -66,37 +66,6 @@
                         <label class="form-label" style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-secondary);">Active Piece Colors</label>
                         <div id="selected-colors-container" style="display:flex;flex-wrap:wrap;gap:10px;min-height:42px;align-items:center;background:#fafafa;padding:12px;border:1px solid #e5e5e5;border-radius:4px;">
                             {{-- Populated by JavaScript --}}
-                        </div>
-                    </div>
-
-                    {{-- Quick Palette Presets --}}
-                    <div style="margin-bottom:18px;">
-                        <span style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:#737373;display:block;margin-bottom:8px;">Quick Color Presets</span>
-                        <div style="display:flex;flex-wrap:wrap;gap:8px;">
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="togglePresetColor('Grey', '#737373')" style="font-size:0.75rem;display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;">
-                                <span style="width:12px;height:12px;border-radius:50%;background:#737373;display:inline-block;border:1px solid rgba(0,0,0,0.2);"></span> Grey
-                            </button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="togglePresetColor('Black', '#000000')" style="font-size:0.75rem;display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;">
-                                <span style="width:12px;height:12px;border-radius:50%;background:#000000;display:inline-block;border:1px solid rgba(255,255,255,0.3);"></span> Black
-                            </button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="togglePresetColor('Off-White', '#F5F5F0')" style="font-size:0.75rem;display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;">
-                                <span style="width:12px;height:12px;border-radius:50%;background:#F5F5F0;display:inline-block;border:1px solid #d4d4d8;"></span> Off-White
-                            </button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="togglePresetColor('Charcoal', '#262626')" style="font-size:0.75rem;display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;">
-                                <span style="width:12px;height:12px;border-radius:50%;background:#262626;display:inline-block;"></span> Charcoal
-                            </button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="togglePresetColor('Navy', '#0F172A')" style="font-size:0.75rem;display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;">
-                                <span style="width:12px;height:12px;border-radius:50%;background:#0F172A;display:inline-block;"></span> Navy
-                            </button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="togglePresetColor('Olive', '#3D4A3E')" style="font-size:0.75rem;display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;">
-                                <span style="width:12px;height:12px;border-radius:50%;background:#3D4A3E;display:inline-block;"></span> Olive
-                            </button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="togglePresetColor('Mocha', '#5C4033')" style="font-size:0.75rem;display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;">
-                                <span style="width:12px;height:12px;border-radius:50%;background:#5C4033;display:inline-block;"></span> Mocha
-                            </button>
-                            <button type="button" class="btn btn-secondary btn-sm" onclick="togglePresetColor('Sand', '#C2B280')" style="font-size:0.75rem;display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;">
-                                <span style="width:12px;height:12px;border-radius:50%;background:#C2B280;display:inline-block;"></span> Sand
-                            </button>
                         </div>
                     </div>
 
@@ -157,18 +126,6 @@
                         <label class="form-label" style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-secondary);">Active Available Sizes</label>
                         <div id="selected-sizes-container" style="display:flex;flex-wrap:wrap;gap:8px;min-height:42px;align-items:center;background:#fafafa;padding:12px;border:1px solid #e5e5e5;border-radius:4px;">
                             {{-- Populated by JavaScript --}}
-                        </div>
-                    </div>
-
-                    {{-- Quick Size Presets --}}
-                    <div style="margin-bottom:18px;">
-                        <span style="font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:#737373;display:block;margin-bottom:8px;">Quick Size Presets</span>
-                        <div style="display:flex;flex-wrap:wrap;gap:6px;" id="size-presets-container">
-                            @foreach(['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', 'One Size', '28', '30', '32', '34', '36'] as $presetSize)
-                                <button type="button" class="btn btn-secondary btn-sm size-preset-btn" data-size="{{ $presetSize }}" onclick="togglePresetSize('{{ $presetSize }}')" style="font-size:0.75rem;padding:4px 10px;border-radius:3px;">
-                                    {{ $presetSize }}
-                                </button>
-                            @endforeach
                         </div>
                     </div>
 
@@ -716,7 +673,7 @@ function updateSizesUI() {
     input.value = JSON.stringify(productSizes);
 
     if (productSizes.length === 0) {
-        container.innerHTML = '<span class="text-muted" style="font-size:0.8rem;font-style:italic;">No sizes specified. Click a preset size or enter a custom size above.</span>';
+        container.innerHTML = '<span class="text-muted" style="font-size:0.8rem;font-style:italic;">No sizes specified. Enter a custom size below to add.</span>';
     } else {
         container.innerHTML = productSizes.map((s, idx) => `
             <div class="size-chip" style="display:inline-flex;align-items:center;gap:6px;background:#ffffff;border:1px solid #171717;border-radius:4px;padding:4px 10px;box-shadow:0 1px 2px rgba(0,0,0,0.05);">
@@ -725,15 +682,6 @@ function updateSizesUI() {
             </div>
         `).join('');
     }
-
-    // Sync Preset Buttons Active State
-    document.querySelectorAll('.size-preset-btn').forEach(btn => {
-        const sizeVal = btn.dataset.size;
-        const isActive = productSizes.includes(sizeVal);
-        btn.style.background = isActive ? '#000000' : '#ffffff';
-        btn.style.color = isActive ? '#ffffff' : '#000000';
-        btn.style.borderColor = isActive ? '#000000' : '#e5e5e5';
-    });
 }
 
 function togglePresetSize(size) {
