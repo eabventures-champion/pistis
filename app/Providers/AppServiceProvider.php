@@ -63,6 +63,9 @@ class AppServiceProvider extends ServiceProvider
                     try {
                         $pendingOrdersCount = \App\Models\Order::whereIn('status', ['pending', 'processing'])->active()->count();
                         $totalOrdersCount = \App\Models\Order::count();
+                        $sidebarProductsCount = \App\Models\Product::count();
+                        $sidebarCategoriesCount = \App\Models\Category::count();
+                        $sidebarCustomersCount = \App\Models\Customer::count();
                         $recentNotifications = \App\Models\Order::with('customer')
                             ->latest()
                             ->take(6)
@@ -72,6 +75,9 @@ class AppServiceProvider extends ServiceProvider
                         $view->with([
                             'pendingOrdersCount' => $pendingOrdersCount,
                             'totalOrdersCount' => $totalOrdersCount,
+                            'sidebarProductsCount' => $sidebarProductsCount,
+                            'sidebarCategoriesCount' => $sidebarCategoriesCount,
+                            'sidebarCustomersCount' => $sidebarCustomersCount,
                             'recentNotifications' => $recentNotifications,
                             'unviewedOrdersCount' => $unviewedOrdersCount,
                         ]);
@@ -79,6 +85,9 @@ class AppServiceProvider extends ServiceProvider
                         $view->with([
                             'pendingOrdersCount' => 0,
                             'totalOrdersCount' => 0,
+                            'sidebarProductsCount' => 0,
+                            'sidebarCategoriesCount' => 0,
+                            'sidebarCustomersCount' => 0,
                             'recentNotifications' => collect(),
                             'unviewedOrdersCount' => 0,
                         ]);

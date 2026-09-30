@@ -51,11 +51,13 @@
                 <li>
                     <a href="{{ route('admin.products.index') }}" class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}" title="Products">
                         <span class="icon">📦</span> <span class="menu-label">Products</span>
+                        <span class="sidebar-badge black-badge" title="{{ $sidebarProductsCount ?? 0 }} Products">{{ $sidebarProductsCount ?? 0 }}</span>
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('admin.categories.index') }}" class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}" title="Categories">
                         <span class="icon">🏷️</span> <span class="menu-label">Categories</span>
+                        <span class="sidebar-badge black-badge" title="{{ $sidebarCategoriesCount ?? 0 }} Categories">{{ $sidebarCategoriesCount ?? 0 }}</span>
                     </a>
                 </li>
 
@@ -65,15 +67,16 @@
                         <span class="icon">🛍️</span>
                         <span class="menu-label">Orders</span>
                         @if(($pendingOrdersCount ?? 0) > 0)
-                            <span class="sidebar-order-badge has-pending" title="{{ $pendingOrdersCount }} Pending / Processing Orders">{{ $pendingOrdersCount }}</span>
+                            <span class="sidebar-badge black-badge has-pending" title="{{ $pendingOrdersCount }} Pending / Processing Orders">{{ $pendingOrdersCount }}</span>
                         @elseif(($totalOrdersCount ?? 0) > 0)
-                            <span class="sidebar-order-badge" title="{{ $totalOrdersCount }} Total Orders">{{ $totalOrdersCount }}</span>
+                            <span class="sidebar-badge black-badge" title="{{ $totalOrdersCount }} Total Orders">{{ $totalOrdersCount }}</span>
                         @endif
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('admin.customers.index') }}" class="{{ request()->routeIs('admin.customers.*') ? 'active' : '' }}" title="Customers">
                         <span class="icon">👥</span> <span class="menu-label">Customers</span>
+                        <span class="sidebar-badge black-badge" title="{{ $sidebarCustomersCount ?? 0 }} Customers">{{ $sidebarCustomersCount ?? 0 }}</span>
                     </a>
                 </li>
 

@@ -2333,37 +2333,53 @@ body.sidebar-collapsed .sidebar-menu a {
     position: relative;
 }
 
+.sidebar-badge,
 .sidebar-order-badge {
     margin-left: auto;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     font-weight: 700;
     padding: 2px 7px;
-    border-radius: 12px;
-    background: #e2e8f0;
-    color: #334155;
-    line-height: 1.2;
+    min-width: 20px;
+    height: 18px;
+    border-radius: 10px;
+    background: #000000;
+    color: #ffffff;
+    line-height: 1;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     transition: all var(--transition-fast);
 }
 
-.sidebar-menu a.active .sidebar-order-badge {
-    background: rgba(255, 255, 255, 0.25);
+.sidebar-badge.black-badge {
+    background: #000000;
     color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+.sidebar-menu a.active .sidebar-badge,
+.sidebar-menu a.active .sidebar-order-badge,
+.sidebar-menu a.active .sidebar-badge.black-badge {
+    background: #ffffff;
+    color: #000000;
+    border-color: #ffffff;
+}
+
+.sidebar-badge.has-pending,
 .sidebar-order-badge.has-pending {
-    background: #ef4444;
-    color: #ffffff;
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    border-color: #ef4444 !important;
     box-shadow: 0 1px 4px rgba(239, 68, 68, 0.35);
 }
 
+.sidebar-menu a.active .sidebar-badge.has-pending,
 .sidebar-menu a.active .sidebar-order-badge.has-pending {
-    background: #ffffff;
-    color: #000000;
+    background: #ffffff !important;
+    color: #ef4444 !important;
 }
 
+body.sidebar-collapsed .sidebar-badge,
 body.sidebar-collapsed .sidebar-order-badge {
     position: absolute;
     top: 5px;
