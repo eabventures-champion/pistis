@@ -171,23 +171,20 @@
 
     {{-- Category List --}}
     <div class="card">
-        <div class="card-header d-flex justify-between align-center" style="padding:14px 20px;">
-            <div style="display:flex; align-items:center; gap:10px;">
+        <div class="card-header" style="padding:14px 20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; min-height:58px;">
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
                 <input type="checkbox" id="selectAllCategories" style="cursor:pointer; accent-color:#000000; width:16px; height:16px;" onchange="toggleSelectAllCategories(this)" title="Select/Deselect All Categories">
-                <h3 style="font-size:1rem; margin:0;">All Categories</h3>
+                <h3 style="font-size:0.95rem; font-weight:700; letter-spacing:0.04em; text-transform:uppercase; margin:0; color:var(--text-primary);">All Categories</h3>
+                <span id="categoryTotalBadge" class="text-muted" style="font-size:0.78rem; background:#f4f4f5; padding:3px 9px; border-radius:12px; font-weight:600;">{{ $categories->count() }} total</span>
+                <span id="categorySelectedBadge" style="display:none; background:#000000; color:#ffffff; font-size:0.75rem; padding:3px 10px; border-radius:12px; font-weight:600; letter-spacing:0.02em; align-items:center; gap:5px;">
+                    <strong id="categorySelectedCount">0</strong> of {{ $categories->count() }} selected
+                </span>
             </div>
-            <span class="text-muted" style="font-size:0.8rem;">{{ $categories->count() }} total</span>
-        </div>
 
-        {{-- Bulk Actions Toolbar --}}
-        <div id="categoryBulkToolbar" style="display:none; background:#18181b; color:#ffffff; padding:10px 20px; border-bottom:1px solid #27272a; align-items:center; justify-content:space-between; animation:modalFadeIn 0.2s ease;">
-            <div style="font-size:0.84rem; display:flex; align-items:center; gap:10px;">
-                <span><strong id="categorySelectedCount">0</strong> category(ies) selected</span>
-                <span style="color:#52525b;">•</span>
-                <button type="button" onclick="clearSelectedCategories()" style="background:transparent; border:none; color:#a1a1aa; font-size:0.78rem; cursor:pointer; text-decoration:underline; padding:0;">Deselect All</button>
-            </div>
-            <div>
-                <button type="button" onclick="executeBulkDeleteCategories()" class="btn btn-sm" style="background:#dc2626; color:#ffffff; border:none; cursor:pointer; font-size:0.75rem; font-weight:700; padding:6px 14px; border-radius:4px; display:inline-flex; align-items:center; gap:6px;">
+            {{-- Bulk Actions Toolbar --}}
+            <div id="categoryBulkToolbar" style="display:none; align-items:center; gap:8px; flex-wrap:wrap;">
+                <button type="button" onclick="clearSelectedCategories()" class="btn btn-sm btn-secondary" style="font-size:0.75rem; padding:5px 10px; border-radius:4px; color:#52525b; background:#ffffff; border:1px solid #e4e4e7; cursor:pointer; font-weight:500;">Deselect All</button>
+                <button type="button" onclick="executeBulkDeleteCategories()" class="btn btn-sm" style="background:#ef4444; color:#ffffff; border:none; cursor:pointer; font-size:0.75rem; font-weight:600; padding:6px 14px; border-radius:4px; display:inline-flex; align-items:center; gap:6px; box-shadow:0 1px 3px rgba(239,68,68,0.25);">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="3 6 5 6 21 6"></polyline>
                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -515,8 +512,17 @@
         if (countSpan) countSpan.textContent = count;
         if (btnCountSpan) btnCountSpan.textContent = count;
 
-        if (toolbar) {
-            toolbar.style.display = count > 0 ? 'flex' : 'none';
+        const selectedBadge = document.getElementById('categorySelectedBadge');
+        const totalBadge = document.getElementById('categoryTotalBadge');
+
+        if (count > 0) {
+            if (toolbar) toolbar.style.display = 'inline-flex';
+            if (selectedBadge) selectedBadge.style.display = 'inline-flex';
+            if (totalBadge) totalBadge.style.display = 'none';
+        } else {
+            if (toolbar) toolbar.style.display = 'none';
+            if (selectedBadge) selectedBadge.style.display = 'none';
+            if (totalBadge) totalBadge.style.display = 'inline-block';
         }
 
         if (selectAll) {
