@@ -90,6 +90,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::patch('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
 
     // Customers
+    Route::post('/customers/bulk-action', [CustomerController::class, 'bulkAction'])->name('customers.bulk-action');
+    Route::post('/customers/archive-all', [CustomerController::class, 'archiveAll'])->name('customers.archive-all');
+    Route::post('/customers/unarchive-all', [CustomerController::class, 'unarchiveAll'])->name('customers.unarchive-all');
+    Route::post('/customers/destroy-all', [CustomerController::class, 'destroyAll'])->name('customers.destroy-all');
+    Route::post('/customers/{customer}/archive', [CustomerController::class, 'archive'])->name('customers.archive');
+    Route::post('/customers/{customer}/unarchive', [CustomerController::class, 'unarchive'])->name('customers.unarchive');
+    Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
     Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
     Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
 

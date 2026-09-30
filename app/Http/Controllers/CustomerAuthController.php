@@ -21,9 +21,19 @@ class CustomerAuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::guard('customer')->attempt($credentials, $request->boolean('remember'))) {
+        $attemptCredentials = array_merge($credentials, ['archived_at' => null]);
+
+        if (Auth::guard('customer')->attempt($attemptCredentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
             return redirect()->intended(route('account.index'));
+        }
+
+        // Check if customer account exists and is archived
+        $customer = Customer::where('email', $credentials['email'])->first();
+        if ($customer && $customer->isArchived() && Hash::check($credentials['password'], $customer->password)) {
+            return back()->withErrors([
+                'email' => 'This customer account has been archived. Please contact support.',
+            ])->onlyInput('email');
         }
 
         return back()->withErrors([

@@ -24,8 +24,34 @@ class Customer extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'archived_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function scopeActive($query)
+    {
+        return $query->whereNull('archived_at');
+    }
+
+    public function scopeArchived($query)
+    {
+        return $query->whereNotNull('archived_at');
+    }
+
+    public function archive()
+    {
+        $this->update(['archived_at' => now()]);
+    }
+
+    public function unarchive()
+    {
+        $this->update(['archived_at' => null]);
+    }
+
+    public function isArchived(): bool
+    {
+        return $this->archived_at !== null;
+    }
 
     public function getFullNameAttribute(): string
     {
