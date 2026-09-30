@@ -64,17 +64,69 @@ class CartController extends Controller
         $cart = $this->cartService->getCart();
         $item = $cart->items()->findOrFail($itemId);
 
-        $this->cartService->updateItem($item, $request->quantity);
+        $updatedItem = $this->cartService->updateItem($item, $request->quantity);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            $totals = $this->cartService->getCartTotals();
+            $currencySymbol = \App\Models\Setting::get('currency_symbol', '$');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cart updated!',
+                'item' => [
+                    'id' => $itemId,
+                    'quantity' => $updatedItem->quantity,
+                    'is_deleted' => $request->quantity <= 0,
+                    'subtotal' => (float) $updatedItem->subtotal,
+                    'formatted_subtotal' => $currencySymbol . number_format($updatedItem->subtotal, 2),
+                ],
+                'totals' => [
+                    'item_count' => $totals['item_count'],
+                    'subtotal' => (float) $totals['subtotal'],
+                    'shipping' => (float) $totals['shipping'],
+                    'tax' => (float) $totals['tax'],
+                    'total' => (float) $totals['total'],
+                    'formatted_subtotal' => $currencySymbol . number_format($totals['subtotal'], 2),
+                    'formatted_shipping' => $totals['shipping'] > 0 ? $currencySymbol . number_format($totals['shipping'], 2) : 'Complimentary',
+                    'formatted_tax' => $currencySymbol . number_format($totals['tax'], 2),
+                    'formatted_total' => $currencySymbol . number_format($totals['total'], 2),
+                ],
+                'cart_badge_count' => $totals['item_count'],
+            ]);
+        }
 
         return redirect()->route('cart.index')->with('success', 'Cart updated!');
     }
 
-    public function destroy(int $itemId)
+    public function destroy(Request $request, int $itemId)
     {
         $cart = $this->cartService->getCart();
         $item = $cart->items()->findOrFail($itemId);
 
         $this->cartService->removeItem($item);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            $totals = $this->cartService->getCartTotals();
+            $currencySymbol = \App\Models\Setting::get('currency_symbol', '$');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Item removed from cart.',
+                'item_id' => $itemId,
+                'totals' => [
+                    'item_count' => $totals['item_count'],
+                    'subtotal' => (float) $totals['subtotal'],
+                    'shipping' => (float) $totals['shipping'],
+                    'tax' => (float) $totals['tax'],
+                    'total' => (float) $totals['total'],
+                    'formatted_subtotal' => $currencySymbol . number_format($totals['subtotal'], 2),
+                    'formatted_shipping' => $totals['shipping'] > 0 ? $currencySymbol . number_format($totals['shipping'], 2) : 'Complimentary',
+                    'formatted_tax' => $currencySymbol . number_format($totals['tax'], 2),
+                    'formatted_total' => $currencySymbol . number_format($totals['total'], 2),
+                ],
+                'cart_badge_count' => $totals['item_count'],
+            ]);
+        }
 
         return redirect()->route('cart.index')->with('success', 'Item removed from cart.');
     }
