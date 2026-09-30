@@ -181,7 +181,6 @@
                     <input type="checkbox" id="select-all-customers" style="cursor:pointer;accent-color:#000000;width:15px;height:15px;" title="Select all customers">
                 </th>
                 <th>CUSTOMER</th>
-                <th>EMAIL</th>
                 <th>PHONE</th>
                 <th>ORDERS</th>
                 <th>STATUS</th>
@@ -197,18 +196,18 @@
                     </td>
                     <td>
                         <div style="display:flex;align-items:center;gap:12px;">
-                            <div style="width:34px;height:34px;border-radius:50%;background:{{ $customer->isDisabled() ? '#dc2626' : '#000000' }};color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:0.8rem;letter-spacing:0.05em;flex-shrink:0;">
+                            <div style="width:36px;height:36px;border-radius:50%;background:{{ $customer->isDisabled() ? '#dc2626' : '#000000' }};color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:0.8rem;letter-spacing:0.05em;flex-shrink:0;">
                                 {{ strtoupper(substr($customer->first_name, 0, 1) . substr($customer->last_name, 0, 1)) }}
                             </div>
                             <div>
-                                <div style="font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:6px;">
+                                <div style="font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:6px;line-height:1.2;">
                                     <span>{{ $customer->full_name }}</span>
+                                </div>
+                                <div style="font-size:0.8rem;color:var(--text-secondary);margin-top:2px;">
+                                    {{ $customer->email }}
                                 </div>
                             </div>
                         </div>
-                    </td>
-                    <td>
-                        <span style="font-size:0.85rem;">{{ $customer->email }}</span>
                     </td>
                     <td>
                         <span style="font-size:0.85rem;color:var(--text-secondary);">{{ $customer->phone ?? '—' }}</span>
@@ -340,7 +339,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8">
+                    <td colspan="7">
                         <div class="empty-state" style="padding:48px 20px;text-align:center;">
                             <div class="empty-state-icon" style="font-size:2.5rem;margin-bottom:12px;">👥</div>
                             <div class="empty-state-text" style="font-size:1.1rem;font-weight:600;margin-bottom:6px;">No customers found</div>
