@@ -93,6 +93,9 @@
                                     @if($item->color)
                                         &nbsp;·&nbsp; Color: {{ $item->color }}
                                     @endif
+                                    @if($item->size)
+                                        &nbsp;·&nbsp; Size: {{ $item->size }}
+                                    @endif
                                 </div>
                             </div>
                             <div style="font-family:'Cormorant Garamond',serif;font-size:1rem;color:#000000;">{{ $currency_symbol }}{{ number_format($item->subtotal, 2) }}</div>

@@ -41,7 +41,7 @@ class CartService
     /**
      * Add a product to the cart
      */
-    public function addItem(Product $product, int $quantity = 1, ?string $color = null): CartItem
+    public function addItem(Product $product, int $quantity = 1, ?string $color = null, ?string $size = null): CartItem
     {
         $cart = $this->getCart();
 
@@ -50,6 +50,12 @@ class CartService
             $query->where('color', $color);
         } else {
             $query->whereNull('color');
+        }
+
+        if ($size !== null && $size !== '') {
+            $query->where('size', $size);
+        } else {
+            $query->whereNull('size');
         }
         $existingItem = $query->first();
 
@@ -67,6 +73,7 @@ class CartService
         return $cart->items()->create([
             'product_id' => $product->id,
             'color' => $color ?: null,
+            'size' => $size ?: null,
             'quantity' => $quantity,
             'price' => $product->price,
         ]);

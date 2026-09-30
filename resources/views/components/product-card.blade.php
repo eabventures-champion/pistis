@@ -35,8 +35,8 @@
         </a>
         <div class="product-price">
             <span class="price-current">{{ $product->formatted_price }}</span>
-            @if($product->compare_price && $product->compare_price > $product->price)
-                <span class="price-compare">{{ $currency_symbol }}{{ number_format($product->compare_price, 2) }}</span>
+            @if($product->formatted_compare_price)
+                <span class="price-compare">{{ $product->formatted_compare_price }}</span>
             @endif
         </div>
     </div>

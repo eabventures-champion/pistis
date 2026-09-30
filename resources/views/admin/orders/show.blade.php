@@ -55,6 +55,9 @@
                                 @if($item->color)
                                     • Color: <span class="badge badge-secondary" style="font-size:0.75rem;padding:2px 8px;text-transform:uppercase;">{{ $item->color }}</span>
                                 @endif
+                                @if($item->size)
+                                    • Size: <span class="badge badge-secondary" style="font-size:0.75rem;padding:2px 8px;text-transform:uppercase;">{{ $item->size }}</span>
+                                @endif
                             </div>
                         </div>
                         <div style="font-weight:600;color:var(--text-primary);">{{ $currency_symbol }}{{ number_format($item->total, 2) }}</div>

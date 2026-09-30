@@ -4,9 +4,15 @@
 
 @section('content')
 @php
-    $galleryImages = $product->image_urls;
-    if (empty($galleryImages) && $product->primary_image_url) {
-        $galleryImages = [$product->primary_image_url];
+    $defaultColor = !empty($product->colors_list[0]['name']) ? $product->colors_list[0]['name'] : null;
+    $colorGalleries = $product->color_galleries;
+    if ($defaultColor && !empty($colorGalleries[$defaultColor])) {
+        $galleryImages = $colorGalleries[$defaultColor];
+    } else {
+        $galleryImages = $product->image_urls;
+        if (empty($galleryImages) && $product->primary_image_url) {
+            $galleryImages = [$product->primary_image_url];
+        }
     }
     $totalImages = count($galleryImages);
 @endphp
@@ -16,28 +22,26 @@
         {{-- Luxury Product Gallery (Side-by-Side Viewport Fitted) --}}
         <div class="product-gallery-wrapper" id="product-gallery">
             <div class="product-gallery-layout">
-                {{-- Vertical Thumbnails Rail --}}
-                @if($totalImages > 1)
-                    <div class="gallery-thumbs-rail" id="gallery-thumbs-rail">
-                        <button type="button" class="thumb-rail-btn prev-btn" onclick="scrollThumbsRail(-1)" aria-label="Scroll thumbnails up">▲</button>
-                        <div class="thumbs-rail-track" id="thumbnail-strip">
-                            @foreach($galleryImages as $index => $imageUrl)
-                                <button type="button" 
-                                        class="thumb-item {{ $index === 0 ? 'active' : '' }}" 
-                                        data-index="{{ $index }}"
-                                        data-src="{{ $imageUrl }}"
-                                        onclick="selectGalleryImage({{ $index }})"
-                                        aria-label="View product image {{ $index + 1 }}">
-                                    <img src="{{ $imageUrl }}" alt="{{ $product->name }} thumb {{ $index + 1 }}" loading="lazy">
-                                    <span class="thumb-active-ring"></span>
-                                </button>
-                            @endforeach
-                        </div>
-                        <button type="button" class="thumb-rail-btn next-btn" onclick="scrollThumbsRail(1)" aria-label="Scroll thumbnails down">▼</button>
+                {{-- Vertical Thumbnails Rail (Additional Items) --}}
+                <div class="gallery-thumbs-rail" id="gallery-thumbs-rail" style="display: {{ $totalImages > 1 ? 'flex' : 'none' }};">
+                    <button type="button" class="thumb-rail-btn prev-btn" onclick="scrollThumbsRail(-1)" aria-label="Scroll thumbnails up">▲</button>
+                    <div class="thumbs-rail-track" id="thumbnail-strip">
+                        @foreach($galleryImages as $index => $imageUrl)
+                            <button type="button" 
+                                    class="thumb-item {{ $index === 0 ? 'active' : '' }}" 
+                                    data-index="{{ $index }}"
+                                    data-src="{{ $imageUrl }}"
+                                    onclick="selectGalleryImage({{ $index }})"
+                                    aria-label="View product image {{ $index + 1 }}">
+                                <img src="{{ $imageUrl }}" alt="{{ $product->name }} thumb {{ $index + 1 }}" loading="lazy">
+                                <span class="thumb-active-ring"></span>
+                            </button>
+                        @endforeach
                     </div>
-                @endif
+                    <button type="button" class="thumb-rail-btn next-btn" onclick="scrollThumbsRail(1)" aria-label="Scroll thumbnails down">▼</button>
+                </div>
 
-                {{-- Main Image Stage --}}
+                {{-- Main Image Stage (Main Cover) --}}
                 <div class="main-image-stage" id="main-image-stage" onclick="openLightbox()">
                     @if($totalImages > 0)
                         <img src="{{ $galleryImages[0] }}" 
@@ -50,17 +54,15 @@
                         <div class="zoom-magnifier" id="zoom-magnifier" style="background-image: url('{{ $galleryImages[0] }}');"></div>
 
                         {{-- Floating Glass Controls --}}
-                        @if($totalImages > 1)
-                            <button type="button" class="gallery-nav-btn prev-btn" onclick="event.stopPropagation(); navigateGallery(-1);" aria-label="Previous Image">
-                                ‹
-                            </button>
-                            <button type="button" class="gallery-nav-btn next-btn" onclick="event.stopPropagation(); navigateGallery(1);" aria-label="Next Image">
-                                ›
-                            </button>
-                            <div class="gallery-counter-pill" id="gallery-counter-pill">
-                                <span id="current-img-index">1</span> / {{ $totalImages }}
-                            </div>
-                        @endif
+                        <button type="button" class="gallery-nav-btn prev-btn" id="gallery-nav-prev" onclick="event.stopPropagation(); navigateGallery(-1);" aria-label="Previous Image" style="display: {{ $totalImages > 1 ? 'flex' : 'none' }};">
+                            ‹
+                        </button>
+                        <button type="button" class="gallery-nav-btn next-btn" id="gallery-nav-next" onclick="event.stopPropagation(); navigateGallery(1);" aria-label="Next Image" style="display: {{ $totalImages > 1 ? 'flex' : 'none' }};">
+                            ›
+                        </button>
+                        <div class="gallery-counter-pill" id="gallery-counter-pill" style="display: {{ $totalImages > 1 ? 'flex' : 'none' }};">
+                            <span id="current-img-index">1</span> / <span id="total-img-count">{{ $totalImages }}</span>
+                        </div>
 
                         <div class="gallery-zoom-hint" title="Click to open fullscreen view">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -87,8 +89,8 @@
 
             <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:20px;">
                 <span style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:#000000;">{{ $product->formatted_price }}</span>
-                @if($product->compare_price && $product->compare_price > $product->price)
-                    <span style="font-size:0.9rem;color:#a3a3a3;text-decoration:line-through;">{{ $currency_symbol }}{{ number_format($product->compare_price, 2) }}</span>
+                @if($product->formatted_compare_price)
+                    <span style="font-size:0.9rem;color:#a3a3a3;text-decoration:line-through;">{{ $product->formatted_compare_price }}</span>
                 @endif
             </div>
 
@@ -138,6 +140,33 @@
                                 @endforeach
                             </div>
                             <input type="hidden" name="color" id="product-selected-color-input" value="{{ $product->colors_list[0]['name'] }}">
+                        </div>
+                    @endif
+
+                    {{-- Piece Sizes Selector --}}
+                    @if(!empty($product->sizes_list) && count($product->sizes_list) > 0)
+                        <div class="product-size-selector" style="margin-bottom:28px;">
+                            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
+                                <span style="font-family:'Inter',sans-serif;font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;color:#000000;">
+                                    SIZE &mdash; <strong id="selected-size-label" style="font-weight:600;letter-spacing:0.1em;">{{ $product->sizes_list[0] }}</strong>
+                                </span>
+                                <span style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:#737373;">
+                                    STANDARD FIT
+                                </span>
+                            </div>
+
+                            <div class="size-options-container" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+                                @foreach($product->sizes_list as $sIdx => $sizeVal)
+                                    <button type="button" 
+                                            class="size-pill-option {{ $sIdx === 0 ? 'active' : '' }}"
+                                            data-size="{{ $sizeVal }}"
+                                            onclick="selectProductSize(this, '{{ addslashes($sizeVal) }}')"
+                                            style="min-width:44px;height:40px;padding:0 14px;border:1px solid {{ $sIdx === 0 ? '#000000' : '#e5e5e5' }};background:{{ $sIdx === 0 ? '#000000' : '#ffffff' }};color:{{ $sIdx === 0 ? '#ffffff' : '#000000' }};font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:500;letter-spacing:0.06em;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all 0.15s ease;">
+                                        {{ $sizeVal }}
+                                    </button>
+                                @endforeach
+                            </div>
+                            <input type="hidden" name="size" id="product-selected-size-input" value="{{ $product->sizes_list[0] }}">
                         </div>
                     @endif
 
@@ -217,28 +246,34 @@
 @push('scripts')
 <script>
 (function() {
-    const images = @json($galleryImages);
-    if (!images || images.length === 0) return;
-
+    let images = @json($galleryImages);
+    const colorGalleries = @json($product->color_galleries);
     let currentIndex = 0;
+
     const mainImg = document.getElementById('main-gallery-img');
     const zoomMagnifier = document.getElementById('zoom-magnifier');
     const mainStage = document.getElementById('main-image-stage');
     const counterPill = document.getElementById('current-img-index');
+    const totalCountPill = document.getElementById('total-img-count');
     const thumbnailStrip = document.getElementById('thumbnail-strip');
-    const thumbs = document.querySelectorAll('.thumb-item');
+    const thumbsRail = document.getElementById('gallery-thumbs-rail');
+    const navPrev = document.getElementById('gallery-nav-prev');
+    const navNext = document.getElementById('gallery-nav-next');
+    const pillBox = document.getElementById('gallery-counter-pill');
+
     const lightbox = document.getElementById('gallery-lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     const lightboxCounter = document.getElementById('lightbox-counter');
-    const lightboxThumbs = document.querySelectorAll('.lightbox-thumb');
+    const lightboxThumbContainer = document.querySelector('.lightbox-thumbnails');
 
     // Bulletproof, Instant & Smooth Image Switch
     window.selectGalleryImage = function(index) {
-        if (index < 0 || index >= images.length) return;
+        if (!images || index < 0 || index >= images.length) return;
         currentIndex = index;
         const newSrc = images[currentIndex];
 
         // Update Thumbnails Active State
+        const thumbs = document.querySelectorAll('.thumb-item');
         thumbs.forEach((t, i) => {
             const isActive = (i === currentIndex);
             t.classList.toggle('active', isActive);
@@ -254,7 +289,7 @@
 
         // Fast cross-fade image swap
         if (mainImg) {
-            mainImg.style.opacity = '0.4';
+            mainImg.style.opacity = '0.35';
             const tempImg = new Image();
             tempImg.onload = function() {
                 mainImg.src = newSrc;
@@ -277,6 +312,7 @@
     };
 
     window.navigateGallery = function(direction) {
+        if (!images || images.length === 0) return;
         let newIndex = currentIndex + direction;
         if (newIndex < 0) newIndex = images.length - 1;
         if (newIndex >= images.length) newIndex = 0;
@@ -292,6 +328,69 @@
             thumbnailStrip.scrollBy({ left: 110 * direction, behavior: 'smooth' });
         }
     };
+
+    // ─── Rebuild Gallery UI when a Color is Picked ─────────────
+    function rebuildGalleryUI(targetIndex = 0) {
+        if (!images || images.length === 0) return;
+        currentIndex = Math.max(0, Math.min(targetIndex, images.length - 1));
+        const initialSrc = images[currentIndex];
+
+        // 1. Swap Main Cover
+        if (mainImg) {
+            mainImg.style.opacity = '0.35';
+            const imgLoader = new Image();
+            imgLoader.onload = function() {
+                mainImg.src = initialSrc;
+                mainImg.style.opacity = '1';
+                if (zoomMagnifier) {
+                    zoomMagnifier.style.backgroundImage = `url('${initialSrc}')`;
+                }
+            };
+            imgLoader.onerror = function() {
+                mainImg.src = initialSrc;
+                mainImg.style.opacity = '1';
+            };
+            imgLoader.src = initialSrc;
+        }
+
+        // 2. Rebuild Vertical Thumbnail Strip (Additional Items)
+        if (thumbnailStrip) {
+            thumbnailStrip.innerHTML = images.map((url, i) => `
+                <button type="button" 
+                        class="thumb-item ${i === currentIndex ? 'active' : ''}" 
+                        data-index="${i}"
+                        data-src="${url}"
+                        onclick="selectGalleryImage(${i})"
+                        aria-label="View product view ${i + 1}">
+                    <img src="${url}" alt="Piece view ${i + 1}" loading="lazy">
+                    <span class="thumb-active-ring"></span>
+                </button>
+            `).join('');
+        }
+
+        // 3. Update Rail and Nav Visibility
+        const hasMultiple = images.length > 1;
+        if (thumbsRail) thumbsRail.style.display = hasMultiple ? 'flex' : 'none';
+        if (navPrev) navPrev.style.display = hasMultiple ? 'flex' : 'none';
+        if (navNext) navNext.style.display = hasMultiple ? 'flex' : 'none';
+        if (pillBox) pillBox.style.display = hasMultiple ? 'flex' : 'none';
+        if (counterPill) counterPill.textContent = (currentIndex + 1);
+        if (totalCountPill) totalCountPill.textContent = images.length;
+
+        // 4. Update Lightbox Thumbs Container
+        if (lightboxThumbContainer) {
+            lightboxThumbContainer.innerHTML = images.map((url, i) => `
+                <button type="button" 
+                        class="lightbox-thumb ${i === currentIndex ? 'active' : ''}" 
+                        data-index="${i}"
+                        onclick="selectLightboxImage(${i})">
+                    <img src="${url}" alt="Thumbnail ${i + 1}">
+                </button>
+            `).join('');
+        }
+        if (lightboxImg) lightboxImg.src = initialSrc;
+        if (lightboxCounter) lightboxCounter.textContent = `${currentIndex + 1} / ${images.length}`;
+    }
 
     // ─── Luxury Zoom Lens Magnifier ─────────────────────────────
     if (mainStage && zoomMagnifier) {
@@ -313,7 +412,7 @@
     }
 
     // ─── Mobile Touch Swipe Support ────────────────────────────
-    if (mainStage && images.length > 1) {
+    if (mainStage) {
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -327,13 +426,12 @@
         }, { passive: true });
 
         function handleSwipe() {
+            if (!images || images.length <= 1) return;
             const swipeDistance = touchEndX - touchStartX;
             if (Math.abs(swipeDistance) > 40) {
                 if (swipeDistance < 0) {
-                    // Swiped Left -> Next Image
                     navigateGallery(1);
                 } else {
-                    // Swiped Right -> Prev Image
                     navigateGallery(-1);
                 }
             }
@@ -359,12 +457,13 @@
     };
 
     function updateLightbox() {
-        if (!lightboxImg) return;
+        if (!lightboxImg || !images || images.length === 0) return;
         lightboxImg.src = images[currentIndex];
         if (lightboxCounter) {
             lightboxCounter.textContent = `${currentIndex + 1} / ${images.length}`;
         }
-        lightboxThumbs.forEach((t, i) => {
+        const lbThumbs = document.querySelectorAll('.lightbox-thumb');
+        lbThumbs.forEach((t, i) => {
             t.classList.toggle('active', i === currentIndex);
             if (i === currentIndex) {
                 t.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
@@ -407,8 +506,12 @@
             input.value = colorName;
         }
 
-        // If gallery images exist, attempt to jump to matching photo
-        if (typeof window.selectGalleryImage === 'function' && typeof images !== 'undefined' && images.length > 1) {
+        // Instantly switch gallery images to this color's specific photos!
+        if (colorGalleries && colorGalleries[colorName] && colorGalleries[colorName].length > 0) {
+            images = colorGalleries[colorName];
+            rebuildGalleryUI(0);
+        } else if (images && images.length > 1) {
+            // Fallback: jump to matched photo in global images if available
             const lowerColor = colorName.toLowerCase();
             let targetIndex = -1;
             for (let i = 0; i < images.length; i++) {
@@ -417,17 +520,34 @@
                     break;
                 }
             }
-            if (targetIndex === -1 && typeof colorIndex !== 'undefined') {
-                const swatches = document.querySelectorAll('.color-swatch-option');
-                const totalSwatches = swatches.length;
-                if (totalSwatches > 1 && images.length >= totalSwatches) {
-                    const step = Math.floor(images.length / totalSwatches);
-                    targetIndex = Math.min(colorIndex * step, images.length - 1);
-                }
+            if (targetIndex >= 0) {
+                selectGalleryImage(targetIndex);
             }
-            if (targetIndex >= 0 && targetIndex < images.length) {
-                window.selectGalleryImage(targetIndex);
-            }
+        }
+    };
+
+    // ─── Size Option Selection ──────────────────────────────────
+    window.selectProductSize = function(btn, sizeVal) {
+        document.querySelectorAll('.size-pill-option').forEach(el => {
+            el.classList.remove('active');
+            el.style.background = '#ffffff';
+            el.style.color = '#000000';
+            el.style.borderColor = '#e5e5e5';
+        });
+
+        btn.classList.add('active');
+        btn.style.background = '#000000';
+        btn.style.color = '#ffffff';
+        btn.style.borderColor = '#000000';
+
+        const label = document.getElementById('selected-size-label');
+        if (label) {
+            label.textContent = sizeVal;
+        }
+
+        const input = document.getElementById('product-selected-size-input');
+        if (input) {
+            input.value = sizeVal;
         }
     };
 

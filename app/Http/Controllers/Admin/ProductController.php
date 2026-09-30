@@ -64,9 +64,13 @@ class ProductController extends Controller
         $validated['slug'] = Str::slug($validated['name']);
         $validated['featured'] = $request->boolean('featured');
         $validated['shopify_sync_enabled'] = $request->boolean('shopify_sync_enabled', true);
-        $validated['colors'] = $this->extractColorsFromRequest($request);
 
-        // Handle image uploads
+        // Process Color Variations & Color-Specific Galleries
+        $colorData = $this->processColorsAndImages($request);
+        $validated['colors'] = $colorData['colors'];
+        $validated['sizes'] = $this->processSizesFromRequest($request);
+
+        // Handle general image uploads
         $imagePaths = [];
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
@@ -74,6 +78,13 @@ class ProductController extends Controller
                     $path = $image->store('products', 'public');
                     $imagePaths[] = $path;
                 }
+            }
+        }
+
+        // Merge color images into product images so catalog cards have a cover
+        foreach ($colorData['combined_images'] as $cImg) {
+            if (!in_array($cImg, $imagePaths)) {
+                $imagePaths[] = $cImg;
             }
         }
         $validated['images'] = $imagePaths;
@@ -109,14 +120,18 @@ class ProductController extends Controller
             'featured' => 'boolean',
             'shopify_sync_enabled' => 'boolean',
             'weight' => 'nullable|numeric|min:0',
-            'images' => 'nullable|array|max:10',
+            'images' => 'nullable|array|max:20',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,avif|max:10240',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
         $validated['featured'] = $request->boolean('featured');
         $validated['shopify_sync_enabled'] = $request->boolean('shopify_sync_enabled', true);
-        $validated['colors'] = $this->extractColorsFromRequest($request);
+
+        // Process Color Variations & Color-Specific Galleries
+        $colorData = $this->processColorsAndImages($request, $product);
+        $validated['colors'] = $colorData['colors'];
+        $validated['sizes'] = $this->processSizesFromRequest($request);
 
         // Handle existing images and removals
         $existingImages = is_array($product->images) ? $product->images : [];
@@ -136,13 +151,20 @@ class ProductController extends Controller
             $existingImages = array_values($existingImages);
         }
 
-        // Handle new image uploads
+        // Handle general new image uploads
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 if ($image && $image->isValid()) {
                     $path = $image->store('products', 'public');
                     $existingImages[] = $path;
                 }
+            }
+        }
+
+        // Merge any new color images into the existingImages array
+        foreach ($colorData['combined_images'] as $cImg) {
+            if (!in_array($cImg, $existingImages)) {
+                $existingImages[] = $cImg;
             }
         }
 
@@ -159,44 +181,104 @@ class ProductController extends Controller
             ->with('success', 'Product updated successfully!');
     }
 
-    private function extractColorsFromRequest(Request $request): ?array
+    private function processColorsAndImages(Request $request, ?Product $existingProduct = null): array
     {
-        $colors = [];
+        $colorsInput = [];
         if ($request->filled('colors_json')) {
             $decoded = json_decode($request->input('colors_json'), true);
             if (is_array($decoded)) {
-                $colors = $decoded;
+                $colorsInput = $decoded;
             }
         } elseif ($request->has('colors') && is_array($request->input('colors'))) {
-            $colors = $request->input('colors');
+            $colorsInput = $request->input('colors');
         }
 
+        $combinedImages = [];
         $processedColors = [];
-        foreach ($colors as $c) {
-            if (is_array($c)) {
-                $name = trim($c['name'] ?? '');
-                if ($name !== '') {
-                    $code = trim($c['code'] ?? '');
-                    if ($code === '' || $code === '#') {
-                        $code = Product::defaultHexForColorName($name);
-                    }
-                    $processedColors[] = [
-                        'name' => $name,
-                        'code' => $code,
-                    ];
+
+        foreach ($colorsInput as $index => $c) {
+            if (!is_array($c)) {
+                if (is_string($c) && trim($c) !== '') {
+                    $c = ['name' => trim($c)];
+                } else {
+                    continue;
                 }
-            } elseif (is_string($c)) {
-                $name = trim($c);
-                if ($name !== '') {
-                    $processedColors[] = [
-                        'name' => $name,
-                        'code' => Product::defaultHexForColorName($name),
-                    ];
+            }
+
+            $name = trim($c['name'] ?? '');
+            if ($name === '') continue;
+
+            $code = trim($c['code'] ?? '');
+            if ($code === '' || $code === '#') {
+                $code = Product::defaultHexForColorName($name);
+            }
+
+            // Existing images for this color
+            $colorImages = [];
+            if (!empty($c['existing_images']) && is_array($c['existing_images'])) {
+                $colorImages = array_values(array_filter($c['existing_images']));
+            } elseif (!empty($c['images']) && is_array($c['images'])) {
+                $colorImages = array_values(array_filter($c['images']));
+            }
+
+            // Handle new file uploads for this color (check index, name, or alternate formats)
+            $uploadedFiles = $request->file("color_images.{$index}") 
+                ?? $request->file("color_images.{$name}")
+                ?? $request->file("color_images_{$index}")
+                ?? [];
+
+            if ($uploadedFiles) {
+                if (!is_array($uploadedFiles)) {
+                    $uploadedFiles = [$uploadedFiles];
+                }
+                foreach ($uploadedFiles as $file) {
+                    if ($file && $file->isValid()) {
+                        $path = $file->store('products', 'public');
+                        $colorImages[] = $path;
+                    }
+                }
+            }
+
+            $processedColors[] = [
+                'name' => $name,
+                'code' => $code,
+                'images' => $colorImages,
+            ];
+
+            foreach ($colorImages as $img) {
+                if (!in_array($img, $combinedImages)) {
+                    $combinedImages[] = $img;
                 }
             }
         }
 
-        return !empty($processedColors) ? $processedColors : null;
+        return [
+            'colors' => !empty($processedColors) ? $processedColors : null,
+            'combined_images' => $combinedImages,
+        ];
+    }
+
+    private function processSizesFromRequest(Request $request): ?array
+    {
+        $sizes = [];
+        if ($request->filled('sizes_json')) {
+            $decoded = json_decode($request->input('sizes_json'), true);
+            if (is_array($decoded)) {
+                $sizes = $decoded;
+            }
+        } elseif ($request->has('sizes') && is_array($request->input('sizes'))) {
+            $sizes = $request->input('sizes');
+        }
+
+        $clean = [];
+        foreach ($sizes as $s) {
+            $s = trim((string) $s);
+            if ($s !== '' && !in_array($s, $clean)) {
+                $clean[] = $s;
+            }
+        }
+
+        return !empty($clean) ? $clean : null;
     }
 
     public function destroy(Product $product)

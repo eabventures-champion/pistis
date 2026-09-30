@@ -23,6 +23,9 @@
                                     @if($item->color)
                                         • Color: <span style="color:#000000;font-weight:600;text-transform:uppercase;">{{ $item->color }}</span>
                                     @endif
+                                    @if($item->size)
+                                        • Size: <span style="color:#000000;font-weight:600;text-transform:uppercase;">{{ $item->size }}</span>
+                                    @endif
                                 </div>
                             </div>
                             <div style="font-weight:600;color:var(--text-primary);">{{ $currency_symbol }}{{ number_format($item->total, 2) }}</div>

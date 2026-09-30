@@ -14,13 +14,14 @@ class Product extends Model
 
     protected $fillable = [
         'category_id', 'name', 'slug', 'description', 'price', 'compare_price',
-        'sku', 'stock_quantity', 'images', 'colors', 'shopify_product_id', 'shopify_variant_id',
+        'sku', 'stock_quantity', 'images', 'colors', 'sizes', 'shopify_product_id', 'shopify_variant_id',
         'shopify_inventory_item_id', 'shopify_sync_enabled', 'status', 'featured', 'weight',
     ];
 
     protected $casts = [
         'images' => 'array',
         'colors' => 'array',
+        'sizes' => 'array',
         'price' => 'decimal:2',
         'compare_price' => 'decimal:2',
         'shopify_sync_enabled' => 'boolean',
@@ -99,7 +100,17 @@ class Product extends Model
     public function getPrimaryImageAttribute(): ?string
     {
         $images = $this->images;
-        return $images && count($images) > 0 ? $images[0] : null;
+        if (!empty($images) && count($images) > 0) {
+            return $images[0];
+        }
+        if (!empty($this->colors) && is_array($this->colors)) {
+            foreach ($this->colors as $color) {
+                if (!empty($color['images']) && is_array($color['images']) && count($color['images']) > 0) {
+                    return $color['images'][0];
+                }
+            }
+        }
+        return null;
     }
 
     public function getPrimaryImageUrlAttribute(): ?string
@@ -109,15 +120,36 @@ class Product extends Model
 
     public function getImageUrlsAttribute(): array
     {
-        if (!$this->images || !is_array($this->images)) {
-            return [];
+        $urls = [];
+        if (!empty($this->images) && is_array($this->images)) {
+            $urls = array_values(array_filter(array_map(fn($img) => static::formatImageUrl($img), $this->images)));
         }
-        return array_values(array_filter(array_map(fn($img) => static::formatImageUrl($img), $this->images)));
+        if (empty($urls) && !empty($this->colors) && is_array($this->colors)) {
+            foreach ($this->colors as $color) {
+                if (!empty($color['images']) && is_array($color['images'])) {
+                    foreach ($color['images'] as $img) {
+                        $formatted = static::formatImageUrl($img);
+                        if ($formatted && !in_array($formatted, $urls)) {
+                            $urls[] = $formatted;
+                        }
+                    }
+                }
+            }
+        }
+        return $urls;
     }
 
     public function getFormattedPriceAttribute(): string
     {
         return \App\Models\Setting::get('currency_symbol', '$') . number_format($this->price, 2);
+    }
+
+    public function getFormattedComparePriceAttribute(): ?string
+    {
+        if ($this->compare_price && $this->compare_price > $this->price) {
+            return \App\Models\Setting::get('currency_symbol', '$') . number_format($this->compare_price, 2);
+        }
+        return null;
     }
 
 
@@ -186,9 +218,18 @@ class Product extends Model
             if (is_array($c)) {
                 $name = trim($c['name'] ?? '');
                 if ($name !== '') {
+                    $images = [];
+                    if (!empty($c['images']) && is_array($c['images'])) {
+                        $images = array_values(array_filter($c['images']));
+                    }
+                    $imageUrls = array_values(array_filter(array_map(fn($img) => static::formatImageUrl($img), $images)));
+
                     $list[] = [
                         'name' => $name,
                         'code' => !empty($c['code']) ? $c['code'] : static::defaultHexForColorName($name),
+                        'images' => $images,
+                        'image_urls' => $imageUrls,
+                        'primary_image_url' => $imageUrls[0] ?? null,
                     ];
                 }
             } elseif (is_string($c)) {
@@ -197,11 +238,43 @@ class Product extends Model
                     $list[] = [
                         'name' => $name,
                         'code' => static::defaultHexForColorName($name),
+                        'images' => [],
+                        'image_urls' => [],
+                        'primary_image_url' => null,
                     ];
                 }
             }
         }
         return $list;
+    }
+
+    public function getColorGalleriesAttribute(): array
+    {
+        $galleries = [];
+        $fallback = $this->image_urls;
+
+        foreach ($this->colors_list as $color) {
+            $name = $color['name'];
+            $urls = !empty($color['image_urls']) ? $color['image_urls'] : $fallback;
+            $galleries[$name] = $urls;
+        }
+
+        return $galleries;
+    }
+
+    public function getSizesListAttribute(): array
+    {
+        if (empty($this->sizes) || !is_array($this->sizes)) {
+            return [];
+        }
+        $list = [];
+        foreach ($this->sizes as $s) {
+            $s = trim((string) $s);
+            if ($s !== '') {
+                $list[] = $s;
+            }
+        }
+        return array_values(array_unique($list));
     }
 
     public function scopeInStock($query)

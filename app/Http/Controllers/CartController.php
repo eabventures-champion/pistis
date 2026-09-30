@@ -26,6 +26,7 @@ class CartController extends Controller
             'product_id' => 'required|exists:products,id',
             'quantity' => 'integer|min:1',
             'color' => 'nullable|string|max:100',
+            'size' => 'nullable|string|max:50',
         ]);
 
         $product = Product::findOrFail($request->product_id);
@@ -40,10 +41,18 @@ class CartController extends Controller
             $color = $product->colors_list[0]['name'] ?? null;
         }
 
-        $this->cartService->addItem($product, $request->input('quantity', 1), $color);
+        $size = $request->input('size');
+        // If product has sizes defined and no size was selected, pick the first size as default
+        if (empty($size) && !empty($product->sizes_list)) {
+            $size = $product->sizes_list[0] ?? null;
+        }
 
-        $colorNotice = $color ? " ({$color})" : "";
-        return redirect()->route('cart.index')->with('success', "{$product->name}{$colorNotice} added to cart!");
+        $this->cartService->addItem($product, $request->input('quantity', 1), $color, $size);
+
+        $notices = array_filter([$color, $size ? "Size: {$size}" : null]);
+        $detailsStr = !empty($notices) ? " (" . implode(' · ', $notices) . ")" : "";
+
+        return redirect()->route('cart.index')->with('success', "{$product->name}{$detailsStr} added to cart!");
     }
 
     public function update(Request $request, int $itemId)
