@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\SyncInventoryToShopify;
 use App\Models\Order;
 use App\Services\CartService;
+use App\Services\OrderNotificationService;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
 
@@ -39,6 +40,9 @@ class PaymentController extends Controller
                 'payment_status' => 'paid',
                 'status' => 'processing',
             ]);
+
+            // Dispatch premium order notification to Store Email
+            OrderNotificationService::notifyStoreNewOrder($order);
 
             // Clear the cart
             $this->cartService->clearCart();

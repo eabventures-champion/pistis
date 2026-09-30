@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Services\CartService;
+use App\Services\OrderNotificationService;
 use App\Services\PaymentService;
 use Illuminate\Http\Request;
 
@@ -204,6 +205,9 @@ class CheckoutController extends Controller
 
     public function success(Order $order)
     {
+        // Notify store email if not already notified upon order confirmation
+        OrderNotificationService::notifyStoreNewOrder($order);
+
         return view('checkout.success', compact('order'));
     }
 
@@ -247,6 +251,9 @@ class CheckoutController extends Controller
                 'payment_method' => 'paypal',
                 'payment_reference' => $result['reference'],
             ]);
+
+            // Dispatch premium order notification to Store Email
+            OrderNotificationService::notifyStoreNewOrder($order);
 
             // Clear cart
             $this->cartService->clearCart();

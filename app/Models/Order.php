@@ -12,6 +12,7 @@ class Order extends Model
         'order_number', 'customer_id', 'customer_email', 'customer_name',
         'subtotal', 'tax', 'shipping_cost', 'total',
         'status', 'is_archived', 'archived_at', 'payment_method', 'payment_reference', 'payment_status',
+        'admin_notified_at', 'admin_viewed_at',
         'shipping_address', 'billing_address', 'notes',
     ];
 
@@ -22,9 +23,29 @@ class Order extends Model
         'total' => 'decimal:2',
         'is_archived' => 'boolean',
         'archived_at' => 'datetime',
+        'admin_notified_at' => 'datetime',
+        'admin_viewed_at' => 'datetime',
         'shipping_address' => 'array',
         'billing_address' => 'array',
     ];
+
+    public function markAdminNotified(): bool
+    {
+        return $this->update(['admin_notified_at' => now()]);
+    }
+
+    public function markAdminViewed(): bool
+    {
+        if (!$this->admin_viewed_at) {
+            return $this->update(['admin_viewed_at' => now()]);
+        }
+        return true;
+    }
+
+    public function isUnviewedByAdmin(): bool
+    {
+        return is_null($this->admin_viewed_at);
+    }
 
     public function scopeActive($query)
     {

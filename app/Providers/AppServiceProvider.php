@@ -20,9 +20,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         try {
-            if (!app()->runningInConsole() || app()->runningUnitTests()) {
-                $symbol = \App\Models\Setting::get('currency_symbol', '$');
-                \Illuminate\Support\Facades\View::share('currency_symbol', $symbol);
+            $symbol = \App\Models\Setting::get('currency_symbol', '$');
+            \Illuminate\Support\Facades\View::share('currency_symbol', $symbol);
 
                 $videoPath = \App\Models\Setting::get('campaign_video_path');
                 $videoUrl = $videoPath ? asset('storage/' . $videoPath) : \App\Models\Setting::get('campaign_video_url');
@@ -54,11 +53,38 @@ class AppServiceProvider extends ServiceProvider
                 }
                 \Illuminate\Support\Facades\View::share('store_logo', $logoUrl);
                 \Illuminate\Support\Facades\View::share('store_logo_height', (int) \App\Models\Setting::get('store_logo_height', 32));
-                \Illuminate\Support\Facades\View::share('store_hide_brand_text', (bool) \App\Models\Setting::get('store_hide_brand_text', false));
+                $storeHideBrandText = (bool) \App\Models\Setting::get('store_hide_brand_text', false);
+                \Illuminate\Support\Facades\View::share('store_hide_brand_text', $storeHideBrandText);
                 \Illuminate\Support\Facades\View::share('homepage_show_categories', (bool) \App\Models\Setting::get('homepage_show_categories', '1'));
                 \Illuminate\Support\Facades\View::share('homepage_show_editorial_categories', (bool) \App\Models\Setting::get('homepage_show_editorial_categories', '1'));
-            }
-        } catch (\Exception $e) {
+
+                // Share admin notification stats & counts across all admin views
+                \Illuminate\Support\Facades\View::composer(['layouts.admin', 'admin.*'], function ($view) {
+                    try {
+                        $pendingOrdersCount = \App\Models\Order::whereIn('status', ['pending', 'processing'])->active()->count();
+                        $totalOrdersCount = \App\Models\Order::count();
+                        $recentNotifications = \App\Models\Order::with('customer')
+                            ->latest()
+                            ->take(6)
+                            ->get();
+                        $unviewedOrdersCount = \App\Models\Order::whereNull('admin_viewed_at')->count();
+
+                        $view->with([
+                            'pendingOrdersCount' => $pendingOrdersCount,
+                            'totalOrdersCount' => $totalOrdersCount,
+                            'recentNotifications' => $recentNotifications,
+                            'unviewedOrdersCount' => $unviewedOrdersCount,
+                        ]);
+                    } catch (\Throwable $e) {
+                        $view->with([
+                            'pendingOrdersCount' => 0,
+                            'totalOrdersCount' => 0,
+                            'recentNotifications' => collect(),
+                            'unviewedOrdersCount' => 0,
+                        ]);
+                    }
+                });
+        } catch (\Throwable $e) {
             // Avoid failing during migrations
             \Illuminate\Support\Facades\View::share('currency_symbol', '$');
             \Illuminate\Support\Facades\View::share('store_name', 'Pistis');

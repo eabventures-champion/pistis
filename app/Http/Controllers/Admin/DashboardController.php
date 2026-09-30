@@ -16,7 +16,7 @@ class DashboardController extends Controller
             'total_products' => Product::count(),
             'active_products' => Product::active()->count(),
             'total_orders' => Order::count(),
-            'pending_orders' => Order::where('status', 'pending')->count(),
+            'pending_orders' => Order::whereIn('status', ['pending', 'processing'])->active()->count(),
             'total_customers' => Customer::count(),
             'total_revenue' => Order::where('payment_status', 'paid')->sum('total'),
             'synced_products' => Product::whereNotNull('shopify_product_id')->count(),
