@@ -16,6 +16,8 @@ class CustomerController extends Controller
 
         if ($view === 'active') {
             $query->active();
+        } elseif ($view === 'disabled') {
+            $query->disabled();
         } elseif ($view === 'archived') {
             $query->archived();
         }
@@ -32,6 +34,7 @@ class CustomerController extends Controller
         $counts = [
             'all' => Customer::count(),
             'active' => Customer::active()->count(),
+            'disabled' => Customer::disabled()->count(),
             'archived' => Customer::archived()->count(),
         ];
 
@@ -44,6 +47,67 @@ class CustomerController extends Controller
     {
         $customer->load('orders');
         return view('admin.customers.show', compact('customer'));
+    }
+
+    /**
+     * Disable a customer account (blocks login and purchasing)
+     */
+    public function disable(Request $request, Customer $customer)
+    {
+        $reason = $request->input('reason', 'Suspended by store administrator');
+        $customer->disable($reason);
+
+        return back()->with('success', "Customer {$customer->full_name} has been disabled. Purchases and login with this email are now blocked.");
+    }
+
+    /**
+     * Re-enable a disabled customer account
+     */
+    public function enable(Customer $customer)
+    {
+        $customer->enable();
+
+        return back()->with('success', "Customer {$customer->full_name} has been re-enabled. Account and purchasing privileges are restored.");
+    }
+
+    /**
+     * Disable ALL active customers
+     */
+    public function disableAll(Request $request)
+    {
+        $count = Customer::active()->count();
+
+        if ($count === 0) {
+            return back()->with('info', 'There are no active customers to disable.');
+        }
+
+        Customer::active()->update([
+            'is_disabled' => true,
+            'disabled_at' => now(),
+            'disabled_reason' => 'Bulk disabled by administrator',
+        ]);
+
+        return back()->with('success', "All {$count} active customer(s) have been disabled. Purchases with their emails are now blocked.");
+    }
+
+    /**
+     * Enable ALL disabled customers
+     */
+    public function enableAll(Request $request)
+    {
+        $count = Customer::disabled()->count();
+
+        if ($count === 0) {
+            return back()->with('info', 'There are no disabled customers to enable.');
+        }
+
+        Customer::disabled()->update([
+            'is_disabled' => false,
+            'disabled_at' => null,
+            'disabled_reason' => null,
+        ]);
+
+        return back()->with('success', "All {$count} disabled customer(s) have been re-enabled.");
     }
 
     /**
@@ -122,6 +186,8 @@ class CustomerController extends Controller
         $query = Customer::query();
         if ($scope === 'archived') {
             $query->archived();
+        } elseif ($scope === 'disabled') {
+            $query->disabled();
         } elseif ($scope === 'active') {
             $query->active();
         }
@@ -140,7 +206,7 @@ class CustomerController extends Controller
         // Delete customers
         $query->delete();
 
-        $scopeLabel = $scope === 'all' ? 'all' : ($scope === 'archived' ? 'all archived' : 'all active');
+        $scopeLabel = $scope === 'all' ? 'all' : ($scope === 'archived' ? 'all archived' : ($scope === 'disabled' ? 'all disabled' : 'all active'));
         return redirect()->route('admin.customers.index')
             ->with('success', "Successfully deleted {$count} {$scopeLabel} customer(s).");
     }
@@ -153,13 +219,31 @@ class CustomerController extends Controller
         $validated = $request->validate([
             'customer_ids' => 'required|array',
             'customer_ids.*' => 'exists:customers,id',
-            'action' => 'required|in:archive,unarchive,delete',
+            'action' => 'required|in:disable,enable,archive,unarchive,delete',
         ]);
 
         $ids = $validated['customer_ids'];
         $count = count($ids);
 
         switch ($validated['action']) {
+            case 'disable':
+                Customer::whereIn('id', $ids)->update([
+                    'is_disabled' => true,
+                    'disabled_at' => now(),
+                    'disabled_reason' => 'Bulk disabled by administrator',
+                ]);
+                $message = "{$count} customer(s) disabled. Their purchases and logins are blocked.";
+                break;
+
+            case 'enable':
+                Customer::whereIn('id', $ids)->update([
+                    'is_disabled' => false,
+                    'disabled_at' => null,
+                    'disabled_reason' => null,
+                ]);
+                $message = "{$count} customer(s) re-enabled.";
+                break;
+
             case 'archive':
                 Customer::whereIn('id', $ids)->update(['archived_at' => now()]);
                 $message = "{$count} customer(s) successfully archived.";

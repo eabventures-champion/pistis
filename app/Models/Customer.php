@@ -16,6 +16,7 @@ class Customer extends Authenticatable
     protected $fillable = [
         'first_name', 'last_name', 'email', 'phone',
         'address', 'city', 'state', 'country', 'postal_code', 'password',
+        'archived_at', 'is_disabled', 'disabled_at', 'disabled_reason',
     ];
 
     protected $hidden = [
@@ -25,17 +26,24 @@ class Customer extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'archived_at' => 'datetime',
+        'is_disabled' => 'boolean',
+        'disabled_at' => 'datetime',
         'password' => 'hashed',
     ];
 
     public function scopeActive($query)
     {
-        return $query->whereNull('archived_at');
+        return $query->whereNull('archived_at')->where('is_disabled', false);
     }
 
     public function scopeArchived($query)
     {
         return $query->whereNotNull('archived_at');
+    }
+
+    public function scopeDisabled($query)
+    {
+        return $query->where('is_disabled', true);
     }
 
     public function archive()
@@ -51,6 +59,51 @@ class Customer extends Authenticatable
     public function isArchived(): bool
     {
         return $this->archived_at !== null;
+    }
+
+    public function disable(?string $reason = null)
+    {
+        $this->update([
+            'is_disabled' => true,
+            'disabled_at' => now(),
+            'disabled_reason' => $reason,
+        ]);
+    }
+
+    public function enable()
+    {
+        $this->update([
+            'is_disabled' => false,
+            'disabled_at' => null,
+            'disabled_reason' => null,
+        ]);
+    }
+
+    public function isDisabled(): bool
+    {
+        return (bool) $this->is_disabled;
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        if ($this->isArchived()) {
+            return 'Archived';
+        }
+        if ($this->isDisabled()) {
+            return 'Disabled';
+        }
+        return 'Active';
+    }
+
+    public function getStatusBadgeAttribute(): string
+    {
+        if ($this->isArchived()) {
+            return 'secondary';
+        }
+        if ($this->isDisabled()) {
+            return 'danger';
+        }
+        return 'success';
     }
 
     public function getFullNameAttribute(): string

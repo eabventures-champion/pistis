@@ -25,6 +25,15 @@ class CheckoutController extends Controller
 
         $totals = $this->cartService->getCartTotals();
         $customer = auth('customer')->user();
+
+        if ($customer && ($customer->isDisabled() || $customer->isArchived())) {
+            auth('customer')->logout();
+            $msg = $customer->isDisabled()
+                ? 'Your account has been disabled. Purchases cannot be processed for this account.'
+                : 'Your account is archived. Purchases cannot be processed for this account.';
+            return redirect()->route('shop.index')->with('error', $msg);
+        }
+
         $savedShipping = session('checkout_shipping', []);
         
         $paypalClientId = config('services.paypal.client_id');
@@ -53,6 +62,26 @@ class CheckoutController extends Controller
 
         if ($cart->items->isEmpty()) {
             return redirect()->route('shop.index')->with('error', 'Your cart is empty.');
+        }
+
+        $email = strtolower(trim($validated['email']));
+
+        // Crucial Check: Ensure email associated with a disabled or archived account CANNOT complete a purchase
+        $targetCustomer = \App\Models\Customer::where('email', $email)->first();
+        if ($targetCustomer && $targetCustomer->isDisabled()) {
+            $errorMsg = 'This customer account has been disabled. Purchases cannot be processed for this email address. Please contact customer support.';
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $errorMsg], 403);
+            }
+            return back()->with('error', $errorMsg)->withInput();
+        }
+
+        if ($targetCustomer && $targetCustomer->isArchived()) {
+            $errorMsg = 'This customer account is archived. Purchases cannot be processed for this email address. Please contact customer support.';
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $errorMsg], 403);
+            }
+            return back()->with('error', $errorMsg)->withInput();
         }
 
         $totals = $this->cartService->getCartTotals();
@@ -181,6 +210,15 @@ class CheckoutController extends Controller
      */
     public function createPayPalOrder(Order $order)
     {
+        $emailCustomer = \App\Models\Customer::where('email', $order->customer_email)->first();
+        if (($order->customer && $order->customer->isDisabled()) || ($emailCustomer && $emailCustomer->isDisabled())) {
+            return response()->json(['error' => 'This customer account has been disabled. Purchases cannot be processed.'], 403);
+        }
+
+        if (($order->customer && $order->customer->isArchived()) || ($emailCustomer && $emailCustomer->isArchived())) {
+            return response()->json(['error' => 'This customer account is archived. Purchases cannot be processed.'], 403);
+        }
+
         $gateway = $this->paymentService->gateway('paypal');
         $result = $gateway->initialize($order, route('payment.callback'));
 
