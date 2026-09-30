@@ -44,6 +44,30 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function getRootCategoryId(): ?int
+    {
+        $cat = $this->category;
+        if (!$cat) {
+            return null;
+        }
+        while ($cat->parent) {
+            $cat = $cat->parent;
+        }
+        return $cat->id;
+    }
+
+    public function getRootCategoryName(): ?string
+    {
+        $cat = $this->category;
+        if (!$cat) {
+            return null;
+        }
+        while ($cat->parent) {
+            $cat = $cat->parent;
+        }
+        return $cat->name;
+    }
+
     public function cartItems(): HasMany
     {
         return $this->hasMany(CartItem::class);

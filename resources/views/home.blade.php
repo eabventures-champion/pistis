@@ -2,6 +2,81 @@
 
 @section('title', 'Pistis — Premium Ecommerce Store')
 
+@push('styles')
+<style>
+    .editorial-badges {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    .editorial-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 14px;
+        border-radius: 9999px;
+        border: 1px solid #e5e5e5;
+        background: transparent;
+        color: #525252;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 0.68rem;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        white-space: nowrap;
+        user-select: none;
+        line-height: 1.4;
+    }
+    .editorial-badge:hover {
+        color: #000000;
+        border-color: #000000;
+        background: #f7f7f7;
+        transform: translateY(-1px);
+    }
+    .editorial-badge.active {
+        background: #000000;
+        color: #ffffff;
+        border-color: #000000;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        transform: translateY(-1px);
+    }
+    .editorial-badge:active {
+        transform: translateY(0);
+    }
+    @keyframes editorialCardReveal {
+        0% {
+            opacity: 0;
+            transform: translateY(14px) scale(0.98);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+    .editorial-revealing {
+        animation: editorialCardReveal 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @media (max-width: 768px) {
+        .editorial-header-wrapper {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 16px;
+        }
+        .editorial-badges {
+            margin-top: 4px;
+            gap: 6px;
+        }
+        .editorial-badge {
+            padding: 4px 11px;
+            font-size: 0.64rem;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 {{-- Luxury Monochrome Fashion Editorial Hero Slider --}}
 @if(isset($heroSlides) && $heroSlides->count() > 0)
@@ -178,21 +253,51 @@
 </section>
 @endif
 
-{{-- Featured Products --}}
+{{-- Featured Products (Editorial Selection) --}}
 @if($featuredProducts->count() > 0)
-<section class="section">
+<section class="section" id="editorial-selection-section">
     <div class="container">
-        <div class="section-header">
-            <div>
-                <h2 class="section-title">Editorial Selection</h2>
-                <p class="section-subtitle">Curated pieces from the archive</p>
+        <div class="editorial-header-wrapper" style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:18px;margin-bottom:32px;">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+                <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                    <h2 class="section-title" style="margin:0;">Editorial Selection</h2>
+
+                    {{-- Parent Category Filter Badges --}}
+                    @if(isset($parentCategories) && $parentCategories->count() > 0)
+                        <div class="editorial-badges" role="tablist" aria-label="Filter Editorial Selection by Category">
+                            <button type="button" 
+                                    class="editorial-badge active" 
+                                    data-category="all"
+                                    onclick="filterEditorialPieces('all', this, '{{ route('shop.index') }}')">
+                                All
+                            </button>
+                            @foreach($parentCategories as $pCat)
+                                <button type="button" 
+                                        class="editorial-badge" 
+                                        data-category="{{ $pCat->id }}"
+                                        onclick="filterEditorialPieces('{{ $pCat->id }}', this, '{{ route('shop.index', ['category' => $pCat->id]) }}')">
+                                    {{ $pCat->name }}
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+                <p class="section-subtitle" style="margin:0;">Curated pieces from the archive</p>
             </div>
-            <a href="{{ route('shop.index') }}" class="btn btn-secondary">View All →</a>
+            <div>
+                <a href="{{ route('shop.index') }}" id="editorial-view-all-btn" class="btn btn-secondary" style="font-size:0.75rem;letter-spacing:0.1em;padding:9px 18px;white-space:nowrap;">View All →</a>
+            </div>
         </div>
-        <div class="product-grid">
+
+        <div class="product-grid" id="editorial-product-grid">
             @foreach($featuredProducts as $product)
                 @include('components.product-card', ['product' => $product])
             @endforeach
+        </div>
+
+        <div id="editorial-empty-state" style="display:none;padding:50px 20px;text-align:center;">
+            <p style="color:#737373;font-size:0.9rem;letter-spacing:0.04em;margin:0 0 14px 0;">No curated pieces found in this category.</p>
+            <a href="{{ route('shop.index') }}" id="editorial-empty-link" class="btn btn-secondary btn-sm" style="font-size:0.75rem;letter-spacing:0.1em;">Browse Collection in Shop →</a>
         </div>
     </div>
 </section>
@@ -394,6 +499,58 @@ window.heroSlider = (function() {
 
     return { next, prev, goTo };
 })();
+
+// Editorial Category Filter
+function filterEditorialPieces(categoryId, btnEl, viewAllUrl) {
+    // 1. Update active badge
+    var badges = document.querySelectorAll('.editorial-badge');
+    badges.forEach(function(b) {
+        b.classList.remove('active');
+    });
+    if (btnEl) btnEl.classList.add('active');
+
+    // 2. Update View All link button
+    var viewAllBtn = document.getElementById('editorial-view-all-btn');
+    if (viewAllBtn && viewAllUrl) {
+        viewAllBtn.href = viewAllUrl;
+    }
+
+    // 3. Filter cards in editorial grid
+    var grid = document.getElementById('editorial-product-grid');
+    if (!grid) return;
+
+    var cards = grid.querySelectorAll('.product-card');
+    var visibleCount = 0;
+
+    cards.forEach(function(card) {
+        var rootCat = card.getAttribute('data-root-category');
+        var isMatch = (categoryId === 'all' || (rootCat && String(rootCat) === String(categoryId)));
+
+        if (isMatch) {
+            card.style.display = '';
+            card.classList.remove('editorial-revealing');
+            void card.offsetWidth; // Force reflow to re-trigger CSS animation
+            card.style.animationDelay = (visibleCount * 0.035) + 's';
+            card.classList.add('editorial-revealing');
+            visibleCount++;
+        } else {
+            card.style.display = 'none';
+            card.classList.remove('editorial-revealing');
+        }
+    });
+
+    // 4. Toggle empty state
+    var emptyState = document.getElementById('editorial-empty-state');
+    if (emptyState) {
+        if (visibleCount === 0) {
+            emptyState.style.display = 'block';
+            var emptyLink = document.getElementById('editorial-empty-link');
+            if (emptyLink && viewAllUrl) emptyLink.href = viewAllUrl;
+        } else {
+            emptyState.style.display = 'none';
+        }
+    }
+}
 </script>
 @endpush
 

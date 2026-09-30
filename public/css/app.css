@@ -3831,3 +3831,83 @@ body.sidebar-collapsed .admin-main {
         display: none !important;
     }
 }
+
+/* ─── Editorial Category Filter Badges ───────────────────────────────────── */
+.editorial-badges {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.editorial-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 14px;
+    border-radius: 9999px;
+    border: 1px solid #e5e5e5;
+    background: transparent;
+    color: #525252;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    user-select: none;
+    line-height: 1.4;
+}
+
+.editorial-badge:hover {
+    color: #000000;
+    border-color: #000000;
+    background: #f7f7f7;
+    transform: translateY(-1px);
+}
+
+.editorial-badge.active {
+    background: #000000;
+    color: #ffffff;
+    border-color: #000000;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+}
+
+.editorial-badge:active {
+    transform: translateY(0);
+}
+
+@keyframes editorialCardReveal {
+    0% {
+        opacity: 0;
+        transform: translateY(14px) scale(0.98);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.editorial-revealing {
+    animation: editorialCardReveal 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (max-width: 768px) {
+    .editorial-header-wrapper {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 16px;
+    }
+    .editorial-badges {
+        margin-top: 4px;
+        gap: 6px;
+    }
+    .editorial-badge {
+        padding: 4px 11px;
+        font-size: 0.64rem;
+    }
+}
+

@@ -1,4 +1,4 @@
-<div class="product-card">
+<div class="product-card" data-root-category="{{ $product->getRootCategoryId() }}">
     <a href="{{ route('shop.show', $product->slug) }}" style="display:block;text-decoration:none;">
         <div class="product-image">
             @if($product->primary_image_url)
