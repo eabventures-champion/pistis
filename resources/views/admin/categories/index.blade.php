@@ -107,13 +107,22 @@
 <div class="admin-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
     <h1>Categories</h1>
 
-    <div style="display:flex;align-items:center;gap:12px;">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
         <form action="{{ route('admin.categories.toggle-homepage-section') }}" method="POST" style="margin:0;">
             @csrf
             <button type="submit" class="btn btn-sm" style="display:inline-flex;align-items:center;gap:8px;font-size:0.8rem;padding:7px 14px;border:1px solid {{ $showHomepageCategories ? '#18181b' : '#d4d4d8' }};background:{{ $showHomepageCategories ? '#ffffff' : '#f4f4f5' }};color:{{ $showHomepageCategories ? '#18181b' : '#71717a' }};cursor:pointer;border-radius:6px;transition:all 0.15s ease;" title="Toggle whether 'Shop by Category' appears on the storefront homepage">
                 <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:{{ $showHomepageCategories ? '#22c55e' : '#a1a1aa' }};"></span>
-                <span>Homepage Section: <strong>{{ $showHomepageCategories ? 'Visible' : 'Hidden' }}</strong></span>
+                <span>Category Grid: <strong>{{ $showHomepageCategories ? 'Visible' : 'Hidden' }}</strong></span>
                 <span style="font-size:0.75rem;color:var(--text-muted);margin-left:4px;">(Click to {{ $showHomepageCategories ? 'Hide' : 'Show' }})</span>
+            </button>
+        </form>
+
+        <form action="{{ route('admin.categories.toggle-editorial-badges') }}" method="POST" style="margin:0;">
+            @csrf
+            <button type="submit" class="btn btn-sm" style="display:inline-flex;align-items:center;gap:8px;font-size:0.8rem;padding:7px 14px;border:1px solid {{ $showEditorialBadges ? '#18181b' : '#d4d4d8' }};background:{{ $showEditorialBadges ? '#ffffff' : '#f4f4f5' }};color:{{ $showEditorialBadges ? '#18181b' : '#71717a' }};cursor:pointer;border-radius:6px;transition:all 0.15s ease;" title="Toggle whether category filter badges appear next to Editorial Selection">
+                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:{{ $showEditorialBadges ? '#22c55e' : '#a1a1aa' }};"></span>
+                <span>Editorial Badges: <strong>{{ $showEditorialBadges ? 'Visible' : 'Hidden' }}</strong></span>
+                <span style="font-size:0.75rem;color:var(--text-muted);margin-left:4px;">(Click to {{ $showEditorialBadges ? 'Hide' : 'Show' }})</span>
             </button>
         </form>
     </div>

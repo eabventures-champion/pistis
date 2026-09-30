@@ -263,7 +263,7 @@
                     <h2 class="section-title" style="margin:0;">Editorial Selection</h2>
 
                     {{-- Parent Category Filter Badges --}}
-                    @if(isset($parentCategories) && $parentCategories->count() > 0)
+                    @if(($homepage_show_editorial_categories ?? true) && isset($parentCategories) && $parentCategories->count() > 0)
                         <div class="editorial-badges" role="tablist" aria-label="Filter Editorial Selection by Category">
                             <button type="button" 
                                     class="editorial-badge active" 

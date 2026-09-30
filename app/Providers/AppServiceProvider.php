@@ -56,6 +56,7 @@ class AppServiceProvider extends ServiceProvider
                 \Illuminate\Support\Facades\View::share('store_logo_height', (int) \App\Models\Setting::get('store_logo_height', 32));
                 \Illuminate\Support\Facades\View::share('store_hide_brand_text', (bool) \App\Models\Setting::get('store_hide_brand_text', false));
                 \Illuminate\Support\Facades\View::share('homepage_show_categories', (bool) \App\Models\Setting::get('homepage_show_categories', '1'));
+                \Illuminate\Support\Facades\View::share('homepage_show_editorial_categories', (bool) \App\Models\Setting::get('homepage_show_editorial_categories', '1'));
             }
         } catch (\Exception $e) {
             // Avoid failing during migrations
@@ -65,6 +66,7 @@ class AppServiceProvider extends ServiceProvider
             \Illuminate\Support\Facades\View::share('store_logo_height', 32);
             \Illuminate\Support\Facades\View::share('store_hide_brand_text', false);
             \Illuminate\Support\Facades\View::share('homepage_show_categories', true);
+            \Illuminate\Support\Facades\View::share('homepage_show_editorial_categories', true);
             \Illuminate\Support\Facades\View::share('campaignVideo', ['enabled' => false, 'video_url' => null]);
         }
     }

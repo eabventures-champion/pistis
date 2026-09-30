@@ -33,6 +33,7 @@ class SettingsController extends Controller
             'store_logo_height' => (int) Setting::get('store_logo_height', 32),
             'store_hide_brand_text' => (bool) Setting::get('store_hide_brand_text', false),
             'homepage_show_categories' => (bool) Setting::get('homepage_show_categories', '1'),
+            'homepage_show_editorial_categories' => (bool) Setting::get('homepage_show_editorial_categories', '1'),
         ];
 
         return view('admin.settings', compact('settings'));
@@ -53,6 +54,7 @@ class SettingsController extends Controller
             'store_logo_height' => 'nullable|integer|min:16|max:120',
             'store_hide_brand_text' => 'nullable|boolean',
             'homepage_show_categories' => 'nullable|boolean',
+            'homepage_show_editorial_categories' => 'nullable|boolean',
         ]);
 
         $fields = [
@@ -69,6 +71,7 @@ class SettingsController extends Controller
 
         Setting::set('store_hide_brand_text', $request->boolean('store_hide_brand_text') ? '1' : '0');
         Setting::set('homepage_show_categories', $request->boolean('homepage_show_categories') ? '1' : '0');
+        Setting::set('homepage_show_editorial_categories', $request->boolean('homepage_show_editorial_categories') ? '1' : '0');
 
         // Handle Logo file upload
         if ($request->hasFile('store_logo')) {

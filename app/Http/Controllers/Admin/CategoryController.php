@@ -17,8 +17,9 @@ class CategoryController extends Controller
             ->get();
 
         $showHomepageCategories = (bool) \App\Models\Setting::get('homepage_show_categories', '1');
+        $showEditorialBadges = (bool) \App\Models\Setting::get('homepage_show_editorial_categories', '1');
 
-        return view('admin.categories.index', compact('categories', 'showHomepageCategories'));
+        return view('admin.categories.index', compact('categories', 'showHomepageCategories', 'showEditorialBadges'));
     }
 
     public function toggleHomepageSection()
@@ -28,6 +29,15 @@ class CategoryController extends Controller
 
         $statusText = $current ? 'hidden from' : 'now visible on';
         return back()->with('success', "\"Shop by Category\" section is {$statusText} the storefront homepage.");
+    }
+
+    public function toggleEditorialBadges()
+    {
+        $current = (bool) \App\Models\Setting::get('homepage_show_editorial_categories', '1');
+        \App\Models\Setting::set('homepage_show_editorial_categories', $current ? '0' : '1');
+
+        $statusText = $current ? 'hidden from' : 'now visible in';
+        return back()->with('success', "Category filter badges are {$statusText} Editorial Selection.");
     }
 
     public function store(Request $request)
