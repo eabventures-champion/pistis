@@ -18,7 +18,7 @@
             <div class="sidebar-brand-wrapper">
                 <a href="{{ route('admin.dashboard') }}" class="sidebar-brand">
                     @if(!empty($store_logo))
-                        <img src="{{ $store_logo }}" alt="{{ $store_name ?? 'Pistis' }}" style="max-height: 26px; width: auto; object-fit: contain; display: block;">
+                        <img src="{{ $store_logo }}" alt="{{ $store_name ?? 'Pistis' }}" class="brand-logo-img" style="max-height: 26px; width: auto; object-fit: contain; display: block; border-radius: 50%; aspect-ratio: 1/1;">
                     @else
                         <span class="brand-dot">P</span>
                     @endif

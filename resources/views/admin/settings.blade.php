@@ -53,7 +53,7 @@
                             <div style="display:flex; align-items:center; gap:16px;">
                                 <div style="padding:16px 22px; background:#ffffff; border:1px solid #e5e5e5; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; min-width:90px; min-height:80px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
                                     @if(!empty($settings['store_logo_url']))
-                                        <img id="logoPreviewImg" src="{{ $settings['store_logo_url'] }}" alt="Store Logo" style="max-height:{{ $settings['store_logo_height'] }}px; width:auto; max-width:240px; object-fit:contain;">
+                                        <img id="logoPreviewImg" src="{{ $settings['store_logo_url'] }}" alt="Store Logo" style="max-height:{{ $settings['store_logo_height'] }}px; width:auto; max-width:240px; object-fit:contain; border-radius:50%; aspect-ratio:1/1; box-shadow:0 2px 10px rgba(0,0,0,0.08);">
                                     @else
                                         <div style="display:flex; align-items:center; gap:10px;">
                                             <span class="brand-icon" style="width:28px; height:28px; background:#000; color:#fff; display:flex; align-items:center; justify-content:center; font-family:'Cormorant Garamond', serif; font-size:1.1rem; font-weight:bold;">P</span>
