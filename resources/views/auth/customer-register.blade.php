@@ -4,20 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register — Pistis</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ file_exists(public_path('css/app.css')) ? filemtime(public_path('css/app.css')) : time() }}">
+    <style>
+        .auth-brand-link {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .auth-brand-logo {
+            width: 80px;
+            height: 80px;
+            max-height: 80px;
+            border-radius: 50%;
+            aspect-ratio: 1 / 1;
+            object-fit: contain;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        .auth-brand-logo:hover {
+            transform: scale(1.06);
+            box-shadow: 0 8px 26px rgba(0, 0, 0, 0.18);
+        }
+    </style>
 </head>
 <body>
     <div class="auth-wrapper">
         <div class="auth-card">
-            <div class="text-center mb-4">
-                <a href="{{ route('home') }}" class="navbar-brand" style="display:inline-flex;font-size:1.6rem;margin-bottom:24px;align-items:center;gap:12px;">
+            <div class="text-center">
+                <a href="{{ route('home') }}" class="auth-brand-link" title="{{ $store_name ?? 'PISTIS' }}">
                     @if(!empty($store_logo))
-                        <img src="{{ $store_logo }}" alt="{{ $store_name ?? 'PISTIS' }}" style="max-height:36px; width:auto; object-fit:contain;">
+                        <img src="{{ $store_logo }}" alt="{{ $store_name ?? 'PISTIS' }}" class="auth-brand-logo">
                     @else
-                        <span class="brand-icon">P</span>
+                        <span class="brand-icon" style="width:60px; height:60px; font-size:1.8rem; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:#000; color:#fff; font-family:'Cormorant Garamond', serif; font-weight:700;">P</span>
                     @endif
                     @if(empty($store_hide_brand_text))
-                        <span>{{ $store_name ?? 'PISTIS' }}</span>
+                        <span style="font-family:'Inter', sans-serif; font-size:1.15rem; font-weight:800; letter-spacing:0.28em; color:#000000; text-transform:uppercase;">{{ $store_name ?? 'PISTIS' }}</span>
                     @endif
                 </a>
             </div>

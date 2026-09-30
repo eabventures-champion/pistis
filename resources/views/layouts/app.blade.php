@@ -21,8 +21,23 @@
             line-height: 1;
         }
         .brand-logo-img {
-            transition: max-height 0.2s ease;
+            transition: max-height 0.2s ease, transform 0.2s ease;
             image-rendering: auto;
+            border-radius: 50%;
+            aspect-ratio: 1 / 1;
+            object-fit: contain;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+        .brand-logo-img:hover {
+            transform: scale(1.03);
+        }
+        @media (max-width: 768px) {
+            :root {
+                --nav-height: {{ min($navHeight, 72) }}px;
+            }
+            .brand-logo-img {
+                max-height: {{ min($store_logo_height ?? 32, 50) }}px !important;
+            }
         }
     </style>
     @stack('styles')

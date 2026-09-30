@@ -46,13 +46,13 @@
     <div class="auth-wrapper">
         <div class="auth-card">
             <div class="text-center mb-4">
-                <div class="navbar-brand" style="display:inline-flex;font-size:1.6rem;margin-bottom:24px;align-items:center;gap:12px;">
+                <div style="display:inline-flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:16px;">
                     @if(!empty($store_logo))
-                        <img src="{{ $store_logo }}" alt="{{ $store_name ?? 'Pistis' }}" style="max-height:36px; width:auto; object-fit:contain;">
+                        <img src="{{ $store_logo }}" alt="{{ $store_name ?? 'Pistis' }}" style="width:72px; height:72px; max-height:72px; border-radius:50%; aspect-ratio:1/1; object-fit:contain; box-shadow:0 4px 16px rgba(0,0,0,0.12);">
                     @else
-                        <span class="brand-icon">P</span>
+                        <span class="brand-icon" style="width:56px; height:56px; font-size:1.6rem; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:#000; color:#fff;">P</span>
                     @endif
-                    <span>Admin Panel</span>
+                    <span style="font-family:'Inter', sans-serif; font-size:0.85rem; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:var(--text-secondary);">Admin Panel</span>
                 </div>
             </div>
             <h2 class="auth-title">Admin Login</h2>

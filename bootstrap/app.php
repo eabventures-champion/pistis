@@ -12,6 +12,20 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->redirectGuestsTo(function ($request) {
+            if ($request->is('admin') || $request->is('admin/*')) {
+                return route('admin.login');
+            }
+            return route('customer.login');
+        });
+
+        $middleware->redirectUsersTo(function ($request) {
+            if ($request->is('admin') || $request->is('admin/*')) {
+                return route('admin.dashboard');
+            }
+            return route('account.index');
+        });
+
         $middleware->alias([
             'admin' => \App\Http\Middleware\IsAdmin::class,
             'shopify.webhook' => \App\Http\Middleware\VerifyShopifyWebhook::class,

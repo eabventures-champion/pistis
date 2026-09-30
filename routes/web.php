@@ -49,6 +49,7 @@ Route::middleware('guest:customer')->group(function () {
     Route::get('/register', [CustomerAuthController::class, 'showRegister'])->name('customer.register');
     Route::post('/register', [CustomerAuthController::class, 'register']);
 });
+Route::redirect('/auth/login', '/login')->name('login');
 Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout')
     ->middleware('auth:customer');
 
@@ -75,6 +76,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('products', ProductController::class);
 
     // Categories
+    Route::delete('/categories/bulk-destroy', [CategoryController::class, 'bulkDestroy'])->name('categories.bulk-destroy');
+    Route::patch('/categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle-status');
     Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit']);
 
     // Orders

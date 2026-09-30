@@ -62,6 +62,49 @@ class Category extends Model
         }
         return $ids;
     }
+
+    /**
+     * Get an ordered array of all ancestor Category models from root down to immediate parent.
+     *
+     * @return array<Category>
+     */
+    public function getAncestors(): array
+    {
+        $ancestors = [];
+        $current = $this->parent;
+        $visited = [$this->id];
+
+        while ($current && !in_array($current->id, $visited)) {
+            $visited[] = $current->id;
+            array_unshift($ancestors, $current);
+            $current = $current->parent;
+        }
+
+        return $ancestors;
+    }
+
+    /**
+     * Get full breadcrumb path of parent categories ending with arrow, e.g. "Clothing → Men's Wear → "
+     */
+    public function getParentPathAttribute(): string
+    {
+        $ancestors = $this->getAncestors();
+        if (empty($ancestors)) {
+            return '';
+        }
+        return implode(' → ', array_map(fn($c) => $c->name, $ancestors)) . ' → ';
+    }
+
+    /**
+     * Get full breadcrumb path including this category, e.g. "Clothing → Men's Wear → Shirts"
+     */
+    public function getFullPathAttribute(): string
+    {
+        $ancestors = $this->getAncestors();
+        $names = array_map(fn($c) => $c->name, $ancestors);
+        $names[] = $this->name;
+        return implode(' → ', $names);
+    }
  
     /**
      * Calculate total products count recursively.
