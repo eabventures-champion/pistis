@@ -54,7 +54,7 @@ Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('custome
     ->middleware('auth:customer');
 
 // ─── Customer Account ────────────────────────────────────────────────
-Route::middleware('auth:customer')->prefix('account')->group(function () {
+Route::middleware(['auth:customer', 'customer.active'])->prefix('account')->group(function () {
     Route::get('/', [AccountController::class, 'index'])->name('account.index');
     Route::get('/orders', [AccountController::class, 'orders'])->name('account.orders');
     Route::get('/orders/{order}', [AccountController::class, 'orderDetail'])->name('account.order-detail');

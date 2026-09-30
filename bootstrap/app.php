@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'admin' => \App\Http\Middleware\IsAdmin::class,
+            'customer.active' => \App\Http\Middleware\EnsureCustomerIsActive::class,
             'shopify.webhook' => \App\Http\Middleware\VerifyShopifyWebhook::class,
         ]);
     })

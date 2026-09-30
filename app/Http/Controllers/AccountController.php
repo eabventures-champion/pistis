@@ -8,21 +8,6 @@ use Illuminate\Support\Facades\Hash;
 
 class AccountController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            $customer = Auth::guard('customer')->user();
-            if ($customer && ($customer->isDisabled() || $customer->isArchived())) {
-                Auth::guard('customer')->logout();
-                $msg = $customer->isDisabled()
-                    ? 'Your account has been disabled. Please contact support.'
-                    : 'Your account has been archived. Please contact support.';
-                return redirect()->route('customer.login')->with('error', $msg);
-            }
-            return $next($request);
-        });
-    }
-
     public function index()
     {
         $customer = Auth::guard('customer')->user();
