@@ -16,7 +16,18 @@ class CategoryController extends Controller
             ->orderBy('sort_order')
             ->get();
 
-        return view('admin.categories.index', compact('categories'));
+        $showHomepageCategories = (bool) \App\Models\Setting::get('homepage_show_categories', '1');
+
+        return view('admin.categories.index', compact('categories', 'showHomepageCategories'));
+    }
+
+    public function toggleHomepageSection()
+    {
+        $current = (bool) \App\Models\Setting::get('homepage_show_categories', '1');
+        \App\Models\Setting::set('homepage_show_categories', $current ? '0' : '1');
+
+        $statusText = $current ? 'hidden from' : 'now visible on';
+        return back()->with('success', "\"Shop by Category\" section is {$statusText} the storefront homepage.");
     }
 
     public function store(Request $request)

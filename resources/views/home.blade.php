@@ -157,7 +157,7 @@
 @endif
 
 {{-- Categories --}}
-@if($categories->count() > 0)
+@if(($homepage_show_categories ?? true) && $categories->count() > 0)
 <section class="section">
     <div class="container">
         <div class="section-header">
@@ -177,16 +177,6 @@
     </div>
 </section>
 @endif
-
-{{-- Brand Manifesto --}}
-<section class="brand-manifesto-section">
-    <div class="brand-manifesto-inner">
-        <span class="manifesto-tag">The Pistis Philosophy</span>
-        <h2 class="manifesto-quote">Where Architecture Meets The Human Form</h2>
-        <p class="manifesto-body">Every piece in the Pistis archive is an exercise in restraint — constructed from premium textiles, refined through precision tailoring, and designed to outlast the ephemeral noise of seasonal trends.</p>
-        <a href="{{ route('shop.index') }}" class="btn btn-outline" style="background:transparent;color:#ffffff;border-color:#ffffff;">EXPLORE ARCHIVE →</a>
-    </div>
-</section>
 
 {{-- Featured Products --}}
 @if($featuredProducts->count() > 0)
@@ -227,6 +217,16 @@
     </div>
 </section>
 @endif
+
+{{-- Brand Manifesto (The Pistis Philosophy) --}}
+<section class="brand-manifesto-section">
+    <div class="brand-manifesto-inner">
+        <span class="manifesto-tag">The Pistis Philosophy</span>
+        <h2 class="manifesto-quote">Where Architecture Meets The Human Form</h2>
+        <p class="manifesto-body">Every piece in the Pistis archive is an exercise in restraint — constructed from premium textiles, refined through precision tailoring, and designed to outlast the ephemeral noise of seasonal trends.</p>
+        <a href="{{ route('shop.index') }}" class="btn btn-outline" style="background:transparent;color:#ffffff;border-color:#ffffff;">EXPLORE ARCHIVE →</a>
+    </div>
+</section>
 @endsection
 
 @push('scripts')

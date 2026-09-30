@@ -115,13 +115,24 @@
                     </div>
 
                     {{-- Hide Brand Name Text Toggle --}}
-                    <div class="form-group" style="padding:12px 14px; background:var(--bg-secondary); border-radius:8px; border:1px solid var(--border-light);">
+                    <div class="form-group mb-3" style="padding:12px 14px; background:var(--bg-secondary); border-radius:8px; border:1px solid var(--border-light);">
                         <label class="form-check" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin:0;">
                             <div>
                                 <strong style="font-size:0.88rem; display:block; color:var(--text-primary);">Hide Store Name Text in Header</strong>
                                 <span class="text-muted" style="font-size:0.78rem;">Check this if your uploaded logo image already incorporates the word "PISTIS" or your brand name.</span>
                             </div>
-                            <input type="checkbox" name="store_hide_brand_text" value="1" {{ $settings['store_hide_brand_text'] ? 'checked' : '' }} style="width:18px; height:18px; cursor:pointer;">
+                            <input type="checkbox" name="store_hide_brand_text" value="1" {{ $settings['store_hide_brand_text'] ? 'checked' : '' }} style="width:18px; height:18px; cursor:pointer; accent-color:#000000;">
+                        </label>
+                    </div>
+
+                    {{-- Homepage Categories Visibility Toggle --}}
+                    <div class="form-group" style="padding:12px 14px; background:var(--bg-secondary); border-radius:8px; border:1px solid var(--border-light);">
+                        <label class="form-check" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer; margin:0;">
+                            <div>
+                                <strong style="font-size:0.88rem; display:block; color:var(--text-primary);">Show "Shop by Category" on Homepage</strong>
+                                <span class="text-muted" style="font-size:0.78rem;">Display the categories grid on the storefront homepage. Uncheck to hide the entire category section.</span>
+                            </div>
+                            <input type="checkbox" name="homepage_show_categories" value="1" {{ ($settings['homepage_show_categories'] ?? true) ? 'checked' : '' }} style="width:18px; height:18px; cursor:pointer; accent-color:#000000;">
                         </label>
                     </div>
                 </div>

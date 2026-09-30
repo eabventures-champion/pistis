@@ -76,6 +76,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('products', ProductController::class);
 
     // Categories
+    Route::post('/categories/toggle-homepage-section', [CategoryController::class, 'toggleHomepageSection'])->name('categories.toggle-homepage-section');
     Route::delete('/categories/bulk-destroy', [CategoryController::class, 'bulkDestroy'])->name('categories.bulk-destroy');
     Route::patch('/categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle-status');
     Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit']);
