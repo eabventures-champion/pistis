@@ -91,7 +91,7 @@ class CartController extends Controller
                     'formatted_tax' => $currencySymbol . number_format($totals['tax'], 2),
                     'formatted_total' => $currencySymbol . number_format($totals['total'], 2),
                 ],
-                'cart_badge_count' => $cart->items()->count(),
+                'cart_badge_count' => $totals['item_count'],
             ]);
         }
 
@@ -124,7 +124,7 @@ class CartController extends Controller
                     'formatted_tax' => $currencySymbol . number_format($totals['tax'], 2),
                     'formatted_total' => $currencySymbol . number_format($totals['total'], 2),
                 ],
-                'cart_badge_count' => $cart->items()->count(),
+                'cart_badge_count' => $totals['item_count'],
             ]);
         }
 

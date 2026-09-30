@@ -83,7 +83,7 @@
                     @php
                         $cartCount = 0;
                         try {
-                            $cartCount = app(\App\Services\CartService::class)->getCart()->items->count();
+                            $cartCount = app(\App\Services\CartService::class)->getCart()->items->sum('quantity');
                         } catch (\Exception $e) {}
                     @endphp
                     <a href="{{ route('cart.index') }}" class="cart-badge" aria-label="Shopping Bag">

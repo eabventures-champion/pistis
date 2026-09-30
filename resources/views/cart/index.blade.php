@@ -279,10 +279,9 @@
             totalEl.textContent = `${currencySymbol}${subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
 
-        const distinctItemCount = document.querySelectorAll('.cart-item-row').length;
         document.querySelectorAll('.cart-count').forEach(el => {
-            el.textContent = distinctItemCount;
-            el.style.display = distinctItemCount > 0 ? '' : 'none';
+            el.textContent = totalPieces;
+            el.style.display = totalPieces > 0 ? '' : 'none';
         });
     }
 
