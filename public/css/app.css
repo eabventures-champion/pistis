@@ -721,8 +721,8 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (max-width: 480px) {
     .product-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px 10px;
     }
 }
 
@@ -3322,7 +3322,8 @@ body.sidebar-collapsed .admin-main {
 
 @media (max-width: 480px) {
     .shop-layout .product-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px 10px;
     }
 }
 
@@ -3908,6 +3909,41 @@ body.sidebar-collapsed .admin-main {
     .editorial-badge {
         padding: 4px 11px;
         font-size: 0.64rem;
+    }
+
+    /* ─── 2-Column Mobile Product Grid (Editorial Selection & New Arrivals) ─── */
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 16px 10px !important;
+    }
+    .product-card .product-info {
+        padding: 10px 4px 8px 4px !important;
+    }
+    .product-card .product-name {
+        font-size: 0.95rem !important;
+        margin-bottom: 4px !important;
+        line-height: 1.25 !important;
+    }
+    .product-card .product-category {
+        font-size: 0.6rem !important;
+        letter-spacing: 0.12em !important;
+        margin-bottom: 3px !important;
+    }
+    .product-card .price-current {
+        font-size: 0.85rem !important;
+    }
+    .product-card .price-compare {
+        font-size: 0.72rem !important;
+    }
+    .product-card .badge-overlay {
+        top: 6px !important;
+        left: 6px !important;
+        gap: 4px !important;
+    }
+    .product-card .badge-overlay .badge {
+        font-size: 0.58rem !important;
+        padding: 3px 6px !important;
+        letter-spacing: 0.08em !important;
     }
 }
 
