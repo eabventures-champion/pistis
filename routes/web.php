@@ -85,6 +85,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit']);
 
     // Orders
+    Route::post('/orders/mark-all-read', [OrderController::class, 'markAllRead'])->name('orders.mark-all-read');
     Route::post('/orders/bulk-action', [OrderController::class, 'bulkAction'])->name('orders.bulk-action');
     Route::post('/orders/{order}/archive', [OrderController::class, 'archive'])->name('orders.archive');
     Route::post('/orders/{order}/unarchive', [OrderController::class, 'unarchive'])->name('orders.unarchive');

@@ -47,10 +47,26 @@
             <div class="card-header"><h3 style="font-size:1rem;">Order Items</h3></div>
             <div class="card-body" style="padding:0;">
                 @foreach($order->items as $item)
-                    <div class="d-flex align-center gap-3" style="padding:12px 20px;border-bottom:1px solid var(--border-color);">
+                    <div class="d-flex align-center gap-3" style="padding:14px 20px;border-bottom:1px solid var(--border-color);">
+                        {{-- Product Image Thumbnail --}}
+                        <div style="width:56px;height:70px;border-radius:4px;overflow:hidden;background:#f5f5f5;border:1px solid #e5e5e5;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+                            @if($item->image_url)
+                                <img src="{{ $item->image_url }}" alt="{{ $item->product_name }}" style="width:100%;height:100%;object-fit:cover;display:block;">
+                            @else
+                                <span style="font-size:1.4rem;color:#a3a3a3;">📦</span>
+                            @endif
+                        </div>
                         <div class="flex-1">
-                            <div style="font-weight:600;color:var(--text-primary);">{{ $item->product_name }}</div>
-                            <div class="text-muted" style="font-size:0.8rem;">
+                            <div style="font-weight:600;color:var(--text-primary);font-size:0.95rem;">
+                                @if($item->product)
+                                    <a href="{{ route('admin.products.edit', $item->product) }}" style="color:inherit;text-decoration:none;" title="Edit Product">
+                                        {{ $item->product_name }}
+                                    </a>
+                                @else
+                                    {{ $item->product_name }}
+                                @endif
+                            </div>
+                            <div class="text-muted" style="font-size:0.8rem;margin-top:3px;">
                                 SKU: {{ $item->product_sku }} • Qty: {{ $item->quantity }} × {{ $currency_symbol }}{{ number_format($item->price, 2) }}
                                 @if($item->color)
                                     • Color: <span class="badge badge-secondary" style="font-size:0.75rem;padding:2px 8px;text-transform:uppercase;">{{ $item->color }}</span>
@@ -60,7 +76,7 @@
                                 @endif
                             </div>
                         </div>
-                        <div style="font-weight:600;color:var(--text-primary);">{{ $currency_symbol }}{{ number_format($item->total, 2) }}</div>
+                        <div style="font-weight:700;color:var(--text-primary);font-size:0.95rem;">{{ $currency_symbol }}{{ number_format($item->total, 2) }}</div>
                     </div>
                 @endforeach
             </div>

@@ -135,15 +135,13 @@
 
                     {{-- Bell Notification Dropdown --}}
                     <div class="topbar-dropdown" id="topbar-notifications-dropdown">
-                        <button type="button" class="topbar-bell-btn {{ (($pendingOrdersCount ?? 0) > 0 || ($unviewedOrdersCount ?? 0) > 0) ? 'has-notifications' : '' }}" id="notifications-toggle-btn" onclick="toggleNotificationsMenu(event)" title="Notifications" aria-expanded="false">
+                        <button type="button" class="topbar-bell-btn {{ ($unviewedOrdersCount ?? 0) > 0 ? 'has-notifications' : '' }}" id="notifications-toggle-btn" onclick="toggleNotificationsMenu(event)" title="Notifications" aria-expanded="false">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                                 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                             </svg>
-                            @if(($pendingOrdersCount ?? 0) > 0)
-                                <span class="bell-badge-count">{{ $pendingOrdersCount }}</span>
-                            @elseif(($unviewedOrdersCount ?? 0) > 0)
-                                <span class="bell-badge-count">{{ $unviewedOrdersCount }}</span>
+                            @if(($unviewedOrdersCount ?? 0) > 0)
+                                <span class="bell-badge-count" id="bell-badge-count">{{ $unviewedOrdersCount }}</span>
                             @endif
                         </button>
 
@@ -151,18 +149,35 @@
                             <div class="notifications-header">
                                 <div class="notifications-title">
                                     <span>Order Notifications</span>
-                                    @if(($pendingOrdersCount ?? 0) > 0)
-                                        <span class="badge badge-warning" style="font-size:0.68rem;padding:3px 8px;border-radius:10px;">{{ $pendingOrdersCount }} Pending</span>
+                                    @if(($unviewedOrdersCount ?? 0) > 0)
+                                        <span class="badge badge-warning" id="notif-header-badge" style="font-size:0.68rem;padding:3px 8px;border-radius:10px;">{{ $unviewedOrdersCount }} New</span>
+                                    @else
+                                        <span class="badge" id="notif-header-badge" style="background:#e5e7eb;color:#475569;font-size:0.65rem;padding:2px 7px;border-radius:10px;">All caught up</span>
                                     @endif
                                 </div>
-                                <span class="notifications-sub">Recent customer orders</span>
+                                <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;">
+                                    <span class="notifications-sub" style="margin:0;">Recent customer orders</span>
+                                    @if(($unviewedOrdersCount ?? 0) > 0)
+                                        <button type="button" id="mark-all-read-btn" onclick="markAllNotificationsRead(event)" style="background:none;border:none;padding:0;color:#2563eb;font-size:0.72rem;cursor:pointer;font-weight:600;text-decoration:underline;">
+                                            Mark all read
+                                        </button>
+                                    @endif
+                                </div>
                             </div>
 
                             <div class="notifications-list">
                                 @forelse($recentNotifications ?? [] as $notifOrder)
                                     <a href="{{ route('admin.orders.show', $notifOrder) }}" class="notification-item {{ $notifOrder->isUnviewedByAdmin() ? 'is-unread' : '' }}">
-                                        <div class="notif-icon-box">
-                                            <span class="notif-icon">🛍️</span>
+                                        @php
+                                            $firstItem = $notifOrder->items->first();
+                                            $notifThumb = $firstItem?->image_url;
+                                        @endphp
+                                        <div class="notif-icon-box" style="overflow:hidden;padding:0;background:#f5f5f5;border:1px solid #e5e5e5;width:38px;height:46px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                            @if($notifThumb)
+                                                <img src="{{ $notifThumb }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">
+                                            @else
+                                                <span class="notif-icon" style="font-size:1.1rem;">🛍️</span>
+                                            @endif
                                         </div>
                                         <div class="notif-content">
                                             <div class="notif-top-row">
@@ -271,6 +286,36 @@
                 }
             }
         });
+
+        // Mark all notifications as read
+        function markAllNotificationsRead(event) {
+            if (event) event.stopPropagation();
+            fetch('{{ route('admin.orders.mark-all-read') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                }
+            }).then(res => res.json()).then(data => {
+                if (data.success) {
+                    const bellBadge = document.getElementById('bell-badge-count');
+                    if (bellBadge) bellBadge.remove();
+                    const bellBtn = document.getElementById('notifications-toggle-btn');
+                    if (bellBtn) bellBtn.classList.remove('has-notifications');
+                    const headerBadge = document.getElementById('notif-header-badge');
+                    if (headerBadge) {
+                        headerBadge.className = 'badge';
+                        headerBadge.style = 'background:#e5e7eb;color:#475569;font-size:0.65rem;padding:2px 7px;border-radius:10px;';
+                        headerBadge.textContent = 'All caught up';
+                    }
+                    const markBtn = document.getElementById('mark-all-read-btn');
+                    if (markBtn) markBtn.remove();
+                    document.querySelectorAll('.notif-unread-dot').forEach(el => el.remove());
+                    document.querySelectorAll('.notification-item.is-unread').forEach(el => el.classList.remove('is-unread'));
+                }
+            }).catch(err => console.error(err));
+        }
 
         initSidebarState();
     </script>

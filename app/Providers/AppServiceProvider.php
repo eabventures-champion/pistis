@@ -66,7 +66,7 @@ class AppServiceProvider extends ServiceProvider
                         $sidebarProductsCount = \App\Models\Product::count();
                         $sidebarCategoriesCount = \App\Models\Category::count();
                         $sidebarCustomersCount = \App\Models\Customer::count();
-                        $recentNotifications = \App\Models\Order::with('customer')
+                        $recentNotifications = \App\Models\Order::with(['customer', 'items.product'])
                             ->latest()
                             ->take(6)
                             ->get();

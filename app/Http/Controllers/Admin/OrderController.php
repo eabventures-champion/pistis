@@ -46,6 +46,15 @@ class OrderController extends Controller
         return view('admin.orders.index', compact('orders', 'counts', 'view'));
     }
 
+    /**
+     * Mark all unread orders as viewed by admin
+     */
+    public function markAllRead()
+    {
+        Order::whereNull('admin_viewed_at')->update(['admin_viewed_at' => now()]);
+        return response()->json(['success' => true]);
+    }
+
     public function show(Order $order)
     {
         $order->markAdminViewed();

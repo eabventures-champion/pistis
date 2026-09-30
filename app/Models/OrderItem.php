@@ -26,4 +26,24 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Product::class);
     }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (!$this->product) {
+            return null;
+        }
+
+        // Try color-matched image first (case-insensitive)
+        if ($this->color && !empty($this->product->color_galleries)) {
+            $galleries = $this->product->color_galleries;
+            foreach ($galleries as $colorName => $images) {
+                if (strcasecmp($colorName, $this->color) === 0 && !empty($images[0])) {
+                    return $images[0];
+                }
+            }
+        }
+
+        // Fallback to product primary image
+        return $this->product->primary_image_url;
+    }
 }
