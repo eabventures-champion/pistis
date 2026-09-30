@@ -3947,3 +3947,34 @@ body.sidebar-collapsed .admin-main {
     }
 }
 
+/* ─── Dark Hero Page Banners (Shop, Cart, Checkout) ───────────────────── */
+.page-dark-banner,
+.shop-hero-banner,
+.cart-hero-banner,
+.checkout-hero-banner {
+    background: #000000 !important;
+    color: #ffffff !important;
+    text-align: center;
+}
+
+.page-dark-banner h1,
+.shop-hero-banner h1,
+.cart-hero-banner h1,
+.checkout-hero-banner h1 {
+    color: #ffffff !important;
+}
+
+.page-dark-banner .banner-subtitle,
+.shop-hero-banner .banner-subtitle,
+.cart-hero-banner .banner-subtitle,
+.checkout-hero-banner .banner-subtitle {
+    color: #a3a3a3 !important;
+    letter-spacing: 0.25em !important;
+}
+
+.page-dark-banner .banner-divider,
+.shop-hero-banner .banner-divider,
+.cart-hero-banner .banner-divider,
+.checkout-hero-banner .banner-divider {
+    background: rgba(255, 255, 255, 0.3) !important;
+}

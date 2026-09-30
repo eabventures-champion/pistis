@@ -4,16 +4,16 @@
 
 @section('content')
 {{-- Shop Banner --}}
-<div style="background:#000000;color:#ffffff;text-align:center;padding:56px 24px 48px;">
-    <span style="font-family:'Inter',sans-serif;font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;color:#737373;display:block;margin-bottom:12px;">THE ARCHIVE</span>
-    <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:300;margin:0;letter-spacing:0.02em;">
+<div class="page-dark-banner shop-hero-banner" style="background:#000000;color:#ffffff;text-align:center;padding:56px 24px 48px;">
+    <span class="banner-subtitle" style="font-family:'Inter',sans-serif;font-size:0.7rem;letter-spacing:0.25em;text-transform:uppercase;color:#a3a3a3;display:block;margin-bottom:12px;">THE ARCHIVE</span>
+    <h1 style="color:#ffffff !important;font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:300;margin:0;letter-spacing:0.02em;">
         @if(request('category') && $categories->firstWhere('id', request('category')))
             {{ $categories->firstWhere('id', request('category'))->name }}
         @else
             All Pieces
         @endif
     </h1>
-    <div style="width:40px;height:1px;background:#525252;margin:20px auto 0;"></div>
+    <div class="banner-divider" style="width:40px;height:1px;background:rgba(255,255,255,0.3);margin:20px auto 0;"></div>
 </div>
 
 <div class="container" style="padding-top:40px;padding-bottom:60px;">
