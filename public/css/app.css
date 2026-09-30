@@ -3285,12 +3285,21 @@ body.sidebar-collapsed .admin-main {
 
 .add-to-cart-form {
     display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 24px;
+    width: 100%;
+}
+
+.add-to-cart-form .product-action-row {
+    display: flex;
     gap: 12px;
-    margin-bottom: 20px;
+    align-items: center;
+    width: 100%;
 }
 
 .add-to-cart-form .qty-input {
-    width: 80px;
+    width: 48px;
 }
 
 /* ─── Filters Sidebar ──────────────────────────────────────────────────── */

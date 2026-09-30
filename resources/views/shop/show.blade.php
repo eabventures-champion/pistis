@@ -107,18 +107,18 @@
             @endif
 
             @if($product->is_in_stock)
-                <form action="{{ route('cart.add') }}" method="POST" class="add-to-cart-form" style="margin-bottom:20px;">
+                <form action="{{ route('cart.add') }}" method="POST" class="add-to-cart-form" style="display:flex;flex-direction:column;gap:0;margin-bottom:24px;width:100%;">
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
 
                     {{-- Piece Colors Selector --}}
                     @if(!empty($product->colors_list) && count($product->colors_list) > 0)
-                        <div class="product-color-selector" style="margin-bottom:24px;">
+                        <div class="product-color-selector" style="margin-bottom:24px;width:100%;">
                             <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
                                 <span style="font-family:'Inter',sans-serif;font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;color:#000000;">
                                     COLOR &mdash; <strong id="selected-color-label" style="font-weight:600;letter-spacing:0.1em;">{{ $product->colors_list[0]['name'] }}</strong>
                                 </span>
-                                <span style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:#a3a3a3;">
+                                <span style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:#737373;">
                                     {{ count($product->colors_list) }} {{ count($product->colors_list) === 1 ? 'COLOR' : 'COLORS' }}
                                 </span>
                             </div>
@@ -133,9 +133,9 @@
                                             onclick="selectProductColor(this, '{{ addslashes($color['name']) }}', {{ $index }})"
                                             title="{{ $color['name'] }}"
                                             aria-label="Select {{ $color['name'] }}"
-                                            style="all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:6px 14px 6px 7px;border:1px solid {{ $index === 0 ? '#000000' : '#e5e5e5' }};background:{{ $index === 0 ? '#000000' : '#ffffff' }};color:{{ $index === 0 ? '#ffffff' : '#000000' }};transition:all 0.2s ease;">
-                                        <span class="swatch-circle" style="width:18px;height:18px;border-radius:50%;background:{{ $color['code'] }};border:1px solid {{ strtolower($color['code']) === '#ffffff' ? '#d4d4d8' : 'rgba(0,0,0,0.15)' }};display:inline-block;flex-shrink:0;box-shadow:inset 0 1px 2px rgba(0,0,0,0.15);"></span>
-                                        <span class="swatch-name" style="font-family:'Inter',sans-serif;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:500;">{{ $color['name'] }}</span>
+                                            style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:1px solid {{ $index === 0 ? '#000000' : '#e5e5e5' }};background:{{ $index === 0 ? '#000000' : '#ffffff' }};color:{{ $index === 0 ? '#ffffff' : '#000000' }};transition:all 0.18s ease;">
+                                        <span class="swatch-circle" style="width:16px;height:16px;border-radius:50%;background:{{ $color['code'] }};border:1px solid {{ strtolower($color['code']) === '#ffffff' ? '#d4d4d8' : 'rgba(0,0,0,0.15)' }};display:inline-block;flex-shrink:0;box-shadow:inset 0 1px 2px rgba(0,0,0,0.15);"></span>
+                                        <span class="swatch-name" style="font-family:'Inter',sans-serif;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;">{{ $color['name'] }}</span>
                                     </button>
                                 @endforeach
                             </div>
@@ -145,8 +145,8 @@
 
                     {{-- Piece Sizes Selector --}}
                     @if(!empty($product->sizes_list) && count($product->sizes_list) > 0)
-                        <div class="product-size-selector" style="margin-bottom:28px;">
-                            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
+                        <div class="product-size-selector" style="margin-bottom:28px;width:100%;">
+                            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
                                 <span style="font-family:'Inter',sans-serif;font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;color:#000000;">
                                     SIZE &mdash; <strong id="selected-size-label" style="font-weight:600;letter-spacing:0.1em;">{{ $product->sizes_list[0] }}</strong>
                                 </span>
@@ -155,13 +155,13 @@
                                 </span>
                             </div>
 
-                            <div class="size-options-container" style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
+                            <div class="size-options-container" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
                                 @foreach($product->sizes_list as $sIdx => $sizeVal)
                                     <button type="button" 
                                             class="size-pill-option {{ $sIdx === 0 ? 'active' : '' }}"
                                             data-size="{{ $sizeVal }}"
                                             onclick="selectProductSize(this, '{{ addslashes($sizeVal) }}')"
-                                            style="min-width:44px;height:40px;padding:0 14px;border:1px solid {{ $sIdx === 0 ? '#000000' : '#e5e5e5' }};background:{{ $sIdx === 0 ? '#000000' : '#ffffff' }};color:{{ $sIdx === 0 ? '#ffffff' : '#000000' }};font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:500;letter-spacing:0.06em;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all 0.15s ease;">
+                                            style="min-width:48px;height:44px;padding:0 16px;border:1px solid {{ $sIdx === 0 ? '#000000' : '#e5e5e5' }};background:{{ $sIdx === 0 ? '#000000' : '#ffffff' }};color:{{ $sIdx === 0 ? '#ffffff' : '#000000' }};font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:600;letter-spacing:0.06em;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all 0.15s ease;">
                                         {{ $sizeVal }}
                                     </button>
                                 @endforeach
@@ -170,9 +170,19 @@
                         </div>
                     @endif
 
-                    <div style="display:flex;gap:12px;align-items:stretch;">
-                        <input type="number" name="quantity" value="1" min="1" max="{{ $product->stock_quantity }}" class="form-control qty-input" style="width:72px;text-align:center;border:1px solid #e5e5e5;border-radius:0;">
-                        <button type="submit" class="btn btn-primary btn-lg flex-1" style="border-radius:0;letter-spacing:0.15em;font-size:0.8rem;">ADD TO BAG</button>
+                    {{-- Add to Bag Action Row --}}
+                    <div class="product-action-row" style="display:flex;gap:12px;align-items:center;width:100%;margin-top:6px;">
+                        <div class="quantity-stepper" style="display:inline-flex;align-items:center;border:1px solid #171717;height:50px;background:#ffffff;flex-shrink:0;">
+                            <button type="button" onclick="decrementQty()" style="width:38px;height:100%;background:none;border:none;cursor:pointer;font-size:1.1rem;color:#000000;display:flex;align-items:center;justify-content:center;transition:background 0.15s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='none'" title="Decrease quantity">−</button>
+                            <input type="number" id="pdp-quantity-input" name="quantity" value="1" min="1" max="{{ $product->stock_quantity }}" class="qty-input" style="width:44px;height:100%;border:none;text-align:center;font-size:0.95rem;font-weight:600;font-family:'Inter',sans-serif;background:transparent;-moz-appearance:textfield;" readonly>
+                            <button type="button" onclick="incrementQty({{ $product->stock_quantity }})" style="width:38px;height:100%;background:none;border:none;cursor:pointer;font-size:1.1rem;color:#000000;display:flex;align-items:center;justify-content:center;transition:background 0.15s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='none'" title="Increase quantity">+</button>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg flex-1 add-to-bag-button" style="height:50px;border-radius:0;letter-spacing:0.18em;font-size:0.82rem;font-weight:600;background:#000000;color:#ffffff;display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s ease;">
+                            <span>ADD TO BAG</span>
+                            <span style="opacity:0.35;">·</span>
+                            <span>{{ $product->formatted_price }}</span>
+                        </button>
                     </div>
                 </form>
             @else
@@ -548,6 +558,25 @@
         const input = document.getElementById('product-selected-size-input');
         if (input) {
             input.value = sizeVal;
+        }
+    };
+
+    // ─── Quantity Stepper Logic ────────────────────────────────
+    window.incrementQty = function(max) {
+        const input = document.getElementById('pdp-quantity-input');
+        if (!input) return;
+        let val = parseInt(input.value, 10) || 1;
+        if (!max || val < max) {
+            input.value = val + 1;
+        }
+    };
+
+    window.decrementQty = function() {
+        const input = document.getElementById('pdp-quantity-input');
+        if (!input) return;
+        let val = parseInt(input.value, 10) || 1;
+        if (val > 1) {
+            input.value = val - 1;
         }
     };
 
