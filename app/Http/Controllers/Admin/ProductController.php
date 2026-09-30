@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SyncProductToShopify;
+use App\Models\CartItem;
 use App\Models\Category;
+use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -33,8 +35,9 @@ class ProductController extends Controller
 
         $products = $query->latest()->paginate(20);
         $categories = Category::active()->get();
+        $totalProducts = Product::withTrashed()->count();
 
-        return view('admin.products.index', compact('products', 'categories'));
+        return view('admin.products.index', compact('products', 'categories', 'totalProducts'));
     }
 
     public function create()
@@ -283,9 +286,60 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        $product->delete();
+        CartItem::where('product_id', $product->id)->delete();
+        OrderItem::where('product_id', $product->id)->update(['product_id' => null]);
+        $product->forceDelete();
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product deleted successfully!');
+    }
+
+    public function destroyAll(Request $request)
+    {
+        $count = Product::withTrashed()->count();
+        if ($count === 0) {
+            return back()->with('info', 'There are no products to delete.');
+        }
+
+        CartItem::query()->delete();
+        OrderItem::whereNotNull('product_id')->update(['product_id' => null]);
+        Product::withTrashed()->forceDelete();
+
+        return redirect()->route('admin.products.index')
+            ->with('success', "All {$count} product(s) have been permanently deleted.");
+    }
+
+    public function bulkAction(Request $request)
+    {
+        $action = $request->input('action');
+        $ids = $request->input('selected_ids', []);
+
+        if (empty($ids) || !is_array($ids)) {
+            return back()->with('error', 'Please select at least one product.');
+        }
+
+        switch ($action) {
+            case 'delete':
+                $count = count($ids);
+                CartItem::whereIn('product_id', $ids)->delete();
+                OrderItem::whereIn('product_id', $ids)->update(['product_id' => null]);
+                Product::withTrashed()->whereIn('id', $ids)->forceDelete();
+                return back()->with('success', "{$count} selected product(s) permanently deleted.");
+
+            case 'activate':
+                Product::withTrashed()->whereIn('id', $ids)->update(['status' => 'active', 'deleted_at' => null]);
+                return back()->with('success', count($ids) . ' product(s) marked as active.');
+
+            case 'draft':
+                Product::withTrashed()->whereIn('id', $ids)->update(['status' => 'draft']);
+                return back()->with('success', count($ids) . ' product(s) marked as draft.');
+
+            case 'archive':
+                Product::withTrashed()->whereIn('id', $ids)->update(['status' => 'archived']);
+                return back()->with('success', count($ids) . ' product(s) archived.');
+
+            default:
+                return back()->with('error', 'Invalid action selected.');
+        }
     }
 }

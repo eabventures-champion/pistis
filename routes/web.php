@@ -73,6 +73,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // Products
+    Route::delete('/products/destroy-all', [ProductController::class, 'destroyAll'])->name('products.destroy-all');
+    Route::post('/products/bulk-action', [ProductController::class, 'bulkAction'])->name('products.bulk-action');
     Route::resource('products', ProductController::class);
 
     // Categories
