@@ -90,7 +90,7 @@
     </div>
 @endif
 
-<div class="card mb-4">
+<div class="card mb-4" style="overflow:hidden;">
     <div class="card-header d-flex justify-between align-center">
         <div>
             <h3 style="font-size:1rem;margin:0;">Active Fit & Sizing Profiles</h3>
@@ -101,17 +101,17 @@
 
     <div class="card-body" style="padding:0;">
         @if($sizeGuides->count() > 0)
-            <div class="table-responsive">
-                <table class="table" style="width:100%;margin-bottom:0;">
+            <div class="table-responsive" style="width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;">
+                <table class="table" style="width:100%;margin-bottom:0;border-collapse:collapse;">
                     <thead>
                         <tr>
-                            <th style="padding:14px 20px;">Guide Title & Fit</th>
-                            <th>Category</th>
-                            <th>Sizes Defined</th>
-                            <th>Measurements (Rows)</th>
-                            <th>Unit</th>
-                            <th>Status</th>
-                            <th style="text-align:right;padding-right:20px;">Actions</th>
+                            <th style="padding:14px 20px;min-width:200px;">Guide Title & Fit</th>
+                            <th style="white-space:nowrap;width:110px;">Category</th>
+                            <th style="white-space:nowrap;min-width:140px;">Sizes Defined</th>
+                            <th style="white-space:nowrap;width:110px;">Metrics</th>
+                            <th style="white-space:nowrap;width:80px;text-align:center;">Unit</th>
+                            <th style="white-space:nowrap;width:100px;text-align:center;">Status</th>
+                            <th style="text-align:right;padding-right:20px;white-space:nowrap;width:140px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -121,18 +121,13 @@
                                     <div style="font-weight:600;color:var(--text-primary);font-size:0.95rem;">
                                         {{ $guide->name }}
                                     </div>
-                                    <div class="text-muted" style="font-size:0.8rem;margin-top:3px;display:flex;align-items:center;gap:6px;">
+                                    <div style="font-size:0.8rem;margin-top:3px;display:flex;align-items:center;gap:6px;">
                                         <span class="badge" style="background:#f4f4f5;color:#52525b;font-size:0.7rem;padding:2px 8px;border-radius:4px;">
                                             {{ $guide->fit_type ?: 'Standard Fit' }}
                                         </span>
-                                        @if($guide->description)
-                                            <span style="max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="{{ $guide->description }}">
-                                                · {{ $guide->description }}
-                                            </span>
-                                        @endif
                                     </div>
                                 </td>
-                                <td>
+                                <td style="white-space:nowrap;">
                                     @if($guide->category)
                                         <span class="category-chip {{ strtolower($guide->category->slug) === 'men' ? 'chip-men' : (strtolower($guide->category->slug) === 'women' ? 'chip-women' : '') }}">
                                             🏷️ {{ $guide->category->name }}
@@ -142,32 +137,29 @@
                                     @endif
                                 </td>
                                 <td>
-                                    <div style="display:flex;flex-wrap:wrap;gap:4px;max-width:240px;">
+                                    <div style="display:flex;flex-wrap:wrap;gap:3px;max-width:160px;">
                                         @foreach($guide->sizes ?? [] as $sz)
-                                            <span style="display:inline-block;padding:2px 6px;background:#f4f4f5;border:1px solid #e4e4e7;border-radius:3px;font-size:0.7rem;font-weight:600;">
+                                            <span style="display:inline-block;padding:2px 5px;background:#f4f4f5;border:1px solid #e4e4e7;border-radius:3px;font-size:0.68rem;font-weight:600;">
                                                 {{ $sz }}
                                             </span>
                                         @endforeach
                                     </div>
                                 </td>
-                                <td>
+                                <td style="white-space:nowrap;">
                                     <div style="font-size:0.85rem;font-weight:600;color:var(--text-primary);">
-                                        {{ count($guide->measurements ?? []) }} Metrics
+                                        {{ count($guide->measurements ?? []) }} Points
                                     </div>
-                                    <div class="text-muted" style="font-size:0.75rem;margin-top:2px;">
-                                        {{ implode(', ', array_slice(array_column($guide->measurements ?? [], 'name'), 0, 3)) }}
-                                        @if(count($guide->measurements ?? []) > 3)
-                                            ...
-                                        @endif
+                                    <div class="text-muted" style="font-size:0.75rem;margin-top:1px;">
+                                        Body, Chest, etc.
                                     </div>
                                 </td>
-                                <td>
-                                    <span class="badge" style="background:#e0f2fe;color:#0369a1;font-weight:700;font-size:0.75rem;text-transform:uppercase;">
+                                <td style="text-align:center;white-space:nowrap;">
+                                    <span class="badge" style="background:#e0f2fe;color:#0369a1;font-weight:700;font-size:0.75rem;text-transform:uppercase;padding:3px 8px;">
                                         {{ $guide->default_unit ?? 'cm' }}
                                     </span>
                                 </td>
-                                <td>
-                                    <form action="{{ route('admin.size-guides.toggle-status', $guide) }}" method="POST" style="display:inline;">
+                                <td style="text-align:center;white-space:nowrap;">
+                                    <form action="{{ route('admin.size-guides.toggle-status', $guide) }}" method="POST" style="display:inline;margin:0;">
                                         @csrf
                                         <button type="submit" class="status-badge-btn" title="Click to toggle status">
                                             @if($guide->is_active)
@@ -178,19 +170,20 @@
                                         </button>
                                     </form>
                                 </td>
-                                <td style="text-align:right;padding-right:20px;">
-                                    <div class="d-flex gap-2 justify-end">
-                                        <a href="{{ route('admin.size-guides.edit', $guide) }}" class="action-icon-btn edit-icon-btn" title="Edit Size Guide">
-                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <td style="text-align:right;padding-right:20px;white-space:nowrap;">
+                                    <div style="display:inline-flex;align-items:center;justify-content:flex-end;gap:6px;">
+                                        <a href="{{ route('admin.size-guides.edit', $guide) }}" class="btn btn-sm btn-secondary" style="font-size:0.78rem;padding:5px 12px;display:inline-flex;align-items:center;gap:4px;" title="Edit Size Guide">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                                                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                             </svg>
+                                            <span>Edit</span>
                                         </a>
-                                        <form action="{{ route('admin.size-guides.destroy', $guide) }}" method="POST" onsubmit="return confirm('Delete this size guide? Products linked to it will fall back to their category size profile.');" style="display:inline;">
+                                        <form action="{{ route('admin.size-guides.destroy', $guide) }}" method="POST" onsubmit="return confirm('Delete this size guide? Products linked to it will fall back to their category size profile.');" style="display:inline;margin:0;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="action-icon-btn delete-icon-btn" title="Delete Size Guide">
-                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <button type="submit" class="action-icon-btn delete-icon-btn" title="Delete Size Guide" style="width:30px;height:30px;">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                     <polyline points="3 6 5 6 21 6"></polyline>
                                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                                                 </svg>
