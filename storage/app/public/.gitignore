@@ -1,10 +1,2 @@
 *
 !.gitignore
-!hero/
-!hero/*
-!products/
-!products/*
-!branding/
-!branding/*
-!videos/
-!videos/*
