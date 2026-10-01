@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 class SettingsController extends Controller
@@ -188,5 +192,80 @@ class SettingsController extends Controller
             }
         }
         imagedestroy($im);
+    }
+
+    public function wipeData(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'string'],
+            'confirmation_text' => ['required', 'string', 'in:RESET,reset,RESET STORE DATA,reset store data'],
+        ], [
+            'confirmation_text.in' => 'Please type "RESET" into the confirmation field to proceed.',
+            'password.required' => 'Your current administrator password is required.',
+        ]);
+
+        if (!Hash::check($request->password, $request->user()->password)) {
+            return back()->withErrors(['password' => 'The provided administrator password does not match our records.'])->withInput();
+        }
+
+        DB::transaction(function () use ($request) {
+            Schema::disableForeignKeyConstraints();
+
+            // Clear all catalog and customer store activity tables
+            DB::table('cart_items')->delete();
+            DB::table('carts')->delete();
+            DB::table('order_items')->delete();
+            DB::table('orders')->delete();
+            DB::table('products')->delete();
+            DB::table('categories')->delete();
+            DB::table('hero_slides')->delete();
+            DB::table('size_guides')->delete();
+            DB::table('shopify_sync_logs')->delete();
+            DB::table('customers')->delete();
+
+            // Strictly preserve administrator accounts, delete any regular users
+            DB::table('users')->where('is_admin', false)->orWhereNull('is_admin')->delete();
+
+            // Optional settings reset
+            if ($request->boolean('reset_settings')) {
+                $preservedLogo = Setting::get('store_logo_path');
+                $preservedHeight = Setting::get('store_logo_height', '70');
+                $preservedName = Setting::get('store_name', 'Pistis');
+                $preservedSymbol = Setting::get('currency_symbol', '$');
+                $preservedCurrency = Setting::get('currency_code', 'USD');
+
+                DB::table('settings')->delete();
+
+                Setting::set('store_name', $preservedName);
+                if ($preservedLogo) {
+                    Setting::set('store_logo_path', $preservedLogo);
+                    Setting::set('store_logo_height', $preservedHeight);
+                }
+                Setting::set('currency_symbol', $preservedSymbol);
+                Setting::set('currency_code', $preservedCurrency);
+                Setting::set('active_payment_gateway', 'paypal');
+            }
+
+            // Optional deletion of uploaded files
+            if ($request->boolean('delete_uploaded_media')) {
+                $productFiles = Storage::disk('public')->files('products');
+                foreach ($productFiles as $file) {
+                    Storage::disk('public')->delete($file);
+                }
+                $heroFiles = Storage::disk('public')->files('hero');
+                foreach ($heroFiles as $file) {
+                    Storage::disk('public')->delete($file);
+                }
+            }
+
+            Schema::enableForeignKeyConstraints();
+        });
+
+        try {
+            Artisan::call('cache:clear');
+            Artisan::call('view:clear');
+        } catch (\Exception $e) {}
+
+        return redirect()->route('admin.settings.index')->with('success', 'All website store data has been completely cleared. Administrator login accounts were preserved.');
     }
 }

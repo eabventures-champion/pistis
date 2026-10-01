@@ -265,6 +265,109 @@
     @method('DELETE')
 </form>
 
+{{-- Danger Zone: Reset All Website Data --}}
+<div class="card mt-4" style="border: 1px solid #fecaca; background: #fffafb; border-radius: 8px; margin-top: 36px;">
+    <div class="card-header" style="background: transparent; border-bottom: 1px solid #fee2e2; padding: 22px 26px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div style="max-width:760px;">
+                <span class="badge" style="background:#dc2626; color:#ffffff; font-size:0.7rem; font-weight:700; letter-spacing:0.08em; padding:4px 8px; border-radius:4px; text-transform:uppercase;">Danger Zone</span>
+                <h3 style="font-size:1.15rem; font-weight:700; margin:8px 0 4px 0; color:#991b1b; letter-spacing:0.02em;">RESET ALL STORE DATA</h3>
+                <p style="font-size:0.86rem; color:#7f1d1d; margin:0; line-height:1.5;">
+                    Permanently wipe every item of store data on the website (Products, Categories, Orders, Customers, Carts, Hero Slides, Size Guides, and Sync Logs).
+                    <strong style="display:block; margin-top:6px; color:#15803d;">✓ Your administrator login accounts will NOT be deleted.</strong>
+                </p>
+            </div>
+            <button type="button" class="btn btn-danger" onclick="openResetDataModal()" style="background:#dc2626; color:#ffffff; border:none; padding:12px 24px; font-weight:700; font-size:0.85rem; letter-spacing:0.05em; border-radius:6px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 2px 8px rgba(220,38,38,0.25);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                CLEAR ALL STORE DATA
+            </button>
+        </div>
+    </div>
+</div>
+
+{{-- Reset Store Data Confirmation Modal --}}
+<div id="resetDataModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.65); backdrop-filter:blur(3px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:#ffffff; border-radius:12px; max-width:540px; width:100%; box-shadow:0 20px 40px rgba(0,0,0,0.25); overflow:hidden; border:1px solid #fecaca;">
+        {{-- Modal Header --}}
+        <div style="padding:20px 24px; background:#fef2f2; border-bottom:1px solid #fee2e2; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:36px; height:36px; border-radius:50%; background:#fee2e2; color:#dc2626; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                </div>
+                <div>
+                    <h4 style="margin:0; font-size:1.1rem; font-weight:700; color:#991b1b;">Confirm Store Data Reset</h4>
+                    <span style="font-size:0.75rem; color:#b91c1c;">Destructive Administrative Action</span>
+                </div>
+            </div>
+            <button type="button" onclick="closeResetDataModal()" style="background:none; border:none; color:#991b1b; font-size:1.5rem; cursor:pointer; line-height:1;">&times;</button>
+        </div>
+
+        {{-- Modal Body --}}
+        <form action="{{ route('admin.settings.wipe-data') }}" method="POST" id="wipeDataForm" style="margin:0;">
+            @csrf
+            <div style="padding:24px; max-height:75vh; overflow-y:auto;">
+                <div style="padding:14px; background:#fff1f2; border-radius:8px; border:1px solid #fecdd3; margin-bottom:18px;">
+                    <p style="margin:0 0 8px 0; font-size:0.85rem; font-weight:700; color:#9f1239;">This action will permanently delete:</p>
+                    <ul style="margin:0; padding-left:18px; font-size:0.82rem; color:#881337; line-height:1.6;">
+                        <li>All Products, variants, and specifications</li>
+                        <li>All Categories and hierarchy trees</li>
+                        <li>All Customer accounts, orders, and shopping carts</li>
+                        <li>All Hero slider banners and Size guide charts</li>
+                        <li>All Shopify synchronization logs</li>
+                    </ul>
+                </div>
+
+                <div style="padding:12px 14px; background:#f0fdf4; border-radius:8px; border:1px solid #bbf7d0; margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span style="font-size:0.83rem; font-weight:600; color:#166534;">
+                        Your Administrator account and login access are protected and will NOT be deleted.
+                    </span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; color:#374151; cursor:pointer; font-weight:500;">
+                        <input type="checkbox" name="delete_uploaded_media" value="1" style="accent-color:#dc2626;">
+                        Also delete uploaded product/hero image files from server storage
+                    </label>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; color:#374151; cursor:pointer; font-weight:500;">
+                        <input type="checkbox" name="reset_settings" value="1" style="accent-color:#dc2626;">
+                        Also reset store policies & settings to initial defaults (Brand logo is preserved)
+                    </label>
+                </div>
+
+                <hr style="border:0; border-top:1px solid #e5e5e5; margin:16px 0;">
+
+                <div class="form-group mb-3">
+                    <label class="form-label" style="font-weight:700; font-size:0.85rem; color:#18181b;">
+                        Type <span style="background:#fee2e2; color:#b91c1c; padding:2px 6px; border-radius:4px; font-family:monospace;">RESET</span> to confirm:
+                    </label>
+                    <input type="text" name="confirmation_text" id="resetConfirmationInput" class="form-control" placeholder="Type RESET" required autocomplete="off" style="font-weight:600; letter-spacing:0.05em;">
+                </div>
+
+                <div class="form-group mb-2">
+                    <label class="form-label" style="font-weight:700; font-size:0.85rem; color:#18181b;">
+                        Enter your Admin Password:
+                    </label>
+                    <input type="password" name="password" id="resetPasswordInput" class="form-control" placeholder="Your current login password" required autocomplete="current-password">
+                </div>
+            </div>
+
+            {{-- Modal Footer --}}
+            <div style="padding:16px 24px; background:#f9fafb; border-top:1px solid #e5e7eb; display:flex; justify-content:flex-end; gap:12px;">
+                <button type="button" onclick="closeResetDataModal()" class="btn btn-secondary" style="padding:10px 18px; font-size:0.85rem; font-weight:600;">
+                    Cancel
+                </button>
+                <button type="submit" id="confirmResetBtn" class="btn btn-danger" style="background:#dc2626; color:#ffffff; border:none; padding:10px 20px; font-size:0.85rem; font-weight:700; letter-spacing:0.04em; border-radius:6px; cursor:pointer;">
+                    Permanently Clear All Data
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     const logoDropBox = document.getElementById('logoDropBox');
     const logoInput = document.getElementById('store_logo_input');
@@ -334,5 +437,50 @@
             document.getElementById('removeLogoForm').submit();
         }
     }
+
+    function openResetDataModal() {
+        const modal = document.getElementById('resetDataModal');
+        if (modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => {
+                const input = document.getElementById('resetConfirmationInput');
+                if (input) input.focus();
+            }, 60);
+        }
+    }
+
+    function closeResetDataModal() {
+        const modal = document.getElementById('resetDataModal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    }
+
+    window.addEventListener('click', function(e) {
+        const modal = document.getElementById('resetDataModal');
+        if (modal && e.target === modal) {
+            closeResetDataModal();
+        }
+    });
+
+    document.getElementById('wipeDataForm')?.addEventListener('submit', function(e) {
+        const confirmVal = document.getElementById('resetConfirmationInput')?.value?.trim();
+        if (confirmVal !== 'RESET') {
+            e.preventDefault();
+            alert('Please type "RESET" in all caps into the confirmation field.');
+            return false;
+        }
+        if (!confirm('FINAL WARNING: This cannot be undone. Are you sure you want to permanently clear all store data?')) {
+            e.preventDefault();
+            return false;
+        }
+        const btn = document.getElementById('confirmResetBtn');
+        if (btn) {
+            btn.disabled = true;
+            btn.innerText = 'Clearing Store Data...';
+        }
+    });
 </script>
 @endsection

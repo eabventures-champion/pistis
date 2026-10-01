@@ -121,6 +121,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
     Route::delete('/settings/remove-logo', [SettingsController::class, 'removeLogo'])->name('settings.remove-logo');
+    Route::post('/settings/wipe-data', [SettingsController::class, 'wipeData'])->name('settings.wipe-data');
 
     // Campaign Video Management
     Route::get('/campaign-video', [CampaignVideoController::class, 'index'])->name('campaign-video.index');
