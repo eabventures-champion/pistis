@@ -60,6 +60,12 @@
                         <span class="sidebar-badge black-badge" title="{{ $sidebarCategoriesCount ?? 0 }} Categories">{{ $sidebarCategoriesCount ?? 0 }}</span>
                     </a>
                 </li>
+                <li>
+                    <a href="{{ route('admin.size-guides.index') }}" class="{{ request()->routeIs('admin.size-guides.*') ? 'active' : '' }}" title="Size Guides">
+                        <span class="icon">📏</span> <span class="menu-label">Size Guides</span>
+                        <span class="sidebar-badge black-badge" title="{{ $sidebarSizeGuidesCount ?? 0 }} Size Guides">{{ $sidebarSizeGuidesCount ?? 0 }}</span>
+                    </a>
+                </li>
 
                 <li class="sidebar-section"><span class="section-label">Sales</span></li>
                 <li>

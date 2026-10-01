@@ -222,6 +222,20 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Size Guide</label>
+                        <select name="size_guide_id" class="form-control">
+                            <option value="">Auto-detect from Category</option>
+                            @foreach($sizeGuides as $guide)
+                                <option value="{{ $guide->id }}" {{ (old('size_guide_id', $product->size_guide_id) == $guide->id) ? 'selected' : '' }}>
+                                    {{ $guide->name }} {{ $guide->category ? '(' . $guide->category->name . ')' : '' }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <span class="text-muted" style="font-size:0.75rem;margin-top:2px;display:block;">
+                            Defaults to the category's size guide (e.g. Men or Women).
+                        </span>
+                    </div>
+                    <div class="form-group">
                         <label class="form-check">
                             <input type="checkbox" name="featured" value="1" {{ $product->featured ? 'checked' : '' }}>
                             <span class="form-label" style="margin:0;">Featured Product</span>

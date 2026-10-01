@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\SizeGuide;
 use Illuminate\Http\Request;
 
 class ShopController extends Controller
@@ -66,6 +67,9 @@ class ShopController extends Controller
             $shopifyUrl = config('services.shopify.store_url') . '/products/' . $product->slug;
         }
 
-        return view('shop.show', compact('product', 'relatedProducts', 'shopifyUrl'));
+        $activeSizeGuide = $product->resolveSizeGuide();
+        $allSizeGuides = SizeGuide::active()->orderBy('sort_order')->orderBy('name')->get();
+
+        return view('shop.show', compact('product', 'relatedProducts', 'shopifyUrl', 'activeSizeGuide', 'allSizeGuides'));
     }
 }

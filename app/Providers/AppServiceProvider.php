@@ -66,6 +66,7 @@ class AppServiceProvider extends ServiceProvider
                         $sidebarProductsCount = \App\Models\Product::count();
                         $sidebarCategoriesCount = \App\Models\Category::count();
                         $sidebarCustomersCount = \App\Models\Customer::count();
+                        $sidebarSizeGuidesCount = \App\Models\SizeGuide::count();
                         $recentNotifications = \App\Models\Order::with(['customer', 'items.product'])
                             ->latest()
                             ->take(6)
@@ -78,6 +79,7 @@ class AppServiceProvider extends ServiceProvider
                             'sidebarProductsCount' => $sidebarProductsCount,
                             'sidebarCategoriesCount' => $sidebarCategoriesCount,
                             'sidebarCustomersCount' => $sidebarCustomersCount,
+                            'sidebarSizeGuidesCount' => $sidebarSizeGuidesCount,
                             'recentNotifications' => $recentNotifications,
                             'unviewedOrdersCount' => $unviewedOrdersCount,
                         ]);
@@ -88,6 +90,7 @@ class AppServiceProvider extends ServiceProvider
                             'sidebarProductsCount' => 0,
                             'sidebarCategoriesCount' => 0,
                             'sidebarCustomersCount' => 0,
+                            'sidebarSizeGuidesCount' => 0,
                             'recentNotifications' => collect(),
                             'unviewedOrdersCount' => 0,
                         ]);

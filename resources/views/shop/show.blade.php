@@ -146,13 +146,30 @@
                     {{-- Piece Sizes Selector --}}
                     @if(!empty($product->sizes_list) && count($product->sizes_list) > 0)
                         <div class="product-size-selector" style="margin-bottom:28px;width:100%;">
-                            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
-                                <span style="font-family:'Inter',sans-serif;font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;color:#000000;">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+                                <span style="font-family:'Inter',sans-serif;font-size:0.75rem;letter-spacing:0.18em;text-transform:uppercase;color:#000000;padding-top:2px;">
                                     SIZE &mdash; <strong id="selected-size-label" style="font-weight:600;letter-spacing:0.1em;">{{ $product->sizes_list[0] }}</strong>
                                 </span>
-                                <span style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:#737373;">
-                                    STANDARD FIT
-                                </span>
+                                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;text-align:right;">
+                                    <span style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:#737373;line-height:1.2;">
+                                        {{ $activeSizeGuide && $activeSizeGuide->fit_type ? strtoupper($activeSizeGuide->fit_type) : 'STANDARD FIT' }}
+                                    </span>
+                                    @if(isset($allSizeGuides) && $allSizeGuides->count() > 0)
+                                        <button type="button" 
+                                                onclick="openSizeGuideModal()" 
+                                                class="size-guide-trigger-btn"
+                                                title="View Size Guide"
+                                                style="background:none;border:none;padding:0;font-size:0.75rem;color:#171717;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-weight:500;text-decoration:underline;text-underline-offset:3px;transition:opacity 0.15s;" 
+                                                onmouseover="this.style.opacity='0.65'" 
+                                                onmouseout="this.style.opacity='1'">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="2" y="7" width="20" height="10" rx="1"/>
+                                                <path d="M6 7v4M10 7v3M14 7v4M18 7v3"/>
+                                            </svg>
+                                            <span>Size Guide</span>
+                                        </button>
+                                    @endif
+                                </div>
                             </div>
 
                             <div class="size-options-container" style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;">
@@ -613,8 +630,13 @@
 
     // Keyboard Navigation
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && lightbox && lightbox.classList.contains('active')) {
-            closeLightbox();
+        if (e.key === 'Escape') {
+            const sizeGuideModal = document.getElementById('size-guide-modal');
+            if (sizeGuideModal && sizeGuideModal.style.display === 'flex') {
+                closeSizeGuideModal();
+            } else if (lightbox && lightbox.classList.contains('active')) {
+                closeLightbox();
+            }
         } else if (e.key === 'ArrowLeft') {
             navigateGallery(-1);
         } else if (e.key === 'ArrowRight') {
@@ -622,8 +644,214 @@
         }
     });
 })();
+
+// Size Guide Modal Logic
+const sizeGuidesList = {!! json_encode($sizeGuidesData ?? []) !!};
+let currentGuideId = {{ $initialGuideId ?? 0 }};
+let currentUnit = 'cm'; // 'cm' or 'in'
+
+window.openSizeGuideModal = function() {
+    const modal = document.getElementById('size-guide-modal');
+    if (!modal) return;
+    renderActiveSizeGuide();
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+};
+
+window.closeSizeGuideModal = function(event) {
+    if (event && event.target && event.target.id !== 'size-guide-modal' && event.target.tagName !== 'BUTTON') {
+        return;
+    }
+    const modal = document.getElementById('size-guide-modal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+};
+
+window.switchSizeGuideTab = function(guideId) {
+    currentGuideId = guideId;
+    document.querySelectorAll('.size-guide-tab-btn').forEach(btn => {
+        if (parseInt(btn.getAttribute('data-guide-id'), 10) === guideId) {
+            btn.style.background = '#171717';
+            btn.style.color = '#ffffff';
+            btn.style.borderColor = '#171717';
+        } else {
+            btn.style.background = '#ffffff';
+            btn.style.color = '#404040';
+            btn.style.borderColor = '#e5e5e5';
+        }
+    });
+    renderActiveSizeGuide();
+};
+
+window.toggleSizeGuideUnit = function() {
+    setSizeGuideUnit(currentUnit === 'cm' ? 'in' : 'cm');
+};
+
+window.setSizeGuideUnit = function(unit) {
+    currentUnit = unit;
+    const knob = document.getElementById('unit-toggle-knob');
+    const labelInch = document.getElementById('unit-label-inch');
+    const labelCm = document.getElementById('unit-label-cm');
+
+    if (unit === 'in') {
+        if (knob) knob.style.left = '3px';
+        if (labelInch) { labelInch.style.fontWeight = '700'; labelInch.style.color = '#000000'; }
+        if (labelCm) { labelCm.style.fontWeight = '500'; labelCm.style.color = '#737373'; }
+    } else {
+        if (knob) knob.style.left = '19px';
+        if (labelInch) { labelInch.style.fontWeight = '500'; labelInch.style.color = '#737373'; }
+        if (labelCm) { labelCm.style.fontWeight = '700'; labelCm.style.color = '#000000'; }
+    }
+    renderActiveSizeGuide();
+};
+
+function renderActiveSizeGuide() {
+    if (!sizeGuidesList || sizeGuidesList.length === 0) return;
+    const guide = sizeGuidesList.find(g => g.id === currentGuideId) || sizeGuidesList[0];
+    if (!guide) return;
+
+    const titleEl = document.getElementById('modal-active-guide-title');
+    const descEl = document.getElementById('modal-active-guide-desc');
+    if (titleEl) titleEl.textContent = guide.name + (guide.fit_type ? ' (' + guide.fit_type + ')' : '');
+    if (descEl) descEl.textContent = guide.description || ('Garment measurements in ' + (currentUnit === 'cm' ? 'centimeters' : 'inches') + '.');
+
+    const thead = document.getElementById('size-guide-modal-thead');
+    const tbody = document.getElementById('size-guide-modal-tbody');
+    if (!thead || !tbody) return;
+
+    const sizes = guide.sizes || [];
+    let headHtml = `<tr style="background:#fdfbf7;border-bottom:1px solid #e5e5e5;">
+        <th style="padding:12px 16px;text-align:left;font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#27272a;">Measurement (${currentUnit.toUpperCase()})</th>`;
+    sizes.forEach(sz => {
+        headHtml += `<th style="padding:12px 14px;font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:700;letter-spacing:0.06em;color:#18181b;">${sz}</th>`;
+    });
+    headHtml += `</tr>`;
+    thead.innerHTML = headHtml;
+
+    const rows = guide.measurements || [];
+    let bodyHtml = '';
+    rows.forEach((row, idx) => {
+        const bg = idx % 2 === 0 ? '#ffffff' : '#fafafa';
+        bodyHtml += `<tr style="background:${bg};border-bottom:1px solid #f0f0f0;">
+            <td style="padding:12px 16px;text-align:left;font-weight:600;color:#18181b;">${row.name}</td>`;
+        sizes.forEach(sz => {
+            const val = (currentUnit === 'in' ? (row.inch ? row.inch[sz] : null) : (row.cm ? row.cm[sz] : null)) ?? '-';
+            bodyHtml += `<td style="padding:12px 14px;color:#3f3f46;font-family:'Inter',monospace;">${val}</td>`;
+        });
+        bodyHtml += `</tr>`;
+    });
+    tbody.innerHTML = bodyHtml;
+}
 </script>
 @endpush
+
+{{-- Size Guide Modal --}}
+@if(isset($allSizeGuides) && $allSizeGuides->count() > 0)
+@php
+    $sizeGuidesData = $allSizeGuides->map(function($g) use ($activeSizeGuide) {
+        return [
+            'id' => $g->id,
+            'name' => $g->name,
+            'fit_type' => $g->fit_type ?: 'Standard Fit',
+            'description' => $g->description,
+            'default_unit' => strtolower($g->default_unit ?? 'cm'),
+            'sizes' => $g->sizes ?? [],
+            'measurements' => $g->formatted_measurements,
+            'is_current' => $activeSizeGuide && $activeSizeGuide->id === $g->id,
+        ];
+    })->values();
+
+    $initialGuideId = $activeSizeGuide ? $activeSizeGuide->id : ($sizeGuidesData->first()['id'] ?? 0);
+@endphp
+
+<div id="size-guide-modal" 
+     class="size-guide-modal-overlay" 
+     style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.68);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;padding:16px;" 
+     onclick="closeSizeGuideModal(event)">
+    
+    <div class="size-guide-modal-dialog" 
+         style="background:#ffffff;border-radius:12px;max-width:720px;width:100%;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 25px 60px -15px rgba(0,0,0,0.4);position:relative;" 
+         onclick="event.stopPropagation()">
+        
+        {{-- Modal Header --}}
+        <div style="padding:18px 24px;border-bottom:1px solid #ebebeb;display:flex;align-items:center;justify-content:space-between;background:#fafafa;">
+            <div>
+                <h3 style="margin:0;font-family:'Cormorant Garamond',serif;font-size:1.5rem;font-weight:700;color:#171717;letter-spacing:0.02em;">Size Guide</h3>
+                <span style="font-size:0.75rem;color:#737373;letter-spacing:0.04em;">Official Pistis sizing & dimensions</span>
+            </div>
+            <button type="button" 
+                    onclick="closeSizeGuideModal()" 
+                    style="background:none;border:none;font-size:1.5rem;line-height:1;cursor:pointer;color:#737373;padding:4px 8px;border-radius:4px;transition:all 0.15s;" 
+                    onmouseover="this.style.color='#000';this.style.background='#ebebeb'" 
+                    onmouseout="this.style.color='#737373';this.style.background='none'" 
+                    title="Close">✕</button>
+        </div>
+
+        {{-- Modal Body --}}
+        <div style="padding:22px 24px;overflow-y:auto;flex:1;">
+            {{-- Category / Range Tabs (like Image 1) --}}
+            @if(count($sizeGuidesData) > 1)
+                <div id="size-guide-tabs" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;">
+                    @foreach($sizeGuidesData as $gItem)
+                        <button type="button" 
+                                class="size-guide-tab-btn {{ $gItem['id'] == $initialGuideId ? 'active' : '' }}" 
+                                data-guide-id="{{ $gItem['id'] }}" 
+                                onclick="switchSizeGuideTab({{ $gItem['id'] }})"
+                                style="cursor:pointer;padding:8px 18px;border-radius:4px;font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:600;letter-spacing:0.04em;transition:all 0.18s ease;{{ $gItem['id'] == $initialGuideId ? 'background:#171717;color:#ffffff;border:1px solid #171717;' : 'background:#ffffff;color:#404040;border:1px solid #e5e5e5;' }}">
+                            {{ $gItem['name'] }}
+                        </button>
+                    @endforeach
+                </div>
+            @endif
+
+            {{-- Sub-header with Active Guide details and INCH / CM Toggle (like Image 1) --}}
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+                <div>
+                    <h4 id="modal-active-guide-title" style="margin:0;font-size:0.95rem;font-weight:700;color:#171717;"></h4>
+                    <p id="modal-active-guide-desc" style="margin:3px 0 0;font-size:0.75rem;color:#737373;max-width:440px;"></p>
+                </div>
+
+                {{-- Interactive INCH / CM Switch (Exact replica of Image 1) --}}
+                <div style="display:inline-flex;align-items:center;gap:10px;background:#f5f5f5;padding:5px 14px;border-radius:30px;user-select:none;border:1px solid #e5e5e5;">
+                    <span id="unit-label-inch" style="font-size:0.75rem;font-weight:600;color:#737373;cursor:pointer;transition:color 0.15s;" onclick="setSizeGuideUnit('in')">INCH</span>
+                    <div id="unit-toggle-switch" onclick="toggleSizeGuideUnit()" style="width:38px;height:22px;background:#171717;border-radius:12px;position:relative;cursor:pointer;transition:background 0.2s;" title="Switch INCH / CM">
+                        <div id="unit-toggle-knob" style="width:16px;height:16px;background:#ffffff;border-radius:50%;position:absolute;top:3px;left:19px;transition:left 0.2s ease;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></div>
+                    </div>
+                    <span id="unit-label-cm" style="font-size:0.75rem;font-weight:700;color:#000000;cursor:pointer;transition:color 0.15s;" onclick="setSizeGuideUnit('cm')">CM</span>
+                </div>
+            </div>
+
+            {{-- Dynamic Sizing Table --}}
+            <div style="border:1px solid #e5e5e5;border-radius:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;background:#ffffff;">
+                <table id="size-guide-modal-table" style="width:100%;border-collapse:collapse;font-size:0.83rem;text-align:center;">
+                    <thead id="size-guide-modal-thead">
+                        {{-- Injected dynamically --}}
+                    </thead>
+                    <tbody id="size-guide-modal-tbody">
+                        {{-- Injected dynamically --}}
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Measuring Advice Note --}}
+            <div style="margin-top:18px;padding:12px 16px;background:#fafafa;border-radius:6px;border:1px solid #ebebeb;display:flex;align-items:flex-start;gap:12px;">
+                <span style="font-size:1.2rem;line-height:1;">📐</span>
+                <div style="font-size:0.75rem;color:#525252;line-height:1.5;">
+                    <strong>Measuring Tips:</strong> Measurements refer to garment dimensions laid flat. For standard fit, select your usual size. For an oversized drape, we suggest choosing one size up.
+                </div>
+            </div>
+        </div>
+
+        {{-- Modal Footer --}}
+        <div style="padding:14px 24px;border-top:1px solid #ebebeb;display:flex;align-items:center;justify-content:space-between;background:#ffffff;">
+            <span style="font-size:0.75rem;color:#a3a3a3;">Pistis Garment Archive · Crafted to Exact Proportions</span>
+            <button type="button" onclick="closeSizeGuideModal()" class="btn btn-sm btn-secondary" style="font-size:0.8rem;padding:6px 18px;">Close</button>
+        </div>
+    </div>
+</div>
+@endif
 @endsection
 
 

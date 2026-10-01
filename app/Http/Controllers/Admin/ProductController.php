@@ -8,6 +8,7 @@ use App\Models\CartItem;
 use App\Models\Category;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\SizeGuide;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -43,7 +44,8 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::getIndentedList();
-        return view('admin.products.create', compact('categories'));
+        $sizeGuides = SizeGuide::active()->orderBy('sort_order')->orderBy('name')->get();
+        return view('admin.products.create', compact('categories', 'sizeGuides'));
     }
 
     public function store(Request $request)
@@ -56,6 +58,7 @@ class ProductController extends Controller
             'sku' => 'nullable|string|unique:products,sku',
             'stock_quantity' => 'required|integer|min:0',
             'category_id' => 'nullable|exists:categories,id',
+            'size_guide_id' => 'nullable|exists:size_guides,id',
             'status' => 'required|in:active,draft,archived',
             'featured' => 'boolean',
             'shopify_sync_enabled' => 'boolean',
@@ -106,7 +109,8 @@ class ProductController extends Controller
     public function edit(Product $product)
     {
         $categories = Category::getIndentedList();
-        return view('admin.products.edit', compact('product', 'categories'));
+        $sizeGuides = SizeGuide::active()->orderBy('sort_order')->orderBy('name')->get();
+        return view('admin.products.edit', compact('product', 'categories', 'sizeGuides'));
     }
 
     public function update(Request $request, Product $product)
@@ -119,6 +123,7 @@ class ProductController extends Controller
             'sku' => 'nullable|string|unique:products,sku,' . $product->id,
             'stock_quantity' => 'required|integer|min:0',
             'category_id' => 'nullable|exists:categories,id',
+            'size_guide_id' => 'nullable|exists:size_guides,id',
             'status' => 'required|in:active,draft,archived',
             'featured' => 'boolean',
             'shopify_sync_enabled' => 'boolean',

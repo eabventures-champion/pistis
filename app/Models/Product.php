@@ -13,7 +13,7 @@ class Product extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'category_id', 'name', 'slug', 'description', 'price', 'compare_price',
+        'category_id', 'size_guide_id', 'name', 'slug', 'description', 'price', 'compare_price',
         'sku', 'stock_quantity', 'images', 'colors', 'sizes', 'shopify_product_id', 'shopify_variant_id',
         'shopify_inventory_item_id', 'shopify_sync_enabled', 'status', 'featured', 'weight',
     ];
@@ -44,6 +44,38 @@ class Product extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function sizeGuide(): BelongsTo
+    {
+        return $this->belongsTo(SizeGuide::class);
+    }
+
+    public function resolveSizeGuide(): ?SizeGuide
+    {
+        if ($this->size_guide_id && $this->sizeGuide && $this->sizeGuide->is_active) {
+            return $this->sizeGuide;
+        }
+
+        // Try direct category
+        if ($this->category_id) {
+            $catGuide = SizeGuide::where('category_id', $this->category_id)->where('is_active', true)->first();
+            if ($catGuide) {
+                return $catGuide;
+            }
+
+            // Walk parent categories
+            $parent = $this->category ? $this->category->parent : null;
+            while ($parent) {
+                $parentGuide = SizeGuide::where('category_id', $parent->id)->where('is_active', true)->first();
+                if ($parentGuide) {
+                    return $parentGuide;
+                }
+                $parent = $parent->parent;
+            }
+        }
+
+        return SizeGuide::where('is_active', true)->orderBy('sort_order')->first();
     }
 
     public function getRootCategoryId(): ?int

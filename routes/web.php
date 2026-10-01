@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ShopifySyncController;
+use App\Http\Controllers\Admin\SizeGuideController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
@@ -131,4 +132,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/hero-slides/{hero_slide}/toggle-status', [HeroSlideController::class, 'toggleStatus'])->name('hero-slides.toggle-status');
     Route::post('/hero-slides/{hero_slide}/duplicate', [HeroSlideController::class, 'duplicate'])->name('hero-slides.duplicate');
     Route::resource('hero-slides', HeroSlideController::class);
+
+    // Size Guides Management
+    Route::post('/size-guides/{sizeGuide}/toggle-status', [SizeGuideController::class, 'toggleStatus'])->name('size-guides.toggle-status');
+    Route::resource('size-guides', SizeGuideController::class);
 });
