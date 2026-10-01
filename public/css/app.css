@@ -3262,31 +3262,68 @@ body.sidebar-collapsed .admin-main {
 }
 
 @media (max-width: 768px) {
+    .product-detail {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+        padding: 12px 0 48px 0 !important;
+    }
     .product-gallery-layout {
-        flex-direction: column-reverse;
-        gap: 12px;
+        flex-direction: column-reverse !important;
+        gap: 10px !important;
+        position: relative !important;
+        top: 0 !important;
     }
     .gallery-thumbs-rail {
-        width: 100%;
-        flex-direction: row;
-        justify-content: center;
+        width: 100% !important;
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        margin-top: 4px !important;
     }
     .thumbs-rail-track {
-        flex-direction: row;
-        max-height: none;
-        max-width: 100%;
-        overflow-x: auto;
+        flex-direction: row !important;
+        max-height: none !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        scroll-snap-type: x mandatory !important;
+        -webkit-overflow-scrolling: touch !important;
+        gap: 10px !important;
+        padding: 2px 2px 6px 2px !important;
+        scrollbar-width: none !important;
+    }
+    .thumbs-rail-track::-webkit-scrollbar {
+        display: none !important;
+    }
+    .thumb-item {
+        width: 64px !important;
+        height: 82px !important;
+        flex-shrink: 0 !important;
+        scroll-snap-align: start !important;
+        border-radius: 3px !important;
     }
     .thumb-rail-btn {
-        width: 24px;
-        height: 100%;
+        display: none !important;
     }
-    .thumb-rail-btn.prev-btn { transform: rotate(-90deg); }
-    .thumb-rail-btn.next-btn { transform: rotate(-90deg); }
     .main-image-stage {
-        height: 340px;
-        width: 100%;
+        height: auto !important;
+        aspect-ratio: 4/5 !important;
+        max-height: 72vh !important;
+        min-height: 380px !important;
+        width: 100% !important;
+        border-radius: 4px !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
     }
+    .gallery-nav-btn {
+        opacity: 0.92 !important;
+        width: 38px !important;
+        height: 38px !important;
+        background: rgba(255, 255, 255, 0.92) !important;
+        border-radius: 50% !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+        display: flex !important;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    }
+    .gallery-nav-btn.prev-btn { left: 8px !important; }
+    .gallery-nav-btn.next-btn { right: 8px !important; }
 }
 
 /* ─── Fullscreen Lightbox Modal ────────────────────────────────────────── */

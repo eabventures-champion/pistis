@@ -1,6 +1,261 @@
 @extends('layouts.app')
 
-@section('title', $product->name . ' — Pistis')
+@push('styles')
+<style>
+/* ─── PDP Mobile Optimization Styles ────────────────────────────────── */
+.pdp-accordions {
+    border-top: 1px solid #e5e5e5;
+    margin-bottom: 24px;
+    width: 100%;
+}
+.pdp-accordion-item {
+    border-bottom: 1px solid #e5e5e5;
+}
+.pdp-accordion-header {
+    width: 100%;
+    padding: 16px 0;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    text-align: left;
+    transition: opacity 0.15s ease;
+}
+.pdp-accordion-header:hover {
+    opacity: 0.7;
+}
+.pdp-accordion-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #000000;
+}
+.accordion-icon {
+    font-size: 1.15rem;
+    color: #737373;
+    font-weight: 300;
+    transition: transform 0.2s ease;
+    line-height: 1;
+}
+.pdp-accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.pdp-accordion-inner {
+    padding-bottom: 18px;
+    font-size: 0.85rem;
+    color: #525252;
+    line-height: 1.65;
+}
+.pdp-accordion-inner ul {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Mobile Sticky Bottom Bar */
+.pdp-mobile-sticky-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid #e5e5e5;
+    padding: 10px 16px;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transform: translateY(105%);
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+}
+.pdp-mobile-sticky-bar.is-visible {
+    transform: translateY(0);
+}
+.pdp-sticky-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+}
+.pdp-sticky-thumb {
+    width: 38px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 2px;
+    border: 1px solid #e5e5e5;
+    background: #fafafa;
+    flex-shrink: 0;
+}
+.pdp-sticky-details {
+    min-width: 0;
+    flex: 1;
+}
+.pdp-sticky-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #000000;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    line-height: 1.15;
+}
+.pdp-sticky-sub {
+    font-size: 0.72rem;
+    color: #737373;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 2px;
+}
+.pdp-sticky-dot {
+    opacity: 0.4;
+}
+.pdp-sticky-price {
+    font-weight: 700;
+    color: #000000;
+    margin-left: 2px;
+}
+.pdp-sticky-cta {
+    height: 44px;
+    padding: 0 18px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    background: #000000;
+    color: #ffffff;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    flex-shrink: 0;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.pdp-sticky-cta:active {
+    background: #262626;
+    transform: scale(0.98);
+}
+
+@media (min-width: 769px) {
+    .pdp-mobile-sticky-bar {
+        display: none !important;
+    }
+}
+
+/* Mobile Gallery & Viewport Optimizations */
+@media (max-width: 768px) {
+    .product-detail {
+        grid-template-columns: 1fr !important;
+        gap: 24px !important;
+        padding: 12px 0 48px 0 !important;
+    }
+    .product-gallery-layout {
+        flex-direction: column-reverse !important;
+        gap: 10px !important;
+        position: relative !important;
+        top: 0 !important;
+    }
+    .main-image-stage {
+        height: auto !important;
+        aspect-ratio: 4/5 !important;
+        max-height: 72vh !important;
+        min-height: 380px !important;
+        width: 100% !important;
+        border-radius: 4px !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+    }
+    .gallery-nav-btn {
+        opacity: 0.92 !important;
+        width: 38px !important;
+        height: 38px !important;
+        background: rgba(255, 255, 255, 0.92) !important;
+        border-radius: 50% !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
+        display: flex !important;
+        border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    }
+    .gallery-nav-btn.prev-btn { left: 8px !important; }
+    .gallery-nav-btn.next-btn { right: 8px !important; }
+
+    .gallery-thumbs-rail {
+        width: 100% !important;
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        margin-top: 4px !important;
+    }
+    .thumb-rail-btn {
+        display: none !important;
+    }
+    .thumbs-rail-track {
+        flex-direction: row !important;
+        max-height: none !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        scroll-snap-type: x mandatory !important;
+        -webkit-overflow-scrolling: touch !important;
+        gap: 10px !important;
+        padding: 2px 2px 6px 2px !important;
+        scrollbar-width: none !important;
+    }
+    .thumbs-rail-track::-webkit-scrollbar {
+        display: none !important;
+    }
+    .thumb-item {
+        width: 64px !important;
+        height: 82px !important;
+        flex-shrink: 0 !important;
+        scroll-snap-align: start !important;
+        border-radius: 3px !important;
+    }
+    .gallery-counter-pill {
+        bottom: 12px !important;
+        right: 12px !important;
+        padding: 3px 10px !important;
+        border-radius: 12px !important;
+        font-size: 0.68rem !important;
+        background: rgba(0, 0, 0, 0.78) !important;
+    }
+    .gallery-zoom-hint {
+        top: 12px !important;
+        right: 12px !important;
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-action-row {
+        gap: 8px !important;
+    }
+    .quantity-stepper {
+        height: 48px !important;
+    }
+    .add-to-bag-button {
+        height: 48px !important;
+        font-size: 0.78rem !important;
+        letter-spacing: 0.12em !important;
+    }
+}
+</style>
+@endpush
 
 @section('content')
 @php
@@ -100,14 +355,9 @@
 
             <div style="width:100%;height:1px;background:#e5e5e5;margin-bottom:24px;"></div>
 
-            @if($product->description)
-                <div style="font-size:0.9rem;line-height:1.7;color:#525252;margin-bottom:32px;">
-                    {!! nl2br(e($product->description)) !!}
-                </div>
-            @endif
-
+            {{-- Product Purchase Form (Placed prominently before description for mobile ease) --}}
             @if($product->is_in_stock)
-                <form action="{{ route('cart.add') }}" method="POST" class="add-to-cart-form" style="display:flex;flex-direction:column;gap:0;margin-bottom:24px;width:100%;">
+                <form action="{{ route('cart.add') }}" method="POST" class="add-to-cart-form" style="display:flex;flex-direction:column;gap:0;margin-bottom:28px;width:100%;">
                     @csrf
                     <input type="hidden" name="product_id" value="{{ $product->id }}">
 
@@ -203,12 +453,70 @@
                     </div>
                 </form>
             @else
-                <button class="btn btn-secondary btn-lg w-100" disabled style="border-radius:0;letter-spacing:0.15em;font-size:0.8rem;">SOLD OUT</button>
+                <button class="btn btn-secondary btn-lg w-100" disabled style="border-radius:0;letter-spacing:0.15em;font-size:0.8rem;margin-bottom:24px;">SOLD OUT</button>
             @endif
+
+            {{-- Product Editorial Description --}}
+            @if($product->description)
+                <div style="font-size:0.9rem;line-height:1.75;color:#525252;margin-bottom:28px;">
+                    {!! nl2br(e($product->description)) !!}
+                </div>
+            @endif
+
+            {{-- Luxury Expandable Accordions --}}
+            <div class="pdp-accordions" style="border-top:1px solid #e5e5e5;margin-bottom:24px;width:100%;">
+                {{-- Details & Fit --}}
+                <div class="pdp-accordion-item">
+                    <button type="button" class="pdp-accordion-header" onclick="togglePdpAccordion(this)">
+                        <span class="pdp-accordion-title">Details & Fit</span>
+                        <span class="accordion-icon">+</span>
+                    </button>
+                    <div class="pdp-accordion-content">
+                        <div class="pdp-accordion-inner">
+                            <ul>
+                                <li>Heavyweight 390 GSM premium cotton fleece fabrication</li>
+                                <li>Vintage pigment dye treatment for deep, washed texture</li>
+                                <li>Relaxed 90s fit with dropped shoulders and structured drape</li>
+                                <li>Rib-knit collar, cuffs, and hem with reinforced needle stitching</li>
+                                <li>Signature archival branding and functional kangaroo pocket</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Shipping & Complimentary Returns --}}
+                <div class="pdp-accordion-item">
+                    <button type="button" class="pdp-accordion-header" onclick="togglePdpAccordion(this)">
+                        <span class="pdp-accordion-title">Shipping & Returns</span>
+                        <span class="accordion-icon">+</span>
+                    </button>
+                    <div class="pdp-accordion-content">
+                        <div class="pdp-accordion-inner">
+                            <p style="margin:0 0 8px 0;">All orders are dispatched from our atelier within 24–48 hours with full tracking details sent via email.</p>
+                            <p style="margin:0;">Complimentary exchanges and returns are accepted within 14 days of delivery. Items must be in original unworn condition with tags attached.</p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Garment Care --}}
+                <div class="pdp-accordion-item">
+                    <button type="button" class="pdp-accordion-header" onclick="togglePdpAccordion(this)">
+                        <span class="pdp-accordion-title">Garment Care</span>
+                        <span class="accordion-icon">+</span>
+                    </button>
+                    <div class="pdp-accordion-content">
+                        <div class="pdp-accordion-inner">
+                            <p style="margin:0 0 6px 0;">Machine wash cold inside-out on gentle cycle with like colors.</p>
+                            <p style="margin:0 0 6px 0;">Do not bleach. Lay flat to dry or tumble dry on lowest temperature.</p>
+                            <p style="margin:0;">Cool iron on reverse if necessary; do not iron directly on graphic accents.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             {{-- Buy on Shopify --}}
             @if($shopifyUrl)
-                <div style="display:flex;align-items:center;gap:12px;padding:16px;border:1px solid #e5e5e5;margin-top:12px;margin-bottom:12px;">
+                <div style="display:flex;align-items:center;gap:12px;padding:16px;border:1px solid #e5e5e5;margin-bottom:16px;">
                     <span style="font-size:0.75rem;color:#737373;letter-spacing:0.05em;text-transform:uppercase;">Also available on Shopify</span>
                     <a href="{{ $shopifyUrl }}" target="_blank" style="margin-left:auto;font-size:0.75rem;color:#000000;letter-spacing:0.1em;text-transform:uppercase;font-weight:600;">PURCHASE →</a>
                 </div>
@@ -216,12 +524,36 @@
 
             {{-- Synced badge --}}
             @if($product->is_synced_to_shopify)
-                <div style="margin-top:12px;">
+                <div>
                     <span class="badge badge-success" style="font-size:0.65rem;letter-spacing:0.1em;">✓ SYNCED TO SHOPIFY</span>
                 </div>
             @endif
         </div>
     </div>
+
+    {{-- Mobile Sticky Bottom Bar (Appears on scroll past Add to Bag on mobile) --}}
+    @if($product->is_in_stock)
+    <div class="pdp-mobile-sticky-bar" id="pdp-mobile-sticky-bar">
+        <div class="pdp-sticky-left">
+            @if($totalImages > 0)
+                <img src="{{ $galleryImages[0] }}" alt="{{ $product->name }}" id="pdp-sticky-thumb" class="pdp-sticky-thumb">
+            @endif
+            <div class="pdp-sticky-details">
+                <span class="pdp-sticky-name">{{ $product->name }}</span>
+                <div class="pdp-sticky-sub">
+                    <span id="pdp-sticky-color-val">{{ $defaultColor ?? 'Selected' }}</span>
+                    @if(!empty($product->sizes_list)) <span class="pdp-sticky-dot">·</span> @endif
+                    <span id="pdp-sticky-size-val">{{ $product->sizes_list[0] ?? '' }}</span>
+                    <span class="pdp-sticky-dot">·</span>
+                    <span class="pdp-sticky-price" id="pdp-sticky-price-val">{{ $product->formatted_price }}</span>
+                </div>
+            </div>
+        </div>
+        <button type="button" class="pdp-sticky-cta" onclick="submitMainAddToCart()">
+            ADD TO BAG
+        </button>
+    </div>
+    @endif
 
     {{-- Related Products --}}
     @if($relatedProducts->count() > 0)
@@ -535,6 +867,11 @@
             input.value = colorName;
         }
 
+        const stickyColor = document.getElementById('pdp-sticky-color-val');
+        if (stickyColor) {
+            stickyColor.textContent = colorName;
+        }
+
         // Instantly switch gallery images to this color's specific photos!
         if (colorGalleries && colorGalleries[colorName] && colorGalleries[colorName].length > 0) {
             images = colorGalleries[colorName];
@@ -578,17 +915,30 @@
         if (input) {
             input.value = sizeVal;
         }
+
+        const stickySize = document.getElementById('pdp-sticky-size-val');
+        if (stickySize) {
+            stickySize.textContent = sizeVal;
+        }
     };
 
     // ─── Quantity Stepper & Dynamic Total Calculation ──────────
     function updateAddToBagPrice(quantity) {
         const priceEl = document.getElementById('pdp-add-to-bag-price');
-        if (!priceEl) return;
-        const total = (unitPrice * quantity).toLocaleString('en-US', {
+        const formattedTotal = (unitPrice * quantity).toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
-        priceEl.textContent = `${currencySymbol}${total}`;
+        const fullPriceStr = `${currencySymbol}${formattedTotal}`;
+
+        if (priceEl) {
+            priceEl.textContent = fullPriceStr;
+        }
+
+        const stickyPrice = document.getElementById('pdp-sticky-price-val');
+        if (stickyPrice) {
+            stickyPrice.textContent = fullPriceStr;
+        }
     }
 
     window.incrementQty = function(max) {
@@ -643,6 +993,69 @@
             navigateGallery(1);
         }
     });
+})();
+
+// ─── Accordion Toggle ───────────────────────────────────────
+window.togglePdpAccordion = function(button) {
+    const item = button.closest('.pdp-accordion-item');
+    if (!item) return;
+    const content = item.querySelector('.pdp-accordion-content');
+    const icon = button.querySelector('.accordion-icon');
+    const isOpen = item.classList.contains('active');
+
+    document.querySelectorAll('.pdp-accordion-item').forEach(other => {
+        if (other !== item) {
+            other.classList.remove('active');
+            const otherContent = other.querySelector('.pdp-accordion-content');
+            const otherIcon = other.querySelector('.accordion-icon');
+            if (otherContent) otherContent.style.maxHeight = '0px';
+            if (otherIcon) otherIcon.textContent = '+';
+        }
+    });
+
+    if (isOpen) {
+        item.classList.remove('active');
+        if (content) content.style.maxHeight = '0px';
+        if (icon) icon.textContent = '+';
+    } else {
+        item.classList.add('active');
+        if (content) content.style.maxHeight = content.scrollHeight + 'px';
+        if (icon) icon.textContent = '−';
+    }
+};
+
+// ─── Mobile Sticky Bar Action & Scroll Trigger ──────────────
+window.submitMainAddToCart = function() {
+    const form = document.querySelector('.add-to-cart-form');
+    if (form) {
+        form.requestSubmit ? form.requestSubmit() : form.submit();
+    }
+};
+
+(function() {
+    const stickyBar = document.getElementById('pdp-mobile-sticky-bar');
+    const mainBtn = document.querySelector('.add-to-bag-button');
+    if (stickyBar && mainBtn) {
+        let ticking = false;
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                window.requestAnimationFrame(function() {
+                    if (window.innerWidth <= 768) {
+                        const rect = mainBtn.getBoundingClientRect();
+                        if (rect.bottom < 40) {
+                            stickyBar.classList.add('is-visible');
+                        } else {
+                            stickyBar.classList.remove('is-visible');
+                        }
+                    } else {
+                        stickyBar.classList.remove('is-visible');
+                    }
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
+    }
 })();
 
 // Size Guide Modal Logic
