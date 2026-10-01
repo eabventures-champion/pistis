@@ -466,6 +466,11 @@
             {{-- Luxury Expandable Accordions --}}
             <div class="pdp-accordions" style="border-top:1px solid #e5e5e5;margin-bottom:24px;width:100%;">
                 {{-- Details & Fit --}}
+                @php
+                    $detailsText = trim((string)$product->resolved_details_and_fit);
+                    $detailsLines = array_filter(array_map('trim', explode("\n", $detailsText)));
+                @endphp
+                @if(!empty($detailsText))
                 <div class="pdp-accordion-item">
                     <button type="button" class="pdp-accordion-header" onclick="togglePdpAccordion(this)">
                         <span class="pdp-accordion-title">Details & Fit</span>
@@ -473,45 +478,55 @@
                     </button>
                     <div class="pdp-accordion-content">
                         <div class="pdp-accordion-inner">
-                            <ul>
-                                <li>Heavyweight 390 GSM premium cotton fleece fabrication</li>
-                                <li>Vintage pigment dye treatment for deep, washed texture</li>
-                                <li>Relaxed 90s fit with dropped shoulders and structured drape</li>
-                                <li>Rib-knit collar, cuffs, and hem with reinforced needle stitching</li>
-                                <li>Signature archival branding and functional kangaroo pocket</li>
-                            </ul>
+                            @if(count($detailsLines) > 1)
+                                <ul>
+                                    @foreach($detailsLines as $line)
+                                        <li>{{ ltrim($line, "-*•\t ") }}</li>
+                                    @endforeach
+                                </ul>
+                            @else
+                                <p style="margin:0;">{!! nl2br(e($detailsText)) !!}</p>
+                            @endif
                         </div>
                     </div>
                 </div>
+                @endif
 
                 {{-- Shipping & Complimentary Returns --}}
+                @php
+                    $shippingText = trim((string)$product->resolved_shipping_and_returns);
+                @endphp
+                @if(!empty($shippingText))
                 <div class="pdp-accordion-item">
                     <button type="button" class="pdp-accordion-header" onclick="togglePdpAccordion(this)">
                         <span class="pdp-accordion-title">Shipping & Returns</span>
                         <span class="accordion-icon">+</span>
                     </button>
                     <div class="pdp-accordion-content">
-                        <div class="pdp-accordion-inner">
-                            <p style="margin:0 0 8px 0;">All orders are dispatched from our atelier within 24–48 hours with full tracking details sent via email.</p>
-                            <p style="margin:0;">Complimentary exchanges and returns are accepted within 14 days of delivery. Items must be in original unworn condition with tags attached.</p>
+                        <div class="pdp-accordion-inner" style="line-height:1.7;">
+                            {!! nl2br(e($shippingText)) !!}
                         </div>
                     </div>
                 </div>
+                @endif
 
                 {{-- Garment Care --}}
+                @php
+                    $careText = trim((string)$product->resolved_garment_care);
+                @endphp
+                @if(!empty($careText))
                 <div class="pdp-accordion-item">
                     <button type="button" class="pdp-accordion-header" onclick="togglePdpAccordion(this)">
                         <span class="pdp-accordion-title">Garment Care</span>
                         <span class="accordion-icon">+</span>
                     </button>
                     <div class="pdp-accordion-content">
-                        <div class="pdp-accordion-inner">
-                            <p style="margin:0 0 6px 0;">Machine wash cold inside-out on gentle cycle with like colors.</p>
-                            <p style="margin:0 0 6px 0;">Do not bleach. Lay flat to dry or tumble dry on lowest temperature.</p>
-                            <p style="margin:0;">Cool iron on reverse if necessary; do not iron directly on graphic accents.</p>
+                        <div class="pdp-accordion-inner" style="line-height:1.7;">
+                            {!! nl2br(e($careText)) !!}
                         </div>
                     </div>
                 </div>
+                @endif
             </div>
 
             {{-- Buy on Shopify --}}

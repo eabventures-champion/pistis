@@ -52,6 +52,33 @@
                 </div>
             </div>
 
+            {{-- Product Accordions & Specifications --}}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 style="font-size:1rem;margin:0;">Product Accordions & Specifications</h3>
+                    <p class="text-muted" style="font-size:0.75rem;margin:4px 0 0;">Customize the three luxury expandable accordion sections shown on the product page.</p>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:600;font-size:0.85rem;">Details & Fit Specification</label>
+                        <textarea name="details_and_fit" class="form-control" rows="4" placeholder="Enter bullet points (one per line) or paragraph for this piece (e.g. 390 GSM fleece, relaxed 90s silhouette)...">{{ old('details_and_fit') }}</textarea>
+                        <small class="text-muted" style="font-size:0.75rem;display:block;margin-top:4px;">Leave blank to use the store default from Settings.</small>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:600;font-size:0.85rem;">Garment Care (Optional Custom Override)</label>
+                        <textarea name="garment_care" class="form-control" rows="3" placeholder="Leave empty to use store default garment care policy...">{{ old('garment_care') }}</textarea>
+                        <small class="text-muted" style="font-size:0.75rem;display:block;margin-top:4px;">Leave empty to inherit standard store-wide care guidelines.</small>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="form-label" style="font-weight:600;font-size:0.85rem;">Shipping & Returns (Optional Custom Override)</label>
+                        <textarea name="shipping_and_returns" class="form-control" rows="3" placeholder="Leave empty to use store default shipping & returns policy...">{{ old('shipping_and_returns') }}</textarea>
+                        <small class="text-muted" style="font-size:0.75rem;display:block;margin-top:4px;">Leave empty to inherit standard store-wide shipping & return terms.</small>
+                    </div>
+                </div>
+            </div>
+
             {{-- Color Variations & Per-Color Image Galleries --}}
             <div class="card mb-4">
                 <div class="card-header d-flex justify-between align-center">

@@ -183,6 +183,35 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Store Policies & Product Accordions Card --}}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 style="font-size:1.05rem; font-weight:700; margin:0; text-transform:uppercase; letter-spacing:0.04em;">Store Policies & Product Accordions</h3>
+                    <p class="text-muted" style="font-size:0.84rem; margin:6px 0 0 0; line-height:1.5;">
+                        Configure default policies and specifications that automatically appear in product accordions across the storefront. Individual products can override these at any time.
+                    </p>
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-4">
+                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">Default Details & Fit Specification</label>
+                        <textarea name="default_details_and_fit" class="form-control" rows="4" placeholder="Enter bullet points (one per line) or text for piece specifications...">{{ $settings['default_details_and_fit'] }}</textarea>
+                        <small class="text-muted" style="font-size:0.75rem; display:block; margin-top:4px;">Used as fallback if a product does not have custom piece details specified.</small>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">Default Shipping & Returns Policy</label>
+                        <textarea name="default_shipping_and_returns" class="form-control" rows="4" placeholder="Enter standard shipping and return terms...">{{ $settings['default_shipping_and_returns'] }}</textarea>
+                        <small class="text-muted" style="font-size:0.75rem; display:block; margin-top:4px;">Displayed in the 'Shipping & Returns' accordion on all product pages.</small>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">Default Garment Care Guidelines</label>
+                        <textarea name="default_garment_care" class="form-control" rows="4" placeholder="Enter general wash and garment preservation instructions...">{{ $settings['default_garment_care'] }}</textarea>
+                        <small class="text-muted" style="font-size:0.75rem; display:block; margin-top:4px;">Displayed in the 'Garment Care' accordion on all product pages.</small>
+                    </div>
+                </div>
+            </div>
         </div>
 
         {{-- Right Column: Gateways & Actions --}}

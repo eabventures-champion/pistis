@@ -34,6 +34,9 @@ class SettingsController extends Controller
             'store_hide_brand_text' => (bool) Setting::get('store_hide_brand_text', false),
             'homepage_show_categories' => (bool) Setting::get('homepage_show_categories', '1'),
             'homepage_show_editorial_categories' => (bool) Setting::get('homepage_show_editorial_categories', '1'),
+            'default_details_and_fit' => Setting::get('default_details_and_fit', "Heavyweight 390 GSM premium cotton fleece fabrication\nVintage pigment dye treatment for deep, washed texture\nRelaxed 90s fit with dropped shoulders and structured drape\nRib-knit collar, cuffs, and hem with reinforced needle stitching\nSignature archival branding and functional kangaroo pocket"),
+            'default_shipping_and_returns' => Setting::get('default_shipping_and_returns', "All orders are dispatched from our atelier within 24–48 hours with full tracking details sent via email.\n\nComplimentary exchanges and returns are accepted within 14 days of delivery. Items must be in original unworn condition with tags attached."),
+            'default_garment_care' => Setting::get('default_garment_care', "Machine wash cold inside-out on gentle cycle with like colors.\n\nDo not bleach. Lay flat to dry or tumble dry on lowest temperature.\n\nCool iron on reverse if necessary; do not iron directly on graphic accents."),
         ];
 
         return view('admin.settings', compact('settings'));
@@ -55,12 +58,16 @@ class SettingsController extends Controller
             'store_hide_brand_text' => 'nullable|boolean',
             'homepage_show_categories' => 'nullable|boolean',
             'homepage_show_editorial_categories' => 'nullable|boolean',
+            'default_details_and_fit' => 'nullable|string',
+            'default_shipping_and_returns' => 'nullable|string',
+            'default_garment_care' => 'nullable|string',
         ]);
 
         $fields = [
             'store_name', 'store_email', 'store_phone', 'store_address',
             'active_payment_gateway', 'currency_symbol', 'currency_code',
             'store_logo_height',
+            'default_details_and_fit', 'default_shipping_and_returns', 'default_garment_care',
         ];
 
         foreach ($fields as $field) {

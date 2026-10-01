@@ -13,7 +13,9 @@ class Product extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'category_id', 'size_guide_id', 'name', 'slug', 'description', 'price', 'compare_price',
+        'category_id', 'size_guide_id', 'name', 'slug', 'description', 
+        'details_and_fit', 'shipping_and_returns', 'garment_care',
+        'price', 'compare_price',
         'sku', 'stock_quantity', 'images', 'colors', 'sizes', 'shopify_product_id', 'shopify_variant_id',
         'shopify_inventory_item_id', 'shopify_sync_enabled', 'status', 'featured', 'weight',
     ];
@@ -307,6 +309,42 @@ class Product extends Model
             }
         }
         return array_values(array_unique($list));
+    }
+
+    public function getResolvedDetailsAndFitAttribute(): string
+    {
+        if (!empty($this->details_and_fit)) {
+            return $this->details_and_fit;
+        }
+
+        return Setting::get(
+            'default_details_and_fit',
+            "Heavyweight 390 GSM premium cotton fleece fabrication\nVintage pigment dye treatment for deep, washed texture\nRelaxed 90s fit with dropped shoulders and structured drape\nRib-knit collar, cuffs, and hem with reinforced needle stitching\nSignature archival branding and functional kangaroo pocket"
+        );
+    }
+
+    public function getResolvedShippingAndReturnsAttribute(): string
+    {
+        if (!empty($this->shipping_and_returns)) {
+            return $this->shipping_and_returns;
+        }
+
+        return Setting::get(
+            'default_shipping_and_returns',
+            "All orders are dispatched from our atelier within 24–48 hours with full tracking details sent via email.\n\nComplimentary exchanges and returns are accepted within 14 days of delivery. Items must be in original unworn condition with tags attached."
+        );
+    }
+
+    public function getResolvedGarmentCareAttribute(): string
+    {
+        if (!empty($this->garment_care)) {
+            return $this->garment_care;
+        }
+
+        return Setting::get(
+            'default_garment_care',
+            "Machine wash cold inside-out on gentle cycle with like colors.\n\nDo not bleach. Lay flat to dry or tumble dry on lowest temperature.\n\nCool iron on reverse if necessary; do not iron directly on graphic accents."
+        );
     }
 
     public function scopeInStock($query)
