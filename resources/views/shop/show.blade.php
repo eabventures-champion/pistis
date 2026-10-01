@@ -735,37 +735,26 @@ function renderActiveSizeGuide() {
     rows.forEach((row, idx) => {
         const bg = idx % 2 === 0 ? '#ffffff' : '#fafafa';
         bodyHtml += `<tr style="background:${bg};border-bottom:1px solid #f0f0f0;">
-            <td style="padding:12px 16px;text-align:left;font-weight:600;color:#18181b;">${row.name}</td>`;
+            <td style="padding:12px 18px;text-align:left;font-weight:600;color:#18181b;font-size:0.83rem;">${row.name}</td>`;
         sizes.forEach(sz => {
-            const val = (currentUnit === 'in' ? (row.inch ? row.inch[sz] : null) : (row.cm ? row.cm[sz] : null)) ?? '-';
-            bodyHtml += `<td style="padding:12px 14px;color:#3f3f46;font-family:'Inter',monospace;">${val}</td>`;
+            let val = (currentUnit === 'in' ? (row.inch ? row.inch[sz] : null) : (row.cm ? row.cm[sz] : null));
+            if (val === undefined || val === null) {
+                val = (row.values && row.values[sz] !== undefined) ? row.values[sz] : '-';
+            }
+            bodyHtml += `<td style="padding:12px 14px;color:#27272a;font-family:'Inter',monospace;font-size:0.85rem;text-align:center;">${val}</td>`;
         });
         bodyHtml += `</tr>`;
     });
     tbody.innerHTML = bodyHtml;
 }
+
+// Pre-render table on load
+renderActiveSizeGuide();
 </script>
 @endpush
 
 {{-- Size Guide Modal --}}
 @if(isset($allSizeGuides) && $allSizeGuides->count() > 0)
-@php
-    $sizeGuidesData = $allSizeGuides->map(function($g) use ($activeSizeGuide) {
-        return [
-            'id' => $g->id,
-            'name' => $g->name,
-            'fit_type' => $g->fit_type ?: 'Standard Fit',
-            'description' => $g->description,
-            'default_unit' => strtolower($g->default_unit ?? 'cm'),
-            'sizes' => $g->sizes ?? [],
-            'measurements' => $g->formatted_measurements,
-            'is_current' => $activeSizeGuide && $activeSizeGuide->id === $g->id,
-        ];
-    })->values();
-
-    $initialGuideId = $activeSizeGuide ? $activeSizeGuide->id : ($sizeGuidesData->first()['id'] ?? 0);
-@endphp
-
 <div id="size-guide-modal" 
      class="size-guide-modal-overlay" 
      style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.68);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);z-index:9999;align-items:center;justify-content:center;padding:16px;" 

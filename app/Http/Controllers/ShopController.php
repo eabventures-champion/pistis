@@ -70,6 +70,29 @@ class ShopController extends Controller
         $activeSizeGuide = $product->resolveSizeGuide();
         $allSizeGuides = SizeGuide::active()->orderBy('sort_order')->orderBy('name')->get();
 
-        return view('shop.show', compact('product', 'relatedProducts', 'shopifyUrl', 'activeSizeGuide', 'allSizeGuides'));
+        $sizeGuidesData = $allSizeGuides->map(function ($g) use ($activeSizeGuide) {
+            return [
+                'id' => $g->id,
+                'name' => $g->name,
+                'fit_type' => $g->fit_type ?: 'Standard Fit',
+                'description' => $g->description,
+                'default_unit' => strtolower($g->default_unit ?? 'cm'),
+                'sizes' => $g->sizes ?? [],
+                'measurements' => $g->formatted_measurements,
+                'is_current' => $activeSizeGuide && $activeSizeGuide->id === $g->id,
+            ];
+        })->values();
+
+        $initialGuideId = $activeSizeGuide ? $activeSizeGuide->id : ($sizeGuidesData->first()['id'] ?? 0);
+
+        return view('shop.show', compact(
+            'product',
+            'relatedProducts',
+            'shopifyUrl',
+            'activeSizeGuide',
+            'allSizeGuides',
+            'sizeGuidesData',
+            'initialGuideId'
+        ));
     }
 }
