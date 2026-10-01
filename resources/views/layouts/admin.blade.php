@@ -6,6 +6,373 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin') — Pistis Admin</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ file_exists(public_path('css/app.css')) ? filemtime(public_path('css/app.css')) : time() }}">
+    <style>
+        /* ─── Admin Top Navigation Bar ────────────────────────────────────────── */
+        .admin-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+            padding: 0 32px;
+            margin: 0 -32px 20px -32px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e5e5;
+            position: sticky;
+            top: 0;
+            z-index: 95;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .admin-mobile-toggle {
+            display: none;
+            align-items: center;
+            gap: 6px;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            padding: 7px 12px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .topbar-brand-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .topbar-brand-indicator .store-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+        }
+
+        .topbar-brand-indicator .store-name {
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: 0.02em;
+        }
+
+        .topbar-brand-indicator .store-divider {
+            color: #cbd5e1;
+        }
+
+        .topbar-page-label {
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: #475569;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+
+        .topbar-btn:hover {
+            color: #0f172a;
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+
+        /* Bell Notification Container */
+        .topbar-dropdown {
+            position: relative;
+        }
+
+        .topbar-bell-btn {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            padding: 0;
+        }
+
+        .topbar-bell-btn:hover,
+        .topbar-bell-btn.active {
+            background: #f8fafc;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+
+        .bell-badge-count {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 4px;
+            border-radius: 9px;
+            background: #ef4444;
+            color: #ffffff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.35);
+            animation: bellPulse 2s infinite;
+        }
+
+        @keyframes bellPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.12); }
+        }
+
+        /* Dropdown Menu */
+        .notifications-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 380px;
+            max-width: calc(100vw - 32px);
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+            z-index: 120;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .notifications-menu.open {
+            display: flex;
+            animation: fadeInDown 0.15s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .notifications-header {
+            padding: 14px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            background: #f8fafc;
+        }
+
+        .notifications-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .notifications-sub {
+            font-size: 0.75rem;
+            color: #64748b;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .notifications-list {
+            max-height: 380px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 18px;
+            border-bottom: 1px solid #f1f5f9;
+            text-decoration: none;
+            color: inherit;
+            transition: background 0.15s ease;
+            position: relative;
+        }
+
+        .notification-item:hover {
+            background: #f8fafc;
+        }
+
+        .notification-item.is-unread {
+            background: #f0fdf4;
+        }
+
+        .notification-item.is-unread:hover {
+            background: #e6f9ed;
+        }
+
+        .notif-icon-box {
+            width: 34px;
+            height: 34px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .notif-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .notif-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            margin-bottom: 2px;
+        }
+
+        .notif-order-num {
+            font-weight: 700;
+            font-size: 0.82rem;
+            color: #0f172a;
+        }
+
+        .notif-customer {
+            font-size: 0.78rem;
+            color: #334155;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .notif-amount {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .notif-time {
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .notif-unread-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #22c55e;
+            position: absolute;
+            top: 16px;
+            right: 14px;
+        }
+
+        .notifications-empty {
+            padding: 32px 20px;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.85rem;
+        }
+
+        .notifications-footer {
+            padding: 10px 18px;
+            background: #f8fafc;
+            border-top: 1px solid #f1f5f9;
+            text-align: center;
+        }
+
+        .view-all-orders-link {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #0f172a;
+            text-decoration: none;
+            display: block;
+        }
+
+        .view-all-orders-link:hover {
+            text-decoration: underline;
+        }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 3px 10px 3px 3px;
+            border-radius: 20px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+        }
+
+        .topbar-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #0f172a;
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .topbar-username {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        @media (max-width: 900px) {
+            .admin-topbar {
+                margin: 0 -16px 16px -16px;
+                padding: 0 16px;
+            }
+            .admin-mobile-toggle {
+                display: inline-flex !important;
+            }
+            .topbar-brand-indicator .store-divider,
+            .topbar-brand-indicator .topbar-page-label,
+            .topbar-username {
+                display: none;
+            }
+            .topbar-view-store span {
+                display: none;
+            }
+            .notifications-menu {
+                position: fixed;
+                top: 60px;
+                right: 12px;
+                left: 12px;
+                width: auto;
+                max-width: none;
+            }
+        }
+    </style>
     @stack('styles')
 </head>
 <body>
