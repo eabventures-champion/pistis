@@ -6,12 +6,12 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Setting;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class ProductAccordionTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     private User $admin;
     private Product $product;
