@@ -16,6 +16,8 @@ class ProductAccordionTest extends TestCase
     private User $admin;
     private Product $product;
 
+    private string $productSlug;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -25,15 +27,17 @@ class ProductAccordionTest extends TestCase
         ]);
 
         $category = Category::create([
-            'name' => 'Hoodies',
-            'slug' => 'hoodies',
+            'name' => 'Hoodies ' . uniqid(),
+            'slug' => 'hoodies-' . uniqid(),
             'is_active' => true,
         ]);
 
+        $this->productSlug = 'test-hoodie-' . uniqid();
+
         $this->product = Product::create([
             'category_id' => $category->id,
-            'name' => 'Ladies Hoodie',
-            'slug' => 'ladies-hoodie',
+            'name' => 'Test Hoodie',
+            'slug' => $this->productSlug,
             'price' => 120.00,
             'stock_quantity' => 10,
             'status' => 'active',
@@ -44,7 +48,7 @@ class ProductAccordionTest extends TestCase
 
     public function test_product_page_shows_default_accordions_when_product_fields_are_null(): void
     {
-        $response = $this->get('/shop/ladies-hoodie');
+        $response = $this->get('/shop/' . $this->productSlug);
 
         $response->assertStatus(200);
         $response->assertSee('Details & Fit', false);
@@ -63,7 +67,7 @@ class ProductAccordionTest extends TestCase
             'garment_care' => 'Dry clean only with specialist care.',
         ]);
 
-        $response = $this->get('/shop/ladies-hoodie');
+        $response = $this->get('/shop/' . $this->productSlug);
 
         $response->assertStatus(200);
         $response->assertSee('Custom 100% Merino Wool');
@@ -88,7 +92,7 @@ class ProductAccordionTest extends TestCase
         $this->assertEquals('Global free worldwide express shipping.', Setting::get('default_shipping_and_returns'));
 
         // Fresh product should reflect updated store global defaults
-        $pageResponse = $this->get('/shop/ladies-hoodie');
+        $pageResponse = $this->get('/shop/' . $this->productSlug);
         $pageResponse->assertStatus(200);
         $pageResponse->assertSee('Global Premium Organic Cotton');
         $pageResponse->assertSee('Global free worldwide express shipping.');
