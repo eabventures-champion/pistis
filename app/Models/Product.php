@@ -248,6 +248,10 @@ class Product extends Model
             return [];
         }
         $list = [];
+        $currency = \App\Models\Setting::get('currency_symbol', '$');
+        $basePrice = (float) $this->price;
+        $baseComparePrice = $this->compare_price ? (float) $this->compare_price : null;
+
         foreach ($this->colors as $c) {
             if (is_array($c)) {
                 $name = trim($c['name'] ?? '');
@@ -258,9 +262,22 @@ class Product extends Model
                     }
                     $imageUrls = array_values(array_filter(array_map(fn($img) => static::formatImageUrl($img), $images)));
 
+                    $hasCustomPrice = isset($c['price']) && $c['price'] !== '' && is_numeric($c['price']) && (float) $c['price'] >= 0;
+                    $price = $hasCustomPrice ? (float) $c['price'] : $basePrice;
+
+                    $hasCustomCompare = isset($c['compare_price']) && $c['compare_price'] !== '' && is_numeric($c['compare_price']) && (float) $c['compare_price'] >= 0;
+                    $comparePrice = $hasCustomCompare ? (float) $c['compare_price'] : $baseComparePrice;
+
                     $list[] = [
                         'name' => $name,
                         'code' => !empty($c['code']) ? $c['code'] : static::defaultHexForColorName($name),
+                        'price' => $price,
+                        'raw_price' => $hasCustomPrice ? (float) $c['price'] : null,
+                        'compare_price' => $comparePrice,
+                        'raw_compare_price' => $hasCustomCompare ? (float) $c['compare_price'] : null,
+                        'has_custom_price' => $hasCustomPrice,
+                        'formatted_price' => $currency . number_format($price, 2),
+                        'formatted_compare_price' => ($comparePrice && $comparePrice > $price) ? ($currency . number_format($comparePrice, 2)) : null,
                         'images' => $images,
                         'image_urls' => $imageUrls,
                         'primary_image_url' => $imageUrls[0] ?? null,
@@ -272,6 +289,13 @@ class Product extends Model
                     $list[] = [
                         'name' => $name,
                         'code' => static::defaultHexForColorName($name),
+                        'price' => $basePrice,
+                        'raw_price' => null,
+                        'compare_price' => $baseComparePrice,
+                        'raw_compare_price' => null,
+                        'has_custom_price' => false,
+                        'formatted_price' => $currency . number_format($basePrice, 2),
+                        'formatted_compare_price' => ($baseComparePrice && $baseComparePrice > $basePrice) ? ($currency . number_format($baseComparePrice, 2)) : null,
                         'images' => [],
                         'image_urls' => [],
                         'primary_image_url' => null,
@@ -280,6 +304,98 @@ class Product extends Model
             }
         }
         return $list;
+    }
+
+    public function getPriceForColor(?string $colorName): float
+    {
+        if ($colorName) {
+            foreach ($this->colors_list as $color) {
+                if (strcasecmp($color['name'], trim($colorName)) === 0) {
+                    return (float) $color['price'];
+                }
+            }
+        }
+        return (float) $this->price;
+    }
+
+    public function getComparePriceForColor(?string $colorName): ?float
+    {
+        if ($colorName) {
+            foreach ($this->colors_list as $color) {
+                if (strcasecmp($color['name'], trim($colorName)) === 0) {
+                    return $color['compare_price'] ?? null;
+                }
+            }
+        }
+        return $this->compare_price ? (float) $this->compare_price : null;
+    }
+
+    public function getFormattedPriceForColor(?string $colorName): string
+    {
+        $currency = \App\Models\Setting::get('currency_symbol', '$');
+        return $currency . number_format($this->getPriceForColor($colorName), 2);
+    }
+
+    public function getFormattedComparePriceForColor(?string $colorName): ?string
+    {
+        $compare = $this->getComparePriceForColor($colorName);
+        $price = $this->getPriceForColor($colorName);
+        if ($compare && $compare > $price) {
+            $currency = \App\Models\Setting::get('currency_symbol', '$');
+            return $currency . number_format($compare, 2);
+        }
+        return null;
+    }
+
+    public function getColorPricesAttribute(): array
+    {
+        $prices = [];
+        foreach ($this->colors_list as $color) {
+            $prices[$color['name']] = [
+                'price' => (float) $color['price'],
+                'compare_price' => $color['compare_price'] ?? null,
+                'has_custom_price' => $color['has_custom_price'],
+                'formatted_price' => $color['formatted_price'],
+                'formatted_compare_price' => $color['formatted_compare_price'],
+            ];
+        }
+        return $prices;
+    }
+
+    public function getHasVaryingColorPricesAttribute(): bool
+    {
+        $prices = [];
+        foreach ($this->colors_list as $color) {
+            $prices[] = (float) $color['price'];
+        }
+        return count(array_unique($prices)) > 1;
+    }
+
+    public function getPriceRangeDisplayAttribute(): string
+    {
+        $prices = [];
+        foreach ($this->colors_list as $color) {
+            $prices[] = (float) $color['price'];
+        }
+        if (count(array_unique($prices)) > 1) {
+            $currency = \App\Models\Setting::get('currency_symbol', '$');
+            $min = min($prices);
+            $max = max($prices);
+            return "From {$currency}" . number_format($min, 2);
+        }
+        return $this->formatted_price;
+    }
+
+    public function getPrimaryImageForColor(?string $colorName): ?string
+    {
+        if ($colorName) {
+            foreach ($this->colors_list as $c) {
+                if (strcasecmp($c['name'], trim($colorName)) === 0 && !empty($c['images'][0])) {
+                    return $c['images'][0];
+                }
+            }
+        }
+        return $this->primary_image;
     }
 
     public function getColorGalleriesAttribute(): array

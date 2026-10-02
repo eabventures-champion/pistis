@@ -416,6 +416,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{{ route('admin.settings.index') }}#social-settings" title="Floating Social Media & Handles">
+                        <span class="icon">📱</span> <span class="menu-label">Social Media</span>
+                        <span class="sidebar-badge" style="background:#0f172a;color:#ffffff;font-size:0.6rem;padding:2px 6px;border-radius:10px;font-weight:700;letter-spacing:0.04em;">FLOATING</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{{ route('admin.products.index') }}" class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}" title="Products">
                         <span class="icon">📦</span> <span class="menu-label">Products</span>
                         <span class="sidebar-badge black-badge" title="{{ $sidebarProductsCount ?? 0 }} Products">{{ $sidebarProductsCount ?? 0 }}</span>

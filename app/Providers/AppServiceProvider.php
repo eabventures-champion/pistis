@@ -36,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
                     'cta_text' => \App\Models\Setting::get('campaign_video_cta_text', 'SHOP THE COLLECTION'),
                     'cta_url' => \App\Models\Setting::get('campaign_video_cta_url', '/shop'),
                     'target_page' => \App\Models\Setting::get('campaign_video_target_page', 'homepage'),
-                    'frequency' => \App\Models\Setting::get('campaign_video_frequency', 'once_per_session'),
+                    'frequency' => \App\Models\Setting::get('campaign_video_frequency', 'once_on_site'),
                 ];
                 \Illuminate\Support\Facades\View::share('campaignVideo', $campaignVideo);
 
@@ -57,6 +57,22 @@ class AppServiceProvider extends ServiceProvider
                 \Illuminate\Support\Facades\View::share('store_hide_brand_text', $storeHideBrandText);
                 \Illuminate\Support\Facades\View::share('homepage_show_categories', (bool) \App\Models\Setting::get('homepage_show_categories', '1'));
                 \Illuminate\Support\Facades\View::share('homepage_show_editorial_categories', (bool) \App\Models\Setting::get('homepage_show_editorial_categories', '1'));
+
+                $socialSettings = [
+                    'floating_enabled' => (bool) \App\Models\Setting::get('social_floating_enabled', true),
+                    'position' => \App\Models\Setting::get('social_floating_position', 'bottom-left'),
+                    'primary_handle' => \App\Models\Setting::get('social_primary_handle', '@pistisofficial'),
+                    'tagline' => \App\Models\Setting::get('social_floating_tagline', 'Official Atelier & Runway Archive'),
+                    'instagram' => \App\Models\Setting::get('social_instagram', 'https://instagram.com/pistisofficial'),
+                    'tiktok' => \App\Models\Setting::get('social_tiktok', 'https://tiktok.com/@pistisofficial'),
+                    'twitter' => \App\Models\Setting::get('social_twitter', 'https://x.com/pistisofficial'),
+                    'youtube' => \App\Models\Setting::get('social_youtube', ''),
+                    'pinterest' => \App\Models\Setting::get('social_pinterest', ''),
+                    'facebook' => \App\Models\Setting::get('social_facebook', ''),
+                    'whatsapp' => \App\Models\Setting::get('social_whatsapp', ''),
+                    'show_in_footer' => (bool) \App\Models\Setting::get('social_show_in_footer', true),
+                ];
+                \Illuminate\Support\Facades\View::share('socialSettings', $socialSettings);
 
                 // Share admin notification stats & counts across all admin views
                 \Illuminate\Support\Facades\View::composer(['layouts.admin', 'admin.*'], function ($view) {
@@ -106,6 +122,20 @@ class AppServiceProvider extends ServiceProvider
             \Illuminate\Support\Facades\View::share('homepage_show_categories', true);
             \Illuminate\Support\Facades\View::share('homepage_show_editorial_categories', true);
             \Illuminate\Support\Facades\View::share('campaignVideo', ['enabled' => false, 'video_url' => null]);
+            \Illuminate\Support\Facades\View::share('socialSettings', [
+                'floating_enabled' => true,
+                'position' => 'bottom-left',
+                'primary_handle' => '@pistisofficial',
+                'tagline' => 'Official Atelier & Runway Archive',
+                'instagram' => 'https://instagram.com/pistisofficial',
+                'tiktok' => 'https://tiktok.com/@pistisofficial',
+                'twitter' => 'https://x.com/pistisofficial',
+                'youtube' => '',
+                'pinterest' => '',
+                'facebook' => '',
+                'whatsapp' => '',
+                'show_in_footer' => true,
+            ]);
         }
     }
 

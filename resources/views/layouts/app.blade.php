@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Pistis — Premium ecommerce store. Discover quality products at great prices.">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @yield('meta')
     <title>@yield('title', 'Pistis — Premium Store')</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -149,7 +150,31 @@
                             @endif
                             <span class="brand-title" style="font-family:'Inter',sans-serif;font-size:1.25rem;font-weight:800;letter-spacing:0.28em;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;text-transform:uppercase;margin:0;">{{ $store_name ?? 'PISTIS' }}</span>
                         </a>
-                        <p style="font-size:0.85rem;line-height:1.8;color:#a3a3a3 !important;-webkit-text-fill-color:#a3a3a3 !important;max-width:320px;margin:0;">Architectural silhouettes and timeless luxury essentials designed for modern permanence.</p>
+                        <p style="font-size:0.85rem;line-height:1.8;color:#a3a3a3 !important;-webkit-text-fill-color:#a3a3a3 !important;max-width:320px;margin:0 0 14px 0;">Architectural silhouettes and timeless luxury essentials designed for modern permanence.</p>
+                        @if(!empty($socialSettings['show_in_footer']))
+                            <div class="footer-social-links" style="display:flex;align-items:center;gap:12px;margin-top:14px;flex-wrap:wrap;">
+                                @if(!empty($socialSettings['instagram']))
+                                    <a href="{{ str_starts_with($socialSettings['instagram'], 'http') ? $socialSettings['instagram'] : 'https://instagram.com/' . ltrim($socialSettings['instagram'], '@') }}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#ffffff;transition:all 0.2s;" onmouseover="this.style.background='#ffffff';this.style.color='#000000';" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.color='#ffffff';" title="Instagram: {{ $socialSettings['instagram'] }}">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+                                    </a>
+                                @endif
+                                @if(!empty($socialSettings['tiktok']))
+                                    <a href="{{ str_starts_with($socialSettings['tiktok'], 'http') ? $socialSettings['tiktok'] : 'https://tiktok.com/@' . ltrim($socialSettings['tiktok'], '@') }}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#ffffff;transition:all 0.2s;" onmouseover="this.style.background='#ffffff';this.style.color='#000000';" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.color='#ffffff';" title="TikTok: {{ $socialSettings['tiktok'] }}">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.42a6.37 6.37 0 0 0-.86-.06 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.58a8.28 8.28 0 0 0 4.84 1.56V6.69z"/></svg>
+                                    </a>
+                                @endif
+                                @if(!empty($socialSettings['twitter']))
+                                    <a href="{{ str_starts_with($socialSettings['twitter'], 'http') ? $socialSettings['twitter'] : 'https://x.com/' . ltrim($socialSettings['twitter'], '@') }}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#ffffff;transition:all 0.2s;" onmouseover="this.style.background='#ffffff';this.style.color='#000000';" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.color='#ffffff';" title="X (Twitter): {{ $socialSettings['twitter'] }}">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                                    </a>
+                                @endif
+                                @if(!empty($socialSettings['whatsapp']))
+                                    <a href="{{ str_starts_with($socialSettings['whatsapp'], 'http') ? $socialSettings['whatsapp'] : 'https://wa.me/' . preg_replace('/[^0-9]/', '', $socialSettings['whatsapp']) }}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#ffffff;transition:all 0.2s;" onmouseover="this.style.background='#ffffff';this.style.color='#000000';" onmouseout="this.style.background='rgba(255,255,255,0.08)';this.style.color='#ffffff';" title="WhatsApp Concierge">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                                    </a>
+                                @endif
+                            </div>
+                        @endif
                     </div>
                     <div class="footer-col">
                         <h4>Collection</h4>
@@ -184,6 +209,9 @@
                 </div>
             </div>
     </div>
+
+    {{-- Floating Luxury Social Media Widget --}}
+    @include('components.floating-social')
 
     {{-- Luxury Campaign & Lookbook Video Intro --}}
     @include('components.campaign-video-modal')

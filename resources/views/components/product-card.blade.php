@@ -34,7 +34,7 @@
             <h3 class="product-name">{{ $product->name }}</h3>
         </a>
         <div class="product-price">
-            <span class="price-current">{{ $product->formatted_price }}</span>
+            <span class="price-current">{{ $product->price_range_display }}</span>
             @if($product->formatted_compare_price)
                 <span class="price-compare">{{ $product->formatted_compare_price }}</span>
             @endif

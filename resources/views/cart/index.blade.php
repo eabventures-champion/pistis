@@ -16,8 +16,11 @@
             @foreach($cart->items as $item)
                 <div class="cart-item cart-item-row" id="cart-item-row-{{ $item->id }}" style="border:none;border-bottom:1px solid #e5e5e5;padding:24px 0;display:flex;align-items:center;gap:20px;transition:opacity 0.25s ease, transform 0.25s ease;">
                     <div class="cart-item-image" style="width:100px;height:130px;flex-shrink:0;background:#fafafa;">
-                        @if($item->product && $item->product->primary_image)
-                            <img src="{{ asset('storage/' . $item->product->primary_image) }}" alt="{{ $item->product->name }}" style="width:100%;height:100%;object-fit:cover;">
+                        @php
+                            $cartItemImage = $item->product ? $item->product->getPrimaryImageForColor($item->color) : null;
+                        @endphp
+                        @if($cartItemImage)
+                            <img src="{{ \App\Models\Product::formatImageUrl($cartItemImage) }}" alt="{{ $item->product->name }}" style="width:100%;height:100%;object-fit:cover;">
                         @else
                             <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#a3a3a3;font-size:0.7rem;letter-spacing:0.1em;">NO IMAGE</div>
                         @endif

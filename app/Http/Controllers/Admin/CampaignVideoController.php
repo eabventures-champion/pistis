@@ -55,7 +55,7 @@ class CampaignVideoController extends Controller
             'campaign_video_cta_text' => 'nullable|string|max:100',
             'campaign_video_cta_url' => 'nullable|string|max:500',
             'campaign_video_target_page' => 'required|in:homepage,all',
-            'campaign_video_frequency' => 'required|in:once_per_session,always,once_per_day',
+            'campaign_video_frequency' => 'required|in:once_on_site,once_per_session,always,once_per_day',
         ]);
 
         $enabled = $request->boolean('campaign_video_enabled') ? '1' : '0';

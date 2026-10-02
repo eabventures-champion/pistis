@@ -253,9 +253,21 @@ class ProductController extends Controller
                 }
             }
 
+            $colorPrice = null;
+            if (isset($c['price']) && $c['price'] !== '' && is_numeric($c['price']) && (float) $c['price'] >= 0) {
+                $colorPrice = round((float) $c['price'], 2);
+            }
+
+            $colorComparePrice = null;
+            if (isset($c['compare_price']) && $c['compare_price'] !== '' && is_numeric($c['compare_price']) && (float) $c['compare_price'] >= 0) {
+                $colorComparePrice = round((float) $c['compare_price'], 2);
+            }
+
             $processedColors[] = [
                 'name' => $name,
                 'code' => $code,
+                'price' => $colorPrice,
+                'compare_price' => $colorComparePrice,
                 'images' => $colorImages,
             ];
 

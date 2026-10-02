@@ -41,6 +41,18 @@ class SettingsController extends Controller
             'default_details_and_fit' => Setting::get('default_details_and_fit', "Heavyweight 390 GSM premium cotton fleece fabrication\nVintage pigment dye treatment for deep, washed texture\nRelaxed 90s fit with dropped shoulders and structured drape\nRib-knit collar, cuffs, and hem with reinforced needle stitching\nSignature archival branding and functional kangaroo pocket"),
             'default_shipping_and_returns' => Setting::get('default_shipping_and_returns', "All orders are dispatched from our atelier within 24–48 hours with full tracking details sent via email.\n\nComplimentary exchanges and returns are accepted within 14 days of delivery. Items must be in original unworn condition with tags attached."),
             'default_garment_care' => Setting::get('default_garment_care', "Machine wash cold inside-out on gentle cycle with like colors.\n\nDo not bleach. Lay flat to dry or tumble dry on lowest temperature.\n\nCool iron on reverse if necessary; do not iron directly on graphic accents."),
+            'social_floating_enabled' => (bool) Setting::get('social_floating_enabled', true),
+            'social_floating_position' => Setting::get('social_floating_position', 'bottom-left'),
+            'social_primary_handle' => Setting::get('social_primary_handle', '@pistisofficial'),
+            'social_floating_tagline' => Setting::get('social_floating_tagline', 'Official Atelier & Runway Archive'),
+            'social_instagram' => Setting::get('social_instagram', 'https://instagram.com/pistisofficial'),
+            'social_tiktok' => Setting::get('social_tiktok', 'https://tiktok.com/@pistisofficial'),
+            'social_twitter' => Setting::get('social_twitter', 'https://x.com/pistisofficial'),
+            'social_youtube' => Setting::get('social_youtube', ''),
+            'social_pinterest' => Setting::get('social_pinterest', ''),
+            'social_facebook' => Setting::get('social_facebook', ''),
+            'social_whatsapp' => Setting::get('social_whatsapp', ''),
+            'social_show_in_footer' => (bool) Setting::get('social_show_in_footer', true),
         ];
 
         return view('admin.settings', compact('settings'));
@@ -65,6 +77,18 @@ class SettingsController extends Controller
             'default_details_and_fit' => 'nullable|string',
             'default_shipping_and_returns' => 'nullable|string',
             'default_garment_care' => 'nullable|string',
+            'social_floating_enabled' => 'nullable|boolean',
+            'social_floating_position' => 'nullable|string|in:bottom-left,bottom-right,left-center,right-center',
+            'social_primary_handle' => 'nullable|string|max:100',
+            'social_floating_tagline' => 'nullable|string|max:255',
+            'social_instagram' => 'nullable|string|max:255',
+            'social_tiktok' => 'nullable|string|max:255',
+            'social_twitter' => 'nullable|string|max:255',
+            'social_youtube' => 'nullable|string|max:255',
+            'social_pinterest' => 'nullable|string|max:255',
+            'social_facebook' => 'nullable|string|max:255',
+            'social_whatsapp' => 'nullable|string|max:255',
+            'social_show_in_footer' => 'nullable|boolean',
         ]);
 
         $fields = [
@@ -72,6 +96,9 @@ class SettingsController extends Controller
             'active_payment_gateway', 'currency_symbol', 'currency_code',
             'store_logo_height',
             'default_details_and_fit', 'default_shipping_and_returns', 'default_garment_care',
+            'social_floating_position', 'social_primary_handle', 'social_floating_tagline',
+            'social_instagram', 'social_tiktok', 'social_twitter', 'social_youtube',
+            'social_pinterest', 'social_facebook', 'social_whatsapp',
         ];
 
         foreach ($fields as $field) {
@@ -83,6 +110,8 @@ class SettingsController extends Controller
         Setting::set('store_hide_brand_text', $request->boolean('store_hide_brand_text') ? '1' : '0');
         Setting::set('homepage_show_categories', $request->boolean('homepage_show_categories') ? '1' : '0');
         Setting::set('homepage_show_editorial_categories', $request->boolean('homepage_show_editorial_categories') ? '1' : '0');
+        Setting::set('social_floating_enabled', $request->boolean('social_floating_enabled') ? '1' : '0');
+        Setting::set('social_show_in_footer', $request->boolean('social_show_in_footer') ? '1' : '0');
 
         // Handle Logo file upload
         if ($request->hasFile('store_logo')) {

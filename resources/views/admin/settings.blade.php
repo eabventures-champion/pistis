@@ -216,6 +216,132 @@
 
         {{-- Right Column: Gateways & Actions --}}
         <div>
+            {{-- Floating Social Media & Handles Card --}}
+            <div class="card mb-4" id="social-settings" style="border:1px solid #e2e8f0;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+                <div class="card-header" style="background:#0f172a;color:#ffffff;border-top-left-radius:8px;border-top-right-radius:8px;padding:18px 20px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <span style="font-size:1.2rem;">📱</span>
+                            <div>
+                                <h3 style="font-size:1.05rem;font-weight:700;margin:0;color:#ffffff;letter-spacing:0.02em;">Floating Social Media Widget</h3>
+                                <p style="font-size:0.75rem;color:#94a3b8;margin:2px 0 0 0;">Manage your website's floating luxury social handle & channels</p>
+                            </div>
+                        </div>
+                        <span class="badge" style="background:rgba(255,255,255,0.15);color:#ffffff;font-size:0.7rem;padding:4px 10px;border-radius:12px;font-weight:600;">PREMIUM FEATURE</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {{-- Enable Toggle Switch --}}
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:20px;">
+                        <div>
+                            <strong style="font-size:0.88rem;color:#0f172a;display:block;">Enable Floating Social Feature</strong>
+                            <small class="text-muted" style="font-size:0.75rem;">Display floating glassmorphic luxury handle pill on customer storefront</small>
+                        </div>
+                        <label class="switch" style="position:relative;display:inline-block;width:44px;height:24px;margin:0;">
+                            <input type="checkbox" name="social_floating_enabled" value="1" {{ !empty($settings['social_floating_enabled']) ? 'checked' : '' }} onchange="toggleSocialPreview(this.checked)" style="opacity:0;width:0;height:0;">
+                            <span class="slider" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#cbd5e1;transition:.3s;border-radius:24px;"></span>
+                        </label>
+                    </div>
+
+                    {{-- Primary Social Handle & Position --}}
+                    <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-bottom:16px;">
+                        <div class="form-group mb-0">
+                            <label class="form-label" style="font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Primary Social Handle</label>
+                            <input type="text" name="social_primary_handle" id="admin_primary_handle" class="form-control" value="{{ $settings['social_primary_handle'] }}" placeholder="@pistisofficial" oninput="updateLiveAdminPreview()">
+                            <small class="text-muted" style="font-size:0.72rem;display:block;margin-top:4px;">Main handle displayed on the floating pill (e.g. <code>@pistisofficial</code>)</small>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label class="form-label" style="font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Floating Position</label>
+                            <select name="social_floating_position" class="form-control" style="font-size:0.85rem;">
+                                <option value="bottom-left" {{ ($settings['social_floating_position'] ?? '') === 'bottom-left' ? 'selected' : '' }}>Bottom Left (Recommended)</option>
+                                <option value="bottom-right" {{ ($settings['social_floating_position'] ?? '') === 'bottom-right' ? 'selected' : '' }}>Bottom Right</option>
+                                <option value="left-center" {{ ($settings['social_floating_position'] ?? '') === 'left-center' ? 'selected' : '' }}>Left Side (Middle)</option>
+                                <option value="right-center" {{ ($settings['social_floating_position'] ?? '') === 'right-center' ? 'selected' : '' }}>Right Side (Middle)</option>
+                            </select>
+                            <small class="text-muted" style="font-size:0.72rem;display:block;margin-top:4px;">Screen corner or side placement</small>
+                        </div>
+                    </div>
+
+                    {{-- Brand Tagline / Subtitle --}}
+                    <div class="form-group mb-4">
+                        <label class="form-label" style="font-weight:700;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.04em;">Flyout Tagline / Label</label>
+                        <input type="text" name="social_floating_tagline" id="admin_tagline" class="form-control" value="{{ $settings['social_floating_tagline'] }}" placeholder="Official Atelier & Runway Archive">
+                        <small class="text-muted" style="font-size:0.72rem;display:block;margin-top:4px;">Short description shown when customer expands the social flyout</small>
+                    </div>
+
+                    {{-- Live Admin Preview Box --}}
+                    <div id="admin-preview-box" style="background:#0a0a0a;border-radius:10px;padding:16px;margin-bottom:22px;border:1px solid rgba(255,255,255,0.1);transition:opacity 0.2s;{{ empty($settings['social_floating_enabled']) ? 'opacity:0.4;' : '' }}">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                            <span style="font-size:0.68rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#9ca3af;">Live Storefront Pill Preview</span>
+                            <span style="font-size:0.68rem;color:#10b981;font-weight:600;" id="admin-preview-status">● {{ !empty($settings['social_floating_enabled']) ? 'Active Preview' : 'Feature Disabled' }}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;justify-content:center;padding:14px;background:#18181b;border-radius:8px;">
+                            <div style="display:inline-flex;align-items:center;gap:10px;padding:8px 16px;background:rgba(0,0,0,0.85);border:1px solid rgba(255,255,255,0.2);border-radius:999px;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,0.4);">
+                                <span style="width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 6px #10b981;"></span>
+                                <div style="display:flex;flex-direction:column;line-height:1.2;">
+                                    <span style="font-size:0.82rem;font-weight:700;letter-spacing:0.04em;" id="preview_handle">{{ $settings['social_primary_handle'] ?: '@pistisofficial' }}</span>
+                                    <span style="font-size:0.58rem;font-weight:600;letter-spacing:0.12em;color:#9ca3af;text-transform:uppercase;">ATELIER CONNECT</span>
+                                </div>
+                                <span style="font-size:0.75rem;margin-left:4px;color:#9ca3af;">↗</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Channel Links & Handles --}}
+                    <h4 style="font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#0f172a;margin:0 0 8px 0;">Platform Channels & Links</h4>
+                    <p class="text-muted" style="font-size:0.75rem;margin:0 0 14px 0;">Enter full URL (<code>https://...</code>) or username/handle (<code>@pistisofficial</code>). Empty channels will be automatically hidden.</p>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                            <span>📸</span> Instagram Profile / Handle
+                        </label>
+                        <input type="text" name="social_instagram" class="form-control" value="{{ $settings['social_instagram'] }}" placeholder="https://instagram.com/pistisofficial or @pistisofficial">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                            <span>🎵</span> TikTok Profile / Handle
+                        </label>
+                        <input type="text" name="social_tiktok" class="form-control" value="{{ $settings['social_tiktok'] }}" placeholder="https://tiktok.com/@pistisofficial or @pistisofficial">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                            <span>✖</span> X (Twitter) Profile / Handle
+                        </label>
+                        <input type="text" name="social_twitter" class="form-control" value="{{ $settings['social_twitter'] }}" placeholder="https://x.com/pistisofficial or @pistisofficial">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                            <span>▶</span> YouTube Channel URL
+                        </label>
+                        <input type="text" name="social_youtube" class="form-control" value="{{ $settings['social_youtube'] }}" placeholder="https://youtube.com/@pistisofficial">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                            <span>📌</span> Pinterest Profile URL
+                        </label>
+                        <input type="text" name="social_pinterest" class="form-control" value="{{ $settings['social_pinterest'] }}" placeholder="https://pinterest.com/pistisofficial">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                            <span>💬</span> WhatsApp Concierge / Phone Number
+                        </label>
+                        <input type="text" name="social_whatsapp" class="form-control" value="{{ $settings['social_whatsapp'] }}" placeholder="+1 234 567 8900 or https://wa.me/...">
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:0.82rem;font-weight:600;color:#334155;">
+                            <input type="checkbox" name="social_show_in_footer" value="1" {{ !empty($settings['social_show_in_footer']) ? 'checked' : '' }} style="width:16px;height:16px;accent-color:#0f172a;">
+                            Also show social icon links in website footer
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             {{-- Payment Gateway --}}
             <div class="card mb-4">
                 <div class="card-header">
@@ -482,5 +608,37 @@
             btn.innerText = 'Clearing Store Data...';
         }
     });
+
+    // ─── Floating Social Media Admin Preview ─────────────────────────
+    function updateLiveAdminPreview() {
+        const handleInput = document.getElementById('admin_primary_handle');
+        const previewHandle = document.getElementById('preview_handle');
+        if (handleInput && previewHandle) {
+            const val = handleInput.value.trim();
+            previewHandle.textContent = val !== '' ? val : '@pistisofficial';
+        }
+    }
+
+    function toggleSocialPreview(isChecked) {
+        const previewBox = document.getElementById('admin-preview-box');
+        const previewStatus = document.getElementById('admin-preview-status');
+        if (previewBox) {
+            previewBox.style.opacity = isChecked ? '1' : '0.4';
+        }
+        if (previewStatus) {
+            previewStatus.innerHTML = isChecked 
+                ? '<span style="color:#10b981;">● Active Preview</span>' 
+                : '<span style="color:#ef4444;">○ Feature Disabled</span>';
+        }
+    }
 </script>
+
+<style>
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .3s; border-radius: 24px; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+input:checked + .slider { background-color: #0f172a; }
+input:checked + .slider:before { transform: translateX(20px); }
+</style>
 @endsection

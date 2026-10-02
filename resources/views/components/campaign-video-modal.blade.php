@@ -1,12 +1,11 @@
 @if(!empty($campaignVideo['enabled']) && !empty($campaignVideo['video_url']))
     @php
         $isHomePage = request()->routeIs('home');
-        $shouldShowOnCurrentPage = ($campaignVideo['target_page'] === 'all') || ($campaignVideo['target_page'] === 'homepage' && $isHomePage);
+        $shouldAutoTriggerOnCurrentPage = ($campaignVideo['target_page'] === 'all') || ($campaignVideo['target_page'] === 'homepage' && $isHomePage);
     @endphp
 
-    @if($shouldShowOnCurrentPage)
-        {{-- Luxury Editorial Campaign Video Modal --}}
-        <div id="pistisCampaignModal" class="campaign-video-backdrop" role="dialog" aria-modal="true" aria-labelledby="campaignVideoHeading" style="display:none;">
+    {{-- Luxury Editorial Campaign Video Modal (Site-wide accessible for manual play, auto-triggers once) --}}
+    <div id="pistisCampaignModal" class="campaign-video-backdrop" role="dialog" aria-modal="true" aria-labelledby="campaignVideoHeading" style="display:none;">
             <div id="campaignVideoDialog" class="campaign-video-dialog">
                 
                 {{-- Top Editorial Bar --}}
@@ -28,7 +27,6 @@
                     <video id="pistisIntroVideo" 
                            src="{{ $campaignVideo['video_url'] }}" 
                            playsinline 
-                           loop 
                            muted 
                            preload="auto"
                            class="campaign-video-element"
@@ -45,10 +43,14 @@
                             <span id="campaignAudioText" class="audio-text-label">UNMUTE SOUND</span>
                         </button>
 
-                        {{-- Play/Pause Pill --}}
+                        {{-- Play / Pause / Replay Pill --}}
                         <button type="button" id="campaignPlayPauseBtn" class="campaign-play-pill" onclick="toggleCampaignVideoPlayback()" aria-label="Play or Pause video">
                             <svg id="playIconSvg" style="display:none;" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                 <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            <svg id="replayIconSvg" style="display:none;" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="1 4 1 10 7 10"></polyline>
+                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                             </svg>
                             <svg id="pauseIconSvg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                 <rect x="6" y="4" width="4" height="16"></rect>
@@ -86,11 +88,7 @@
             </div>
         </div>
 
-        {{-- Floating Campaign Film Trigger (Allows re-watching at any time) --}}
-        <button type="button" id="pistisFloatingCampaignBtn" class="floating-campaign-film-btn" onclick="openCampaignVideoModal(true)" aria-label="Watch Runway Campaign Film">
-            <span class="film-icon">🎬</span>
-            <span class="film-label">Campaign Film</span>
-        </button>
+        {{-- Floating Campaign Film Trigger is now integrated directly inside the luxury floating social tray --}}
 
         {{-- Styles for Campaign Video Modal --}}
         <style>
@@ -574,11 +572,14 @@
                 const progressBar = document.getElementById('campaignProgressBarFill');
                 const playBtn = document.getElementById('campaignPlayPauseBtn');
                 const playIcon = document.getElementById('playIconSvg');
+                const replayIcon = document.getElementById('replayIconSvg');
                 const pauseIcon = document.getElementById('pauseIconSvg');
-                const floatingBtn = document.getElementById('pistisFloatingCampaignBtn');
 
                 const delaySeconds = {{ max(1, (int)$campaignVideo['delay']) }};
                 const frequency = '{{ $campaignVideo['frequency'] }}';
+                const shouldAutoTriggerOnCurrentPage = {{ $shouldAutoTriggerOnCurrentPage ? 'true' : 'false' }};
+                const videoSrc = @json($campaignVideo['video_url']);
+                const videoKey = 'pistis_campaign_video_auto_played_' + (videoSrc ? videoSrc.slice(-30).replace(/[^a-zA-Z0-9]/g, '') : 'default');
 
                 let hasAutoTriggered = false;
 
@@ -600,9 +601,34 @@
                     }
                 }
 
-                // Frequency verification
+                // Check if the video has already automatically played on the website
+                function hasAlreadyAutoPlayed() {
+                    if (localStorage.getItem(videoKey) === 'true' || localStorage.getItem('pistis_campaign_video_auto_played') === 'true') {
+                        return true;
+                    }
+                    if (sessionStorage.getItem('pistis_campaign_video_auto_played') === 'true') {
+                        return true;
+                    }
+                    return false;
+                }
+
+                function markAsAutoPlayed() {
+                    localStorage.setItem(videoKey, 'true');
+                    localStorage.setItem('pistis_campaign_video_auto_played', 'true');
+                    sessionStorage.setItem('pistis_campaign_video_auto_played', 'true');
+                    localStorage.setItem('pistis_campaign_video_day', new Date().toDateString());
+                }
+
+                // Frequency rule check for automatic playback
                 function shouldAutoOpen() {
-                    if (frequency === 'always') return true;
+                    if (!shouldAutoTriggerOnCurrentPage) {
+                        return false;
+                    }
+
+                    // If already auto-played on the website, do NOT auto-open again
+                    if (hasAlreadyAutoPlayed()) {
+                        return false;
+                    }
 
                     if (frequency === 'once_per_day') {
                         const lastShown = localStorage.getItem('pistis_campaign_video_day');
@@ -610,34 +636,35 @@
                         return lastShown !== today;
                     }
 
-                    // Default: once_per_session
-                    return sessionStorage.getItem('pistis_campaign_video_session') !== 'seen';
+                    if (frequency === 'once_per_session') {
+                        return sessionStorage.getItem('pistis_campaign_video_auto_played') !== 'true';
+                    }
+
+                    // Default & once_on_site: play once on the website
+                    return true;
                 }
 
-                function markAsSeen() {
-                    sessionStorage.setItem('pistis_campaign_video_session', 'seen');
-                    localStorage.setItem('pistis_campaign_video_day', new Date().toDateString());
-                }
-
-                // Open Modal Function
+                // Open Modal Function (userInitiated = true when clicked manually)
                 window.openCampaignVideoModal = function(userInitiated = false) {
                     if (!modal) return;
                     checkVideoOrientation();
                     modal.style.display = 'flex';
-                    // Trigger reflow for CSS animation
+                    // Trigger reflow for CSS transition
                     modal.offsetHeight;
                     modal.classList.add('is-active');
                     document.body.style.overflow = 'hidden';
 
                     if (video) {
+                        if (video.ended) {
+                            video.currentTime = 0;
+                        }
                         video.play().catch(err => {
                             console.log('Autoplay muted attempt prevented by browser:', err);
                         });
                     }
 
-                    if (!userInitiated) {
-                        markAsSeen();
-                    }
+                    // Mark as auto-played so subsequent navigations don't auto-pop
+                    markAsAutoPlayed();
                 };
 
                 // Close Modal Function
@@ -659,7 +686,7 @@
                     if (video.muted) {
                         video.muted = false;
                         if (audioText) audioText.textContent = 'MUTE SOUND';
-                        if (equalizer) equalizer.classList.add('is-playing');
+                        if (equalizer && !video.paused) equalizer.classList.add('is-playing');
                     } else {
                         video.muted = true;
                         if (audioText) audioText.textContent = 'UNMUTE SOUND';
@@ -667,28 +694,56 @@
                     }
                 };
 
-                // Play / Pause Toggle
+                // Play / Pause / Replay Toggle
                 window.toggleCampaignVideoPlayback = function() {
                     if (!video) return;
+                    if (video.ended) {
+                        video.currentTime = 0;
+                        video.play();
+                        return;
+                    }
                     if (video.paused) {
                         video.play();
-                        if (playIcon) playIcon.style.display = 'none';
-                        if (pauseIcon) pauseIcon.style.display = 'block';
                     } else {
                         video.pause();
-                        if (playIcon) playIcon.style.display = 'block';
-                        if (pauseIcon) pauseIcon.style.display = 'none';
                     }
                 };
 
-                // Progress update
-                if (video && progressBar) {
-                    video.addEventListener('timeupdate', () => {
-                        if (video.duration) {
-                            const percent = (video.currentTime / video.duration) * 100;
-                            progressBar.style.width = percent + '%';
+                // Video state event listeners
+                if (video) {
+                    video.addEventListener('play', () => {
+                        if (playIcon) playIcon.style.display = 'none';
+                        if (replayIcon) replayIcon.style.display = 'none';
+                        if (pauseIcon) pauseIcon.style.display = 'block';
+                        if (!video.muted && equalizer) equalizer.classList.add('is-playing');
+                    });
+
+                    video.addEventListener('pause', () => {
+                        if (!video.ended) {
+                            if (playIcon) playIcon.style.display = 'block';
+                            if (replayIcon) replayIcon.style.display = 'none';
+                            if (pauseIcon) pauseIcon.style.display = 'none';
+                            if (equalizer) equalizer.classList.remove('is-playing');
                         }
                     });
+
+                    video.addEventListener('ended', () => {
+                        // Video finished playing its single run
+                        if (playIcon) playIcon.style.display = 'none';
+                        if (replayIcon) replayIcon.style.display = 'block';
+                        if (pauseIcon) pauseIcon.style.display = 'none';
+                        if (progressBar) progressBar.style.width = '100%';
+                        if (equalizer) equalizer.classList.remove('is-playing');
+                    });
+
+                    if (progressBar) {
+                        video.addEventListener('timeupdate', () => {
+                            if (video.duration) {
+                                const percent = (video.currentTime / video.duration) * 100;
+                                progressBar.style.width = percent + '%';
+                            }
+                        });
+                    }
                 }
 
                 // Keyboard escape listener
@@ -707,10 +762,10 @@
                     });
                 }
 
-                // Auto-trigger timer based on admin delay
+                // Auto-trigger timer based on admin delay (Only plays ONCE on website)
                 if (shouldAutoOpen()) {
                     setTimeout(() => {
-                        if (!hasAutoTriggered) {
+                        if (!hasAutoTriggered && shouldAutoOpen()) {
                             hasAutoTriggered = true;
                             openCampaignVideoModal(false);
                         }
@@ -718,5 +773,4 @@
                 }
             })();
         </script>
-    @endif
 @endif

@@ -59,12 +59,18 @@ class CartService
         }
         $existingItem = $query->first();
 
+        // Calculate price based on selected color (or product fallback)
+        $itemPrice = $product->getPriceForColor($color);
+
         if ($existingItem) {
             $newQuantity = $existingItem->quantity + $quantity;
             if ($newQuantity > $product->stock_quantity) {
                 $newQuantity = $product->stock_quantity;
             }
-            $existingItem->update(['quantity' => $newQuantity]);
+            $existingItem->update([
+                'quantity' => $newQuantity,
+                'price' => $itemPrice,
+            ]);
             return $existingItem->fresh();
         }
 
@@ -75,7 +81,7 @@ class CartService
             'color' => $color ?: null,
             'size' => $size ?: null,
             'quantity' => $quantity,
-            'price' => $product->price,
+            'price' => $itemPrice,
         ]);
     }
 

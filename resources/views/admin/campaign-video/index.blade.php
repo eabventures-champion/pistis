@@ -190,12 +190,13 @@
                     <div class="form-group mb-4">
                         <label class="form-label" style="font-weight:600; font-size:0.85rem;">Visitor Display Frequency</label>
                         <select name="campaign_video_frequency" class="form-control">
-                            <option value="once_per_session" {{ old('campaign_video_frequency', $settings['frequency']) === 'once_per_session' ? 'selected' : '' }}>Once Per Browsing Session (Recommended)</option>
-                            <option value="always" {{ old('campaign_video_frequency', $settings['frequency']) === 'always' ? 'selected' : '' }}>Every Visit (Always trigger after delay)</option>
+                            <option value="once_on_site" {{ old('campaign_video_frequency', $settings['frequency']) === 'once_on_site' ? 'selected' : '' }}>Once on Website (Auto-plays once after delay, then manual only)</option>
+                            <option value="once_per_session" {{ old('campaign_video_frequency', $settings['frequency']) === 'once_per_session' ? 'selected' : '' }}>Once Per Browsing Session</option>
                             <option value="once_per_day" {{ old('campaign_video_frequency', $settings['frequency']) === 'once_per_day' ? 'selected' : '' }}>Once Every 24 Hours</option>
+                            <option value="always" {{ old('campaign_video_frequency', $settings['frequency']) === 'always' ? 'selected' : '' }}>Every Visit (Always trigger after delay)</option>
                         </select>
                         <small class="text-muted" style="font-size:0.78rem; display:block; margin-top:4px;">
-                            Even after closing, visitors can re-watch the video anytime via the sleek floating campaign button.
+                            After auto-playing once, visitors can re-watch the video anytime via the floating social tray or campaign launcher.
                         </small>
                     </div>
 

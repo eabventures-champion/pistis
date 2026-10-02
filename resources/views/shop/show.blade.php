@@ -1,5 +1,22 @@
 @extends('layouts.app')
 
+@php
+    $ogImage = $product->primary_image_url ?? (!empty($product->image_urls) ? $product->image_urls[0] : asset('images/placeholder.jpg'));
+    $ogDesc = Str::limit(strip_tags($product->description ?? 'Discover this piece from the Pistis archive.'), 155);
+@endphp
+
+@section('meta')
+    <meta property="og:title" content="{{ $product->name }} — {{ $store_name ?? 'PISTIS' }}">
+    <meta property="og:description" content="{{ $ogDesc }}">
+    <meta property="og:image" content="{{ $ogImage }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:type" content="product">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $product->name }} — {{ $store_name ?? 'PISTIS' }}">
+    <meta name="twitter:description" content="{{ $ogDesc }}">
+    <meta name="twitter:image" content="{{ $ogImage }}">
+@endsection
+
 @push('styles')
 <style>
 /* ─── PDP Mobile Optimization Styles ────────────────────────────────── */
@@ -253,6 +270,255 @@
         font-size: 0.78rem !important;
         letter-spacing: 0.12em !important;
     }
+    .pdp-share-action-btn-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+}
+
+/* ─── Luxury Share Triggers & Modal ────────────────────────────────── */
+.pdp-share-trigger-btn {
+    background: transparent;
+    border: none;
+    padding: 4px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #171717;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid transparent;
+}
+.pdp-share-trigger-btn:hover {
+    color: #000000;
+    border-bottom-color: #000000;
+    opacity: 0.8;
+}
+.pdp-share-trigger-btn svg {
+    transition: transform 0.2s ease;
+}
+.pdp-share-trigger-btn:hover svg {
+    transform: scale(1.1);
+}
+
+.btn-share-square-action {
+    width: 50px;
+    height: 50px;
+    background: #ffffff;
+    border: 1px solid #171717;
+    color: #171717;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-share-square-action:hover {
+    background: #000000;
+    color: #ffffff;
+}
+@media (max-width: 480px) {
+    .btn-share-square-action {
+        width: 48px;
+        height: 48px;
+    }
+}
+
+.pdp-sticky-share-btn {
+    width: 44px;
+    height: 44px;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    color: #171717;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+.pdp-sticky-share-btn:active {
+    background: #000000;
+    color: #ffffff;
+    transform: scale(0.96);
+}
+
+/* Modal Overlay & Dialog */
+.product-share-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.68);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+.product-share-modal-overlay.is-open {
+    opacity: 1;
+}
+.product-share-modal-dialog {
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.45);
+    position: relative;
+    transform: translateY(16px) scale(0.98);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.product-share-modal-overlay.is-open .product-share-modal-dialog {
+    transform: translateY(0) scale(1);
+}
+.share-modal-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fafafa;
+}
+.share-preview-card {
+    display: flex;
+    gap: 14px;
+    padding: 14px;
+    background: #fafafa;
+    border: 1px solid #ebebeb;
+    margin-bottom: 20px;
+    align-items: center;
+}
+.share-preview-thumb {
+    width: 60px;
+    height: 75px;
+    object-fit: cover;
+    background: #f5f5f5;
+    flex-shrink: 0;
+    border: 1px solid #e5e5e5;
+}
+.share-channels-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 22px;
+}
+@media (max-width: 480px) {
+    .share-channels-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+}
+.share-channel-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 14px 10px;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    color: #171717;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: all 0.18s ease;
+    cursor: pointer;
+}
+.share-channel-btn:hover {
+    border-color: #000000;
+    background: #000000;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.share-channel-btn svg {
+    transition: transform 0.18s ease;
+}
+.share-channel-btn:hover svg {
+    transform: scale(1.1);
+}
+.share-copy-bar {
+    display: flex;
+    border: 1px solid #171717;
+    position: relative;
+    background: #ffffff;
+}
+.share-copy-input {
+    flex: 1;
+    border: none;
+    padding: 12px 14px;
+    font-size: 0.8rem;
+    font-family: 'Inter', monospace;
+    color: #525252;
+    background: transparent;
+    outline: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.share-copy-btn {
+    background: #000000;
+    color: #ffffff;
+    border: none;
+    padding: 0 18px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.15s ease;
+    flex-shrink: 0;
+}
+.share-copy-btn:hover {
+    background: #262626;
+}
+.share-copy-btn.copied {
+    background: #15803d;
+}
+.native-share-trigger {
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 11px 16px;
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid #000000;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.native-share-trigger:hover {
+    background: #262626;
 }
 </style>
 @endpush
@@ -260,6 +526,11 @@
 @section('content')
 @php
     $defaultColor = !empty($product->colors_list[0]['name']) ? $product->colors_list[0]['name'] : null;
+    $initialPrice = $defaultColor ? $product->getPriceForColor($defaultColor) : (float) $product->price;
+    $initialComparePrice = $defaultColor ? $product->getComparePriceForColor($defaultColor) : ($product->compare_price ? (float) $product->compare_price : null);
+    $initialFormattedPrice = $product->getFormattedPriceForColor($defaultColor);
+    $initialFormattedComparePrice = $product->getFormattedComparePriceForColor($defaultColor);
+
     $colorGalleries = $product->color_galleries;
     if ($defaultColor && !empty($colorGalleries[$defaultColor])) {
         $galleryImages = $colorGalleries[$defaultColor];
@@ -340,13 +611,24 @@
             @endif
 
             <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:300;color:#000000;margin:0 0 8px;letter-spacing:0.02em;">{{ $product->name }}</h1>
-            <div style="font-size:0.7rem;color:#a3a3a3;letter-spacing:0.15em;text-transform:uppercase;margin-bottom:24px;">REF: {{ $product->sku }}</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+                <div style="font-size:0.7rem;color:#a3a3a3;letter-spacing:0.15em;text-transform:uppercase;">REF: {{ $product->sku }}</div>
+                <button type="button" 
+                        class="pdp-share-trigger-btn" 
+                        onclick="openProductShareModal()" 
+                        title="Share this piece" 
+                        aria-label="Share this piece">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                    </svg>
+                    <span>SHARE PIECE</span>
+                </button>
+            </div>
 
             <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:20px;">
-                <span style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:#000000;">{{ $product->formatted_price }}</span>
-                @if($product->formatted_compare_price)
-                    <span style="font-size:0.9rem;color:#a3a3a3;text-decoration:line-through;">{{ $product->formatted_compare_price }}</span>
-                @endif
+                <span id="pdp-display-price" style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:#000000;">{{ $initialFormattedPrice }}</span>
+                <span id="pdp-display-compare-price" style="font-size:0.9rem;color:#a3a3a3;text-decoration:line-through;{{ ($initialFormattedComparePrice) ? '' : 'display:none;' }}">{{ $initialFormattedComparePrice ?? '' }}</span>
             </div>
 
             <div style="font-size:0.75rem;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:24px;{{ $product->is_in_stock ? 'color:#000000;' : 'color:#dc2626;' }}">
@@ -380,12 +662,21 @@
                                             data-color-name="{{ $color['name'] }}"
                                             data-color-code="{{ $color['code'] }}"
                                             data-color-index="{{ $index }}"
+                                            data-price="{{ $color['price'] }}"
+                                            data-compare-price="{{ $color['compare_price'] ?? '' }}"
+                                            data-formatted-price="{{ $color['formatted_price'] }}"
+                                            data-formatted-compare-price="{{ $color['formatted_compare_price'] ?? '' }}"
                                             onclick="selectProductColor(this, '{{ addslashes($color['name']) }}', {{ $index }})"
                                             title="{{ $color['name'] }}"
                                             aria-label="Select {{ $color['name'] }}"
                                             style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border:1px solid {{ $index === 0 ? '#000000' : '#e5e5e5' }};background:{{ $index === 0 ? '#000000' : '#ffffff' }};color:{{ $index === 0 ? '#ffffff' : '#000000' }};transition:all 0.18s ease;">
                                         <span class="swatch-circle" style="width:16px;height:16px;border-radius:50%;background:{{ $color['code'] }};border:1px solid {{ strtolower($color['code']) === '#ffffff' ? '#d4d4d8' : 'rgba(0,0,0,0.15)' }};display:inline-block;flex-shrink:0;box-shadow:inset 0 1px 2px rgba(0,0,0,0.15);"></span>
                                         <span class="swatch-name" style="font-family:'Inter',sans-serif;font-size:0.75rem;letter-spacing:0.08em;text-transform:uppercase;font-weight:600;">{{ $color['name'] }}</span>
+                                        @if($product->has_varying_color_prices)
+                                            <span class="swatch-price" style="font-size:0.7rem;opacity:0.8;margin-left:2px;font-weight:500;">
+                                                ({{ $color['formatted_price'] }})
+                                            </span>
+                                        @endif
                                     </button>
                                 @endforeach
                             </div>
@@ -402,7 +693,7 @@
                                 </span>
                                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;text-align:right;">
                                     <span style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:#737373;line-height:1.2;">
-                                        {{ $activeSizeGuide && $activeSizeGuide->fit_type ? strtoupper($activeSizeGuide->fit_type) : 'STANDARD FIT' }}
+                                        {{ (isset($activeSizeGuide) && $activeSizeGuide && $activeSizeGuide->fit_type) ? strtoupper($activeSizeGuide->fit_type) : 'STANDARD FIT' }}
                                     </span>
                                     @if(isset($allSizeGuides) && $allSizeGuides->count() > 0)
                                         <button type="button" 
@@ -448,12 +739,35 @@
                         <button type="submit" class="btn btn-primary btn-lg flex-1 add-to-bag-button" style="height:50px;border-radius:0;letter-spacing:0.18em;font-size:0.82rem;font-weight:600;background:#000000;color:#ffffff;display:inline-flex;align-items:center;justify-content:center;gap:10px;transition:all 0.2s ease;">
                             <span>ADD TO BAG</span>
                             <span style="opacity:0.35;">·</span>
-                            <span id="pdp-add-to-bag-price">{{ $product->formatted_price }}</span>
+                            <span id="pdp-add-to-bag-price">{{ $initialFormattedPrice }}</span>
+                        </button>
+
+                        <button type="button" 
+                                class="btn-share-square-action" 
+                                onclick="openProductShareModal()" 
+                                title="Share this piece" 
+                                aria-label="Share this piece">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
+                                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                            </svg>
                         </button>
                     </div>
                 </form>
             @else
-                <button class="btn btn-secondary btn-lg w-100" disabled style="border-radius:0;letter-spacing:0.15em;font-size:0.8rem;margin-bottom:24px;">SOLD OUT</button>
+                <div style="display:flex;gap:12px;align-items:center;margin-bottom:24px;width:100%;">
+                    <button class="btn btn-secondary btn-lg flex-1" disabled style="border-radius:0;letter-spacing:0.15em;font-size:0.8rem;height:50px;margin-bottom:0;">SOLD OUT</button>
+                    <button type="button" 
+                            class="btn-share-square-action" 
+                            onclick="openProductShareModal()" 
+                            title="Share this piece" 
+                            aria-label="Share this piece">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
+                            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                        </svg>
+                    </button>
+                </div>
             @endif
 
             {{-- Product Editorial Description --}}
@@ -560,13 +874,21 @@
                     @if(!empty($product->sizes_list)) <span class="pdp-sticky-dot">·</span> @endif
                     <span id="pdp-sticky-size-val">{{ $product->sizes_list[0] ?? '' }}</span>
                     <span class="pdp-sticky-dot">·</span>
-                    <span class="pdp-sticky-price" id="pdp-sticky-price-val">{{ $product->formatted_price }}</span>
+                    <span class="pdp-sticky-price" id="pdp-sticky-price-val">{{ $initialFormattedPrice }}</span>
                 </div>
             </div>
         </div>
-        <button type="button" class="pdp-sticky-cta" onclick="submitMainAddToCart()">
-            ADD TO BAG
-        </button>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <button type="button" class="pdp-sticky-cta" onclick="submitMainAddToCart()">
+                ADD TO BAG
+            </button>
+            <button type="button" class="pdp-sticky-share-btn" onclick="openProductShareModal()" title="Share this piece" aria-label="Share this piece">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                </svg>
+            </button>
+        </div>
     </div>
     @endif
 
@@ -620,10 +942,11 @@
 @push('scripts')
 <script>
 (function() {
-    const unitPrice = {{ (float) $product->price }};
+    let unitPrice = {{ (float) $initialPrice }};
     const currencySymbol = @json(\App\Models\Setting::get('currency_symbol', '$'));
     let images = @json($galleryImages);
     const colorGalleries = @json($product->color_galleries);
+    const colorPrices = @json($product->color_prices);
     let currentIndex = 0;
 
     const mainImg = document.getElementById('main-gallery-img');
@@ -886,6 +1209,40 @@
         if (stickyColor) {
             stickyColor.textContent = colorName;
         }
+
+        const shareColor = document.getElementById('share-modal-color-tag');
+        if (shareColor) {
+            shareColor.textContent = colorName;
+        }
+
+        // Color-dependent price update
+        const cPriceData = colorPrices && colorPrices[colorName] ? colorPrices[colorName] : null;
+        if (cPriceData) {
+            unitPrice = parseFloat(cPriceData.price) || unitPrice;
+            const mainPriceEl = document.getElementById('pdp-display-price');
+            if (mainPriceEl) {
+                mainPriceEl.textContent = cPriceData.formatted_price;
+            }
+            const sharePrice = document.getElementById('share-modal-price-tag');
+            if (sharePrice) {
+                sharePrice.textContent = cPriceData.formatted_price;
+            }
+            const compPriceEl = document.getElementById('pdp-display-compare-price');
+            if (compPriceEl) {
+                if (cPriceData.formatted_compare_price) {
+                    compPriceEl.textContent = cPriceData.formatted_compare_price;
+                    compPriceEl.style.display = 'inline';
+                } else {
+                    compPriceEl.textContent = '';
+                    compPriceEl.style.display = 'none';
+                }
+            }
+        }
+
+        // Recalculate add to bag button and sticky bar with current quantity & new color unit price
+        const qtyInput = document.getElementById('pdp-quantity-input');
+        const currentQty = qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1;
+        updateAddToBagPrice(currentQty);
 
         // Instantly switch gallery images to this color's specific photos!
         if (colorGalleries && colorGalleries[colorName] && colorGalleries[colorName].length > 0) {
@@ -1178,8 +1535,327 @@ function renderActiveSizeGuide() {
 
 // Pre-render table on load
 renderActiveSizeGuide();
+
+// ─── Luxury Product Share Logic ────────────────────────────────────
+function openProductShareModal() {
+    const modal = document.getElementById('product-share-modal');
+    if (!modal) return;
+
+    // Sync current selected color and price dynamically
+    const selectedColorInput = document.getElementById('product-selected-color-input');
+    const displayPrice = document.getElementById('pdp-display-price');
+    const colorTag = document.getElementById('share-modal-color-tag');
+    const priceTag = document.getElementById('share-modal-price-tag');
+    const thumbImg = document.getElementById('share-modal-preview-thumb');
+    const mainImg = document.getElementById('main-product-image');
+
+    if (colorTag && selectedColorInput && selectedColorInput.value) {
+        colorTag.textContent = selectedColorInput.value;
+    }
+    if (priceTag && displayPrice) {
+        priceTag.textContent = displayPrice.textContent.trim();
+    }
+    if (thumbImg && mainImg) {
+        thumbImg.src = mainImg.src;
+    }
+
+    const currentUrl = window.location.href.split('#')[0];
+    const urlInput = document.getElementById('share-product-url-input');
+    if (urlInput) {
+        urlInput.value = currentUrl;
+    }
+
+    // Refresh dynamic channel links with selected color
+    updateShareLinks(currentUrl);
+
+    // Toggle native share button display based on browser capability
+    const nativeBtn = document.getElementById('native-share-btn-wrap');
+    if (nativeBtn) {
+        nativeBtn.style.display = (navigator.share) ? 'flex' : 'none';
+    }
+
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => {
+        modal.classList.add('is-open');
+    });
+    document.body.style.overflow = 'hidden';
+}
+
+function closeProductShareModal(e) {
+    if (e && e.target && e.target !== e.currentTarget && !e.target.closest('.share-modal-close-trigger')) {
+        return;
+    }
+    const modal = document.getElementById('product-share-modal');
+    if (!modal) return;
+    modal.classList.remove('is-open');
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }, 220);
+}
+
+function updateShareLinks(url) {
+    const productName = @json($product->name);
+    const selectedColorInput = document.getElementById('product-selected-color-input');
+    const colorPart = (selectedColorInput && selectedColorInput.value) ? ' (' + selectedColorInput.value + ')' : '';
+    const shareText = 'Discover ' + productName + colorPart + ' on PISTIS:';
+    const encodedUrl = encodeURIComponent(url);
+    const encodedText = encodeURIComponent(shareText);
+
+    // WhatsApp
+    const wa = document.getElementById('share-btn-whatsapp');
+    if (wa) wa.href = 'https://api.whatsapp.com/send?text=' + encodedText + '%20' + encodedUrl;
+
+    // X (Twitter)
+    const x = document.getElementById('share-btn-x');
+    if (x) x.href = 'https://twitter.com/intent/tweet?text=' + encodedText + '&url=' + encodedUrl;
+
+    // Facebook
+    const fb = document.getElementById('share-btn-facebook');
+    if (fb) fb.href = 'https://www.facebook.com/sharer/sharer.php?u=' + encodedUrl;
+
+    // Pinterest
+    const pin = document.getElementById('share-btn-pinterest');
+    const mainImg = document.getElementById('main-product-image');
+    const imgSrc = mainImg ? mainImg.src : '';
+    if (pin) pin.href = 'https://pinterest.com/pin/create/button/?url=' + encodedUrl + '&media=' + encodeURIComponent(imgSrc) + '&description=' + encodedText;
+
+    // Telegram
+    const tg = document.getElementById('share-btn-telegram');
+    if (tg) tg.href = 'https://t.me/share/url?url=' + encodedUrl + '&text=' + encodedText;
+
+    // Email
+    const mail = document.getElementById('share-btn-email');
+    if (mail) mail.href = 'mailto:?subject=' + encodeURIComponent(productName + ' | PISTIS') + '&body=' + encodeURIComponent(shareText + '\n\n' + url);
+}
+
+function copyProductShareUrl() {
+    const input = document.getElementById('share-product-url-input');
+    const btn = document.getElementById('share-copy-btn-action');
+    if (!input) return;
+
+    const url = input.value || window.location.href;
+
+    const handleSuccess = function() {
+        if (btn) {
+            const originalContent = btn.innerHTML;
+            btn.classList.add('copied');
+            btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>COPIED!</span>';
+            setTimeout(function() {
+                btn.classList.remove('copied');
+                btn.innerHTML = originalContent;
+            }, 2500);
+        }
+        if (typeof showToast === 'function') {
+            showToast('Product link copied to clipboard ✓');
+        }
+    };
+
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(url).then(handleSuccess).catch(function() {
+            fallbackClipboardCopy(input, handleSuccess);
+        });
+    } else {
+        fallbackClipboardCopy(input, handleSuccess);
+    }
+}
+
+function fallbackClipboardCopy(input, callback) {
+    try {
+        input.select();
+        input.setSelectionRange(0, 99999);
+        document.execCommand('copy');
+        callback();
+    } catch (err) {
+        prompt('Copy this link:', input.value);
+    }
+}
+
+function triggerNativeShare() {
+    const productName = @json($product->name);
+    const selectedColorInput = document.getElementById('product-selected-color-input');
+    const colorPart = (selectedColorInput && selectedColorInput.value) ? ' (' + selectedColorInput.value + ')' : '';
+    const url = window.location.href;
+
+    if (navigator.share) {
+        navigator.share({
+            title: productName + ' — PISTIS',
+            text: 'Discover ' + productName + colorPart + ' on PISTIS',
+            url: url
+        }).catch(function() {});
+    } else {
+        copyProductShareUrl();
+    }
+}
+
+// Global exposure for onclick handlers
+window.openProductShareModal = openProductShareModal;
+window.closeProductShareModal = closeProductShareModal;
+window.copyProductShareUrl = copyProductShareUrl;
+window.triggerNativeShare = triggerNativeShare;
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const shareModal = document.getElementById('product-share-modal');
+        if (shareModal && shareModal.classList.contains('is-open')) {
+            closeProductShareModal();
+        }
+    }
+});
 </script>
 @endpush
+
+{{-- Luxury Product Share Modal --}}
+<div id="product-share-modal" 
+     class="product-share-modal-overlay" 
+     onclick="closeProductShareModal(event)"
+     aria-modal="true" 
+     role="dialog"
+     aria-labelledby="share-modal-title">
+    
+    <div class="product-share-modal-dialog" onclick="event.stopPropagation()">
+        {{-- Modal Header --}}
+        <div class="share-modal-header">
+            <div>
+                <h3 id="share-modal-title" style="margin:0;font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:700;color:#171717;letter-spacing:0.02em;line-height:1.2;">Share Piece</h3>
+                <span style="font-size:0.75rem;color:#737373;letter-spacing:0.03em;">Share bespoke elegance with friends or save for later</span>
+            </div>
+            <button type="button" 
+                    class="share-modal-close-trigger"
+                    onclick="closeProductShareModal()" 
+                    style="background:none;border:none;font-size:1.4rem;line-height:1;cursor:pointer;color:#737373;padding:4px 8px;border-radius:4px;transition:all 0.15s;" 
+                    onmouseover="this.style.color='#000';this.style.background='#ebebeb'" 
+                    onmouseout="this.style.color='#737373';this.style.background='none'" 
+                    title="Close share dialog"
+                    aria-label="Close share dialog">✕</button>
+        </div>
+
+        {{-- Modal Body --}}
+        <div style="padding:20px 24px;overflow-y:auto;max-height:calc(85vh - 70px);">
+            {{-- Product Preview Card --}}
+            <div class="share-preview-card">
+                <img src="{{ $totalImages > 0 ? $galleryImages[0] : asset('images/placeholder.jpg') }}" 
+                     alt="{{ $product->name }}" 
+                     id="share-modal-preview-thumb" 
+                     class="share-preview-thumb">
+                <div style="flex:1;min-width:0;">
+                    <div style="font-family:'Inter',sans-serif;font-size:0.65rem;letter-spacing:0.18em;text-transform:uppercase;color:#737373;margin-bottom:2px;">PISTIS ATELIER</div>
+                    <div style="font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:#171717;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                        {{ $product->name }}
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;">
+                        <span id="share-modal-color-tag" style="display:inline-block;padding:2px 8px;background:#171717;color:#ffffff;font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;">
+                            {{ $defaultColor ?? 'Standard' }}
+                        </span>
+                        <span id="share-modal-price-tag" style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:#000000;">
+                            {{ $initialFormattedPrice }}
+                        </span>
+                        <span style="font-size:0.68rem;color:#a3a3a3;letter-spacing:0.1em;text-transform:uppercase;">REF: {{ $product->sku }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Native Device Share Trigger (Shown prominently on mobile/supported browsers) --}}
+            <button type="button" 
+                    id="native-share-btn-wrap"
+                    class="native-share-trigger" 
+                    onclick="triggerNativeShare()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                </svg>
+                <span>Share via Device (AirDrop / Apps)</span>
+            </button>
+
+            {{-- Quick Channels Heading --}}
+            <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#737373;margin-bottom:10px;">
+                Direct Channels
+            </div>
+
+            {{-- Share Grid: WhatsApp, X, Facebook, Pinterest, Telegram, Email --}}
+            <div class="share-channels-grid">
+                {{-- WhatsApp --}}
+                <a href="#" id="share-btn-whatsapp" target="_blank" rel="noopener noreferrer" class="share-channel-btn" title="Share via WhatsApp">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                    </svg>
+                    <span>WhatsApp</span>
+                </a>
+
+                {{-- X (Twitter) --}}
+                <a href="#" id="share-btn-x" target="_blank" rel="noopener noreferrer" class="share-channel-btn" title="Share on X">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                    <span>X (Twitter)</span>
+                </a>
+
+                {{-- Facebook --}}
+                <a href="#" id="share-btn-facebook" target="_blank" rel="noopener noreferrer" class="share-channel-btn" title="Share on Facebook">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                    <span>Facebook</span>
+                </a>
+
+                {{-- Pinterest --}}
+                <a href="#" id="share-btn-pinterest" target="_blank" rel="noopener noreferrer" class="share-channel-btn" title="Pin on Pinterest">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738.098.119.112.224.083.345-.09.375-.291 1.199-.334 1.366-.053.225-.177.271-.409.165-1.527-.71-2.48-2.937-2.48-4.728 0-3.852 2.798-7.389 8.069-7.389 4.236 0 7.528 3.018 7.528 7.052 0 4.209-2.654 7.596-6.337 7.596-1.237 0-2.401-.643-2.801-1.401l-.762 2.907c-.276 1.053-1.022 2.373-1.523 3.178C9.538 23.824 10.749 24 12 24c6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12z"/>
+                    </svg>
+                    <span>Pinterest</span>
+                </a>
+
+                {{-- Telegram --}}
+                <a href="#" id="share-btn-telegram" target="_blank" rel="noopener noreferrer" class="share-channel-btn" title="Share on Telegram">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.121l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.458c.538-.196 1.006.128.832.939z"/>
+                    </svg>
+                    <span>Telegram</span>
+                </a>
+
+                {{-- Email --}}
+                <a href="#" id="share-btn-email" class="share-channel-btn" title="Share via Email">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                        <polyline points="22,6 12,13 2,6"/>
+                    </svg>
+                    <span>Email</span>
+                </a>
+            </div>
+
+            {{-- Copy Link Bar --}}
+            <div style="font-size:0.7rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:#737373;margin-bottom:8px;">
+                Direct Product Link
+            </div>
+            <div class="share-copy-bar">
+                <input type="text" 
+                       id="share-product-url-input" 
+                       value="{{ url()->current() }}" 
+                       readonly 
+                       class="share-copy-input"
+                       onclick="this.select()">
+                <button type="button" 
+                        id="share-copy-btn-action" 
+                        class="share-copy-btn" 
+                        onclick="copyProductShareUrl()" 
+                        title="Copy link to clipboard">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                    </svg>
+                    <span>COPY LINK</span>
+                </button>
+            </div>
+        </div>
+
+        {{-- Modal Footer --}}
+        <div style="padding:14px 24px;border-top:1px solid #ebebeb;display:flex;align-items:center;justify-content:space-between;background:#fafafa;">
+            <span style="font-size:0.72rem;color:#a3a3a3;letter-spacing:0.04em;">Pistis Garment Archive · Direct Share</span>
+            <button type="button" onclick="closeProductShareModal()" class="btn btn-sm btn-secondary" style="font-size:0.75rem;padding:6px 18px;border-radius:0;letter-spacing:0.08em;">DONE</button>
+        </div>
+    </div>
+</div>
 
 {{-- Size Guide Modal --}}
 @if(isset($allSizeGuides) && $allSizeGuides->count() > 0)
