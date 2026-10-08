@@ -197,60 +197,33 @@
                 </div>
             </div>
 
+            {{-- Product Images Card (View-Only, Driven Exclusively by Color-Specific Image Galleries) --}}
             <div class="card">
                 <div class="card-header d-flex justify-between align-center">
                     <div>
-                        <h3 style="font-size:1rem;margin:0;">Product Images</h3>
-                        <p class="text-muted" style="font-size:0.75rem;margin:2px 0 0;">General product photos. You can also assign any photo directly to an active color gallery.</p>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <h3 style="font-size:1rem;margin:0;">Product Images</h3>
+                            <span style="font-size:0.68rem;background:#f3f4f6;color:#374151;border:1px solid #e5e5e5;padding:2px 8px;border-radius:12px;font-weight:600;letter-spacing:0.02em;">
+                                View Only
+                            </span>
+                        </div>
+                        <p class="text-muted" style="font-size:0.75rem;margin:2px 0 0;">
+                            Consolidated view of all piece photos from the Color-Specific Image Galleries above.
+                        </p>
                     </div>
-                    <span class="text-muted" style="font-size:0.8rem;" id="existing-image-counter">
-                        {{ $product->images ? count($product->images) : 0 }} existing
+                    <span class="text-muted" style="font-size:0.8rem;font-weight:600;" id="all-product-images-counter">
+                        0 images
                     </span>
                 </div>
                 <div class="card-body">
-                    {{-- Existing Images Section --}}
-                    @if($product->images && count($product->images) > 0)
-                        <label class="form-label" style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:8px;">
-                            Current Images (Click ✕ to mark for removal, or "+ To Active Color" to assign)
-                        </label>
-                        <div class="existing-images-grid mb-3">
-                            @foreach($product->images as $i => $image)
-                                <div class="existing-image-item" id="existing-img-{{ $i }}" style="position:relative;padding-bottom:28px;">
-                                    <img src="{{ \App\Models\Product::formatImageUrl($image) }}" alt="Product Image {{ $i + 1 }}">
-                                    @if($i === 0)
-                                        <span class="badge-cover">Main Cover</span>
-                                    @endif
-                                    <label class="remove-toggle" title="Remove image on save">
-                                        <input type="checkbox" name="remove_images[]" value="{{ $i }}" onchange="toggleImageRemoval(this, {{ $i }})">
-                                        <span class="toggle-icon">✕</span>
-                                    </label>
-                                    <button type="button" onclick="assignExistingImageToActiveColor('{{ addslashes($image) }}')" style="position:absolute;bottom:0;left:0;right:0;font-size:0.62rem;padding:4px 2px;background:#ffffff;border:none;border-top:1px solid #e5e5e5;color:#000000;font-weight:600;text-transform:uppercase;cursor:pointer;letter-spacing:0.04em;" onmouseover="this.style.background='#000000';this.style.color='#ffffff';" onmouseout="this.style.background='#ffffff';this.style.color='#000000';" title="Add to currently selected color gallery">
-                                        + To Color
-                                    </button>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    {{-- New Images Upload Dropzone --}}
-                    <label class="form-label" style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);margin-bottom:8px;">
-                        Add More Images
-                    </label>
-                    <div class="image-upload-dropzone" id="image-dropzone" onclick="document.getElementById('product-images-input').click()">
-                        <input type="file" id="product-images-input" name="images[]" multiple accept="image/*" style="display:none;" onchange="handleImageSelection(this)">
-                        <div class="dropzone-content">
-                            <div class="dropzone-icon">📷</div>
-                            <div class="dropzone-text">
-                                <strong>Click to upload</strong> or drag & drop new images
-                            </div>
-                            <span class="dropzone-hint">PNG, JPG, WEBP, GIF up to 10MB each</span>
+                    <div style="display:flex;align-items:center;justify-content:space-between;background:#f9fafb;border:1px solid #e5e5e5;border-radius:4px;padding:10px 14px;margin-bottom:16px;">
+                        <div style="font-size:0.75rem;color:#4b5563;">
+                            <span style="font-weight:600;color:#111827;">ℹ Synced with Color Galleries:</span> Images cannot be directly added or deleted here. Use the <strong>Color-Specific Image Galleries</strong> above to add, remove, or reorder piece views.
                         </div>
                     </div>
-                    @error('images') <div class="form-error mt-2">{{ $message }}</div> @enderror
-                    @error('images.*') <div class="form-error mt-2">{{ $message }}</div> @enderror
-
-                    {{-- Live Previews for Newly Added Images --}}
-                    <div id="image-previews-container" class="image-previews-grid mt-3" style="display:none;"></div>
+                    <div id="all-product-images-container">
+                        {{-- Dynamically populated from all color galleries by JavaScript --}}
+                    </div>
                 </div>
             </div>
         </div>
@@ -349,115 +322,122 @@
     }
 @endphp
 <script>
-const imageInput = document.getElementById('product-images-input');
-const dropzone = document.getElementById('image-dropzone');
-const previewsContainer = document.getElementById('image-previews-container');
+// ─── Consolidated Product Images Summary (Driven by Color Galleries) ─
+function renderAllProductImagesCard() {
+    const container = document.getElementById('all-product-images-container');
+    const counter = document.getElementById('all-product-images-counter');
+    if (!container) return;
 
-let selectedFiles = new DataTransfer();
+    // Collect all images across all colors in order
+    const allItems = [];
 
-function handleImageSelection(input) {
-    if (!input.files || input.files.length === 0) return;
-    
-    for (let i = 0; i < input.files.length; i++) {
-        if (selectedFiles.items.length >= 10) {
-            alert('You can upload up to 10 additional images at once.');
-            break;
-        }
-        selectedFiles.items.add(input.files[i]);
+    productColors.forEach((c, cIdx) => {
+        const existingImgs = c.existing_images || [];
+        const dt = colorDataTransfers[cIdx];
+        const stagedFiles = dt ? Array.from(dt.files) : [];
+
+        // Existing images
+        existingImgs.forEach((img, i) => {
+            const formattedSrc = img.startsWith('http') || img.startsWith('/') ? img : `/storage/${img}`;
+            allItems.push({
+                src: formattedSrc,
+                file: null,
+                colorIndex: cIdx,
+                colorName: c.name,
+                colorCode: c.code,
+                isColorCover: (i === 0),
+                isOverallCover: (allItems.length === 0)
+            });
+        });
+
+        // Staged files
+        stagedFiles.forEach((file, j) => {
+            allItems.push({
+                src: null,
+                file: file,
+                colorIndex: cIdx,
+                colorName: c.name,
+                colorCode: c.code,
+                isColorCover: (existingImgs.length === 0 && j === 0),
+                isOverallCover: (allItems.length === 0)
+            });
+        });
+    });
+
+    const totalCount = allItems.length;
+    if (counter) {
+        counter.textContent = `${totalCount} ${totalCount === 1 ? 'image' : 'images'}`;
     }
-    
-    input.files = selectedFiles.files;
-    renderPreviews();
-}
 
-function removeSelectedFile(index) {
-    const newDT = new DataTransfer();
-    for (let i = 0; i < selectedFiles.files.length; i++) {
-        if (i !== index) {
-            newDT.items.add(selectedFiles.files[i]);
-        }
-    }
-    selectedFiles = newDT;
-    imageInput.files = selectedFiles.files;
-    renderPreviews();
-}
-
-function renderPreviews() {
-    previewsContainer.innerHTML = '';
-    const count = selectedFiles.files.length;
-    
-    if (count === 0) {
-        previewsContainer.style.display = 'none';
+    if (totalCount === 0) {
+        container.innerHTML = `
+            <div style="text-align:center;padding:36px 20px;background:#fafafa;border:1px dashed #d4d4d8;border-radius:6px;color:#71717a;">
+                <div style="font-size:1.8rem;margin-bottom:8px;">🖼️</div>
+                <div style="font-size:0.875rem;font-weight:600;color:#18181b;margin-bottom:4px;">No images in color galleries</div>
+                <p style="margin:0;font-size:0.78rem;color:#71717a;max-width:400px;margin:0 auto;">
+                    Select a color tab in the <strong>Color-Specific Image Galleries</strong> above and upload views. They will automatically appear here.
+                </p>
+            </div>
+        `;
         return;
     }
-    
-    previewsContainer.style.display = 'grid';
-    
-    Array.from(selectedFiles.files).forEach((file, idx) => {
-        const reader = new FileReader();
-        const card = document.createElement('div');
-        card.className = 'image-preview-card animate-in';
-        
-        reader.onload = function(e) {
-            card.innerHTML = `
-                <div class="preview-img-wrapper">
-                    <img src="${e.target.result}" alt="New Preview">
-                    <span class="badge-new">New</span>
-                    <button type="button" class="preview-remove-btn" title="Remove Image" onclick="removeSelectedFile(${idx})">✕</button>
+
+    let gridHtml = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fill, minmax(130px, 1fr));gap:14px;">
+    `;
+
+    allItems.forEach((item, idx) => {
+        const isOverall = item.isOverallCover;
+        gridHtml += `
+            <div style="position:relative;background:#ffffff;border:1px solid ${isOverall ? '#000000' : '#e5e5e5'};border-radius:4px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.05);display:flex;flex-direction:column;cursor:pointer;transition:transform 0.15s, box-shadow 0.15s;" 
+                 onclick="jumpToColorGallery(${item.colorIndex})" 
+                 title="Click to view / manage in ${item.colorName} gallery"
+                 onmouseover="this.style.boxShadow='0 4px 10px rgba(0,0,0,0.12)';this.style.transform='translateY(-2px)';" 
+                 onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)';this.style.transform='none';">
+                <div style="aspect-ratio:3/4;overflow:hidden;position:relative;background:#f3f4f6;">
+                    <img id="all-product-img-${idx}" src="${item.src || ''}" alt="Product Image" style="width:100%;height:100%;object-fit:cover;">
+                    ${isOverall ? `
+                        <span style="position:absolute;top:6px;left:6px;font-size:0.6rem;letter-spacing:0.06em;text-transform:uppercase;font-weight:700;padding:2px 6px;border-radius:2px;background:#000000;color:#ffffff;box-shadow:0 1px 2px rgba(0,0,0,0.3);">
+                            ★ MAIN COVER
+                        </span>
+                    ` : ''}
                 </div>
-                <div class="preview-info">
-                    <span class="preview-filename" title="${file.name}">${file.name}</span>
-                    <span class="preview-filesize">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                <div style="padding:6px 8px;background:#fafafa;border-top:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;gap:6px;">
+                    <div style="display:inline-flex;align-items:center;gap:5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                        <span style="width:9px;height:9px;border-radius:50%;background:${item.colorCode};display:inline-block;border:1px solid rgba(0,0,0,0.2);flex-shrink:0;"></span>
+                        <span style="font-size:0.7rem;font-weight:600;color:#18181b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.colorName}</span>
+                    </div>
+                    ${item.isColorCover ? `
+                        <span style="font-size:0.58rem;color:#52525b;background:#e4e4e7;padding:1px 5px;border-radius:3px;font-weight:600;letter-spacing:0.02em;text-transform:uppercase;">Cover</span>
+                    ` : ''}
                 </div>
-            `;
-        };
-        reader.readAsDataURL(file);
-        previewsContainer.appendChild(card);
+            </div>
+        `;
     });
-}
 
-function toggleImageRemoval(checkbox, index) {
-    const container = document.getElementById('existing-img-' + index);
-    if (checkbox.checked) {
-        container.classList.add('marked-for-removal');
-    } else {
-        container.classList.remove('marked-for-removal');
-    }
-}
+    gridHtml += `</div>`;
+    container.innerHTML = gridHtml;
 
-// Drag and drop event listeners
-['dragenter', 'dragover'].forEach(eventName => {
-    dropzone.addEventListener(eventName, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzone.classList.add('dragover');
-    });
-});
-
-['dragleave', 'drop'].forEach(eventName => {
-    dropzone.addEventListener(eventName, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        dropzone.classList.remove('dragover');
-    });
-});
-
-dropzone.addEventListener('drop', (e) => {
-    const dt = e.dataTransfer;
-    if (dt && dt.files && dt.files.length > 0) {
-        for (let i = 0; i < dt.files.length; i++) {
-            if (dt.files[i].type.startsWith('image/')) {
-                if (selectedFiles.items.length >= 10) {
-                    alert('You can upload up to 10 additional images at once.');
-                    break;
-                }
-                selectedFiles.items.add(dt.files[i]);
-            }
+    // Load FileReader for staged files
+    allItems.forEach((item, idx) => {
+        if (item.file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imgEl = document.getElementById(`all-product-img-${idx}`);
+                if (imgEl) imgEl.src = e.target.result;
+            };
+            reader.readAsDataURL(item.file);
         }
-        imageInput.files = selectedFiles.files;
-        renderPreviews();
+    });
+}
+
+function jumpToColorGallery(colorIndex) {
+    setActiveColorTab(colorIndex);
+    const gallerySection = document.getElementById('color-galleries-manager-section');
+    if (gallerySection) {
+        gallerySection.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-});
+}
 
 // ─── Color Variations & Per-Color Image Galleries Logic ───────────────
 const currencySymbol = @json($currency_symbol);
@@ -570,6 +550,7 @@ function updateColorsUI() {
         container.innerHTML = '<span class="text-muted" style="font-size:0.8rem;font-style:italic;">No colors selected yet. Click a quick preset or add a custom color above.</span>';
         renderColorGalleryTabs();
         renderActiveColorGallery();
+        renderAllProductImagesCard();
         return;
     }
 
@@ -590,6 +571,7 @@ function updateColorsUI() {
     initColorInputsContainer();
     renderColorGalleryTabs();
     renderActiveColorGallery();
+    renderAllProductImagesCard();
 }
 
 function togglePresetColor(name, code) {
@@ -868,6 +850,7 @@ function handleColorFileInputChange(input, colorIdx) {
     input.files = colorDataTransfers[colorIdx].files;
     renderColorGalleryTabs();
     renderActiveColorGallery();
+    renderAllProductImagesCard();
 }
 
 function removeStagedColorImage(colorIdx, fileIndex) {
@@ -884,6 +867,7 @@ function removeStagedColorImage(colorIdx, fileIndex) {
     if (input) input.files = newDT.files;
     renderColorGalleryTabs();
     renderActiveColorGallery();
+    renderAllProductImagesCard();
 }
 
 function makeStagedColorMainCover(colorIdx, fileIndex) {
@@ -902,6 +886,7 @@ function makeStagedColorMainCover(colorIdx, fileIndex) {
     if (input) input.files = newDT.files;
     renderColorGalleryTabs();
     renderActiveColorGallery();
+    renderAllProductImagesCard();
 }
 
 function removeExistingColorImage(colorIdx, imgIndex) {
@@ -912,6 +897,7 @@ function removeExistingColorImage(colorIdx, imgIndex) {
     if (input) input.value = JSON.stringify(productColors);
     renderColorGalleryTabs();
     renderActiveColorGallery();
+    renderAllProductImagesCard();
 }
 
 function makeExistingColorMainCover(colorIdx, imgIndex) {
@@ -923,6 +909,7 @@ function makeExistingColorMainCover(colorIdx, imgIndex) {
     if (input) input.value = JSON.stringify(productColors);
     renderColorGalleryTabs();
     renderActiveColorGallery();
+    renderAllProductImagesCard();
 }
 
 function assignExistingImageToActiveColor(imgPath) {

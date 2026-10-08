@@ -66,8 +66,7 @@ class ProductController extends Controller
             'featured' => 'boolean',
             'shopify_sync_enabled' => 'boolean',
             'weight' => 'nullable|numeric|min:0',
-            'images' => 'nullable|array|max:10',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,avif|max:10240',
+            'color_images.*.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,avif|max:10240',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -79,24 +78,8 @@ class ProductController extends Controller
         $validated['colors'] = $colorData['colors'];
         $validated['sizes'] = $this->processSizesFromRequest($request);
 
-        // Handle general image uploads
-        $imagePaths = [];
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                if ($image && $image->isValid()) {
-                    $path = $image->store('products', 'public');
-                    $imagePaths[] = $path;
-                }
-            }
-        }
-
-        // Merge color images into product images so catalog cards have a cover
-        foreach ($colorData['combined_images'] as $cImg) {
-            if (!in_array($cImg, $imagePaths)) {
-                $imagePaths[] = $cImg;
-            }
-        }
-        $validated['images'] = $imagePaths;
+        // Product images are exclusively influenced and derived from Color-Specific Image Galleries
+        $validated['images'] = $colorData['combined_images'];
 
         $product = Product::create($validated);
 
@@ -134,8 +117,7 @@ class ProductController extends Controller
             'featured' => 'boolean',
             'shopify_sync_enabled' => 'boolean',
             'weight' => 'nullable|numeric|min:0',
-            'images' => 'nullable|array|max:20',
-            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,avif|max:10240',
+            'color_images.*.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,avif|max:10240',
         ]);
 
         $validated['slug'] = Str::slug($validated['name']);
@@ -147,42 +129,22 @@ class ProductController extends Controller
         $validated['colors'] = $colorData['colors'];
         $validated['sizes'] = $this->processSizesFromRequest($request);
 
-        // Handle existing images and removals
-        $existingImages = is_array($product->images) ? $product->images : [];
-
-        if ($request->has('remove_images')) {
-            $removeIndices = (array) $request->input('remove_images');
-            foreach ($removeIndices as $index) {
-                if (isset($existingImages[$index])) {
-                    $imageToDelete = $existingImages[$index];
-                    // Only delete if it is a local storage path
-                    if (!str_starts_with($imageToDelete, 'http://') && !str_starts_with($imageToDelete, 'https://')) {
-                        Storage::disk('public')->delete($imageToDelete);
-                    }
-                    unset($existingImages[$index]);
-                }
-            }
-            $existingImages = array_values($existingImages);
-        }
-
-        // Handle general new image uploads
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $image) {
-                if ($image && $image->isValid()) {
-                    $path = $image->store('products', 'public');
-                    $existingImages[] = $path;
+        // Clean up storage files for any images completely removed from color galleries
+        $oldImages = is_array($product->images) ? $product->images : [];
+        $newImages = $colorData['combined_images'];
+        $removedImages = array_diff($oldImages, $newImages);
+        foreach ($removedImages as $imgToDelete) {
+            if (!str_starts_with($imgToDelete, 'http://') && !str_starts_with($imgToDelete, 'https://')) {
+                if (!Product::where('id', '!=', $product->id)->where(function ($q) use ($imgToDelete) {
+                    $q->where('images', 'like', "%{$imgToDelete}%")->orWhere('colors', 'like', "%{$imgToDelete}%");
+                })->exists()) {
+                    Storage::disk('public')->delete($imgToDelete);
                 }
             }
         }
 
-        // Merge any new color images into the existingImages array
-        foreach ($colorData['combined_images'] as $cImg) {
-            if (!in_array($cImg, $existingImages)) {
-                $existingImages[] = $cImg;
-            }
-        }
-
-        $validated['images'] = $existingImages;
+        // Product images are exclusively influenced and derived from Color-Specific Image Galleries
+        $validated['images'] = $newImages;
 
         $product->update($validated);
 
