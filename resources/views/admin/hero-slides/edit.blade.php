@@ -169,17 +169,110 @@
 
             {{-- Campaign Scheduling --}}
             <div class="card mb-4">
-                <div class="card-header">
+                <div class="card-header d-flex justify-between align-center">
                     <h3 style="font-size:1rem;margin:0;">Campaign Scheduling (Optional)</h3>
+                    @if($heroSlide->ends_at && $heroSlide->ends_at->isPast())
+                        <span class="badge" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;font-size:0.7rem;font-weight:700;">
+                            CAMPAIGN ENDED
+                        </span>
+                    @elseif($heroSlide->starts_at && $heroSlide->starts_at->isFuture())
+                        <span class="badge" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;font-size:0.7rem;font-weight:700;">
+                            SCHEDULED
+                        </span>
+                    @elseif($heroSlide->starts_at || $heroSlide->ends_at)
+                        <span class="badge" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;font-size:0.7rem;font-weight:700;">
+                            CAMPAIGN LIVE
+                        </span>
+                    @endif
                 </div>
                 <div class="card-body">
-                    <div class="form-group">
-                        <label class="form-label">Starts At</label>
-                        <input type="datetime-local" name="starts_at" class="form-control" value="{{ old('starts_at', $heroSlide->starts_at ? $heroSlide->starts_at->format('Y-m-d\TH:i') : '') }}">
+                    {{-- Alert if campaign has already concluded --}}
+                    @if($heroSlide->ends_at && $heroSlide->ends_at->isPast())
+                        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:12px 14px;margin-bottom:16px;">
+                            <div style="display:flex;align-items:center;gap:6px;color:#991b1b;font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;">
+                                <span>⏰</span> Campaign Concluded
+                            </div>
+                            <p style="margin:4px 0 10px;font-size:0.78rem;color:#7f1d1d;line-height:1.4;">
+                                This campaign ended on <strong>{{ $heroSlide->ends_at->format('M d, Y · h:i A') }}</strong>.
+                                Choose an option below or restart the schedule to make it an active standard slide on the homepage.
+                            </p>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="restartScheduleToStandard()" style="font-size:0.75rem;padding:5px 12px;display:inline-flex;align-items:center;gap:5px;background:#ffffff;border:1px solid #d1d5db;color:#111827;font-weight:600;">
+                                    <span>↺</span> Restart Schedule (Clear Dates Like Image 1)
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-sm" onclick="document.getElementById('starts-at-input').focus()" style="font-size:0.75rem;padding:5px 12px;background:#ffffff;border:1px solid #d1d5db;color:#111827;font-weight:600;">
+                                    <span>📅</span> Reschedule at Another Date
+                                </button>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="form-group mb-3">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                            <label class="form-label" style="margin:0;">Starts At</label>
+                            <button type="button" onclick="document.getElementById('starts-at-input').value=''" style="background:none;border:none;color:#6b7280;font-size:0.72rem;cursor:pointer;padding:0;text-decoration:underline;">
+                                Clear
+                            </button>
+                        </div>
+                        <input type="datetime-local" id="starts-at-input" name="starts_at" class="form-control" value="{{ old('starts_at', $heroSlide->starts_at ? $heroSlide->starts_at->format('Y-m-d\TH:i') : '') }}">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Ends At</label>
-                        <input type="datetime-local" name="ends_at" class="form-control" value="{{ old('ends_at', $heroSlide->ends_at ? $heroSlide->ends_at->format('Y-m-d\TH:i') : '') }}">
+
+                    <div class="form-group mb-3">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                            <label class="form-label" style="margin:0;">Ends At</label>
+                            <button type="button" onclick="document.getElementById('ends-at-input').value=''" style="background:none;border:none;color:#6b7280;font-size:0.72rem;cursor:pointer;padding:0;text-decoration:underline;">
+                                Clear
+                            </button>
+                        </div>
+                        <input type="datetime-local" id="ends-at-input" name="ends_at" class="form-control" value="{{ old('ends_at', $heroSlide->ends_at ? $heroSlide->ends_at->format('Y-m-d\TH:i') : '') }}">
+                    </div>
+
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                        <span class="text-muted" style="font-size:0.72rem;">Leave blank to run slide indefinitely without schedule.</span>
+                        <button type="button" onclick="restartScheduleToStandard()" style="background:none;border:none;color:#2563eb;font-size:0.72rem;cursor:pointer;padding:0;font-weight:600;text-decoration:underline;">
+                            Reset both to blank
+                        </button>
+                    </div>
+
+                    {{-- Post-Campaign Action Options --}}
+                    <div style="border-top:1px solid #e5e5e5;padding-top:14px;">
+                        <label class="form-label" style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.06em;font-weight:700;color:#000000;margin-bottom:6px;display:block;">
+                            When Campaign Ends:
+                        </label>
+                        <p class="text-muted" style="font-size:0.75rem;margin:0 0 10px;">
+                            Choose what happens once the scheduled end date/time arrives:
+                        </p>
+
+                        @php
+                            $currentAction = old('post_campaign_action', $heroSlide->post_campaign_action ?? 'hide');
+                        @endphp
+                        <div style="display:flex;flex-direction:column;gap:10px;">
+                            {{-- Option 1: Hide slide --}}
+                            <label id="box-action-hide" style="display:flex;align-items:flex-start;gap:10px;background:#ffffff;border:1.5px solid {{ $currentAction === 'hide' ? '#000000' : '#e5e5e5' }};border-radius:6px;padding:12px;cursor:pointer;transition:border-color 0.15s;">
+                                <input type="radio" name="post_campaign_action" value="hide" {{ $currentAction === 'hide' ? 'checked' : '' }} onchange="togglePostCampaignBoxes()" style="margin-top:3px;">
+                                <div>
+                                    <span style="font-size:0.82rem;font-weight:700;color:#111827;display:block;">
+                                        1. Do not show slide on homepage (Reschedule later)
+                                    </span>
+                                    <span class="text-muted" style="font-size:0.74rem;display:block;margin-top:3px;line-height:1.4;">
+                                        Hides the slide from the homepage when the campaign is over. Keeps the scheduled start and end dates saved so you can easily reschedule it for another date.
+                                    </span>
+                                </div>
+                            </label>
+
+                            {{-- Option 2: Keep showing & reset schedule --}}
+                            <label id="box-action-keep" style="display:flex;align-items:flex-start;gap:10px;background:#ffffff;border:1.5px solid {{ $currentAction === 'keep_showing' ? '#000000' : '#e5e5e5' }};border-radius:6px;padding:12px;cursor:pointer;transition:border-color 0.15s;">
+                                <input type="radio" name="post_campaign_action" value="keep_showing" {{ $currentAction === 'keep_showing' ? 'checked' : '' }} onchange="togglePostCampaignBoxes()" style="margin-top:3px;">
+                                <div>
+                                    <span style="font-size:0.82rem;font-weight:700;color:#111827;display:block;">
+                                        2. Show slide & allow it to be part of the slides (Restart schedule like Image 1)
+                                    </span>
+                                    <span class="text-muted" style="font-size:0.74rem;display:block;margin-top:3px;line-height:1.4;">
+                                        Keeps the slide live on the homepage as a standard evergreen slide, automatically clearing the Starts At & Ends At dates back to blank.
+                                    </span>
+                                </div>
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -233,5 +326,27 @@ function previewSingleImage(input, containerId, imgId) {
         }
     });
 });
+
+function restartScheduleToStandard() {
+    const startInput = document.getElementById('starts-at-input');
+    const endInput = document.getElementById('ends-at-input');
+    if (startInput) startInput.value = '';
+    if (endInput) endInput.value = '';
+    const keepRadio = document.querySelector('input[name="post_campaign_action"][value="keep_showing"]');
+    if (keepRadio) {
+        keepRadio.checked = true;
+        togglePostCampaignBoxes();
+    }
+}
+
+function togglePostCampaignBoxes() {
+    const hideRadio = document.querySelector('input[name="post_campaign_action"][value="hide"]');
+    const boxHide = document.getElementById('box-action-hide');
+    const boxKeep = document.getElementById('box-action-keep');
+    if (boxHide && boxKeep && hideRadio) {
+        boxHide.style.borderColor = hideRadio.checked ? '#000000' : '#e5e5e5';
+        boxKeep.style.borderColor = !hideRadio.checked ? '#000000' : '#e5e5e5';
+    }
+}
 </script>
 @endpush

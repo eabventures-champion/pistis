@@ -59,8 +59,22 @@
                                 <span class="meta-item">⏱️ {{ $slide->display_duration }}s</span>
                                 <span class="meta-item">🔗 {{ $slide->primary_button_text ?: 'SHOP' }}</span>
                                 @if($slide->starts_at || $slide->ends_at)
-                                    <span class="meta-item schedule-tag">
-                                        📅 {{ $slide->starts_at ? $slide->starts_at->format('M d') : 'Now' }} - {{ $slide->ends_at ? $slide->ends_at->format('M d') : 'Forever' }}
+                                    @if($slide->ends_at && $slide->ends_at->isPast())
+                                        <span class="meta-item" style="background:#fee2e2;color:#991b1b;border:1px solid #fecaca;" title="Campaign ended on {{ $slide->ends_at->format('M d, Y h:i A') }}">
+                                            ⏰ Campaign Ended · Hidden from Homepage
+                                        </span>
+                                    @elseif($slide->starts_at && $slide->starts_at->isFuture())
+                                        <span class="meta-item" style="background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;" title="Scheduled to start on {{ $slide->starts_at->format('M d, Y h:i A') }}">
+                                            ⏳ Scheduled (Starts {{ $slide->starts_at->format('M d') }})
+                                        </span>
+                                    @else
+                                        <span class="meta-item schedule-tag" style="background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;">
+                                            🟢 Live Campaign (Ends {{ $slide->ends_at ? $slide->ends_at->format('M d') : 'Forever' }})
+                                        </span>
+                                    @endif
+                                @else
+                                    <span class="meta-item text-muted" style="font-size:0.75rem;">
+                                        ✨ Standard Slide
                                     </span>
                                 @endif
                             </div>

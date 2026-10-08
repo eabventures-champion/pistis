@@ -11,6 +11,7 @@ class HeroSlideController extends Controller
 {
     public function index()
     {
+        HeroSlide::processExpiredSchedules();
         $slides = HeroSlide::ordered()->get();
         return view('admin.hero-slides.index', compact('slides'));
     }
@@ -41,6 +42,7 @@ class HeroSlideController extends Controller
             'is_active' => 'boolean',
             'starts_at' => 'nullable|date',
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
+            'post_campaign_action' => 'nullable|in:hide,keep_showing',
         ]);
 
         $validated['is_active'] = $request->boolean('is_active', true);
@@ -48,6 +50,7 @@ class HeroSlideController extends Controller
         $validated['display_duration'] = $validated['display_duration'] ?? 7;
         $validated['primary_button_text'] = $validated['primary_button_text'] ?: 'SHOP COLLECTION';
         $validated['primary_button_url'] = $validated['primary_button_url'] ?: '/shop';
+        $validated['post_campaign_action'] = $request->input('post_campaign_action', 'hide');
 
         // Handle Desktop Image
         if ($request->hasFile('image')) {
@@ -73,6 +76,8 @@ class HeroSlideController extends Controller
 
     public function edit(HeroSlide $heroSlide)
     {
+        HeroSlide::processExpiredSchedules();
+        $heroSlide->refresh();
         return view('admin.hero-slides.edit', compact('heroSlide'));
     }
 
@@ -96,6 +101,7 @@ class HeroSlideController extends Controller
             'is_active' => 'boolean',
             'starts_at' => 'nullable|date',
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
+            'post_campaign_action' => 'nullable|in:hide,keep_showing',
         ]);
 
         $validated['is_active'] = $request->boolean('is_active');
@@ -103,6 +109,16 @@ class HeroSlideController extends Controller
         $validated['display_duration'] = $validated['display_duration'] ?? 7;
         $validated['primary_button_text'] = $validated['primary_button_text'] ?: 'SHOP COLLECTION';
         $validated['primary_button_url'] = $validated['primary_button_url'] ?: '/shop';
+        $validated['post_campaign_action'] = $request->input('post_campaign_action', 'hide');
+
+        // If the slide is set to keep showing and the scheduled campaign is already over,
+        // automatically restart its schedule (clear starts_at and ends_at to null like image 1)
+        if ($validated['post_campaign_action'] === 'keep_showing' && !empty($validated['ends_at'])) {
+            if (\Carbon\Carbon::parse($validated['ends_at'])->isPast()) {
+                $validated['starts_at'] = null;
+                $validated['ends_at'] = null;
+            }
+        }
 
         // Handle Desktop Image
         if ($request->hasFile('image')) {

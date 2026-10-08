@@ -23,6 +23,7 @@ class HeroSlide extends Model
         'is_active',
         'starts_at',
         'ends_at',
+        'post_campaign_action',
     ];
 
     protected $casts = [
@@ -33,17 +34,47 @@ class HeroSlide extends Model
         'ends_at' => 'datetime',
     ];
 
+    /**
+     * Automatically reset starts_at and ends_at to null for slides whose campaign
+     * has concluded and are configured to remain active as evergreen slides.
+     */
+    public static function processExpiredSchedules(): void
+    {
+        $now = Carbon::now();
+        static::where('post_campaign_action', 'keep_showing')
+            ->whereNotNull('ends_at')
+            ->where('ends_at', '<=', $now)
+            ->update([
+                'starts_at' => null,
+                'ends_at' => null,
+            ]);
+    }
+
     // Scopes
     public function scopeActive($query)
     {
+        static::processExpiredSchedules();
+
         $now = Carbon::now();
         return $query->where('is_active', true)
             ->where(function ($q) use ($now) {
                 $q->whereNull('starts_at')->orWhere('starts_at', '<=', $now);
             })
             ->where(function ($q) use ($now) {
-                $q->whereNull('ends_at')->orWhere('ends_at', '>=', $now);
+                $q->whereNull('ends_at')
+                    ->orWhere('ends_at', '>=', $now)
+                    ->orWhere('post_campaign_action', 'keep_showing');
             });
+    }
+
+    public function getIsCampaignExpiredAttribute(): bool
+    {
+        return $this->ends_at !== null && $this->ends_at->isPast();
+    }
+
+    public function getIsCampaignScheduledAttribute(): bool
+    {
+        return $this->starts_at !== null || $this->ends_at !== null;
     }
 
     public function scopeOrdered($query)
