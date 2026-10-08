@@ -125,10 +125,13 @@ class Product extends Model
         if (!$image) {
             return null;
         }
+        if (preg_match('#/storage/(.+)$#', $image, $matches)) {
+            return '/storage/' . $matches[1];
+        }
         if (str_starts_with($image, 'http://') || str_starts_with($image, 'https://') || str_starts_with($image, '//')) {
             return $image;
         }
-        return asset('storage/' . $image);
+        return '/storage/' . ltrim($image, '/');
     }
 
     public function getPrimaryImageAttribute(): ?string

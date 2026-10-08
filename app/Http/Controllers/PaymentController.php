@@ -41,8 +41,8 @@ class PaymentController extends Controller
                 'status' => 'processing',
             ]);
 
-            // Dispatch premium order notification to Store Email
-            OrderNotificationService::notifyStoreNewOrder($order);
+            // Dispatch order notifications to both customer and administrator
+            OrderNotificationService::sendOrderPlacedNotifications($order);
 
             // Clear the cart
             $this->cartService->clearCart();

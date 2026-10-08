@@ -12,7 +12,7 @@ class Order extends Model
         'order_number', 'customer_id', 'customer_email', 'customer_name',
         'subtotal', 'tax', 'shipping_cost', 'total',
         'status', 'is_archived', 'archived_at', 'payment_method', 'payment_reference', 'payment_status',
-        'admin_notified_at', 'admin_viewed_at',
+        'admin_notified_at', 'admin_viewed_at', 'customer_notified_at',
         'shipping_address', 'billing_address', 'notes',
     ];
 
@@ -25,6 +25,7 @@ class Order extends Model
         'archived_at' => 'datetime',
         'admin_notified_at' => 'datetime',
         'admin_viewed_at' => 'datetime',
+        'customer_notified_at' => 'datetime',
         'shipping_address' => 'array',
         'billing_address' => 'array',
     ];
@@ -32,6 +33,11 @@ class Order extends Model
     public function markAdminNotified(): bool
     {
         return $this->update(['admin_notified_at' => now()]);
+    }
+
+    public function markCustomerNotified(): bool
+    {
+        return $this->update(['customer_notified_at' => now()]);
     }
 
     public function markAdminViewed(): bool

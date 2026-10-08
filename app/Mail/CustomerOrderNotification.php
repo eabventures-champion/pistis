@@ -10,7 +10,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class AdminOrderNotification extends Mailable
+class CustomerOrderNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -30,21 +30,22 @@ class AdminOrderNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "New Order Received: #{$this->order->order_number} ({$this->currencySymbol}" . number_format($this->order->total, 2) . ") — {$this->storeName}",
+            subject: "Order Confirmation: Your Order #{$this->order->order_number} Has Been Placed — {$this->storeName}",
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'emails.admin-order-notification',
+            view: 'emails.customer-order-notification',
             with: [
                 'order' => $this->order,
                 'items' => $this->order->items,
                 'storeName' => $this->storeName,
                 'currencySymbol' => $this->currencySymbol,
                 'storeEmail' => $this->storeEmail,
-                'adminOrderUrl' => route('admin.orders.show', $this->order),
+                'orderSuccessUrl' => route('checkout.success', $this->order),
+                'accountOrdersUrl' => route('account.orders'),
             ],
         );
     }

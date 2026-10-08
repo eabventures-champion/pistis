@@ -1,4 +1,4 @@
-@if(!empty($socialSettings['floating_enabled']))
+@if(!empty($socialSettings['floating_enabled']) && !request()->routeIs('cart.*') && !request()->routeIs('checkout.*'))
 @php
     $position = $socialSettings['position'] ?? 'bottom-left';
     $primaryHandle = $socialSettings['primary_handle'] ?? '@pistisofficial';
@@ -644,14 +644,33 @@
 @media (max-width: 768px) {
     .pistis-social-wrap.pos-bottom-left,
     .pistis-social-wrap.pos-bottom-right {
-        bottom: 18px;
-        left: 18px;
+        bottom: 76px;
+        left: 14px;
         right: auto;
     }
 
+    .pistis-social-pill {
+        padding: 7px 12px !important;
+        gap: 8px !important;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .pistis-social-pill .pill-sub {
+        display: none !important;
+    }
+
+    .pistis-social-pill .pill-handle {
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+    }
+
     .pistis-social-flyout {
-        width: calc(100vw - 36px);
-        max-width: 320px;
+        bottom: 50px !important;
+        left: 0 !important;
+        width: calc(100vw - 28px) !important;
+        max-width: 310px !important;
+        max-height: 80vh !important;
+        overflow-y: auto !important;
     }
 }
 </style>

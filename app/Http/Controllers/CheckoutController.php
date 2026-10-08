@@ -205,8 +205,8 @@ class CheckoutController extends Controller
 
     public function success(Order $order)
     {
-        // Notify store email if not already notified upon order confirmation
-        OrderNotificationService::notifyStoreNewOrder($order);
+        // Notify both customer and administrator upon order confirmation
+        OrderNotificationService::sendOrderPlacedNotifications($order);
 
         return view('checkout.success', compact('order'));
     }
@@ -252,8 +252,8 @@ class CheckoutController extends Controller
                 'payment_reference' => $result['reference'],
             ]);
 
-            // Dispatch premium order notification to Store Email
-            OrderNotificationService::notifyStoreNewOrder($order);
+            // Dispatch order notifications to both customer and administrator
+            OrderNotificationService::sendOrderPlacedNotifications($order);
 
             // Clear cart
             $this->cartService->clearCart();

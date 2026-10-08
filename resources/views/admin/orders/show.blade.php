@@ -96,6 +96,24 @@
                         {{ $order->shipping_address['country'] ?? '' }}
                     </div>
                 @endif
+                <hr style="border-color:var(--border-color);margin:12px 0;">
+                <div style="font-size:0.75rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Email Dispatches</div>
+                <div class="d-flex justify-between mb-2">
+                    <span class="text-muted" style="font-size:0.85rem;">Customer Confirmation</span>
+                    @if($order->customer_notified_at)
+                        <span class="badge badge-success" style="font-size:0.75rem;" title="Dispatched at {{ $order->customer_notified_at->format('M d, Y h:i A') }}">✓ Sent</span>
+                    @else
+                        <span class="badge badge-secondary" style="font-size:0.75rem;">Pending</span>
+                    @endif
+                </div>
+                <div class="d-flex justify-between">
+                    <span class="text-muted" style="font-size:0.85rem;">Admin Notification</span>
+                    @if($order->admin_notified_at)
+                        <span class="badge badge-success" style="font-size:0.75rem;" title="Received at {{ $order->admin_notified_at->format('M d, Y h:i A') }}">✓ Received</span>
+                    @else
+                        <span class="badge badge-secondary" style="font-size:0.75rem;">Pending</span>
+                    @endif
+                </div>
             </div>
         </div>
     </div>

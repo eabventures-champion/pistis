@@ -40,53 +40,155 @@
     </div>
 @endif
 
-{{-- Stats Grid --}}
+@push('styles')
+<style>
+.stats-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+}
+@media (max-width: 1024px) {
+    .stats-grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 640px) {
+    .stats-grid-3 {
+        grid-template-columns: 1fr;
+    }
+}
+.stat-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.stat-card-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    border-color: #cbd5e1;
+}
+</style>
+@endpush
+
+{{-- Primary Stats Grid --}}
 <div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-label">Total Products</div>
+    {{-- Combined Products: Total & Active --}}
+    <a href="{{ route('admin.products.index') }}" class="stat-card stat-card-link">
+        <div class="stat-label d-flex justify-between align-center">
+            <span>Products</span>
+            <span class="badge badge-success" style="font-size:0.68rem;padding:2px 8px;border-radius:10px;font-weight:600;">
+                {{ $stats['active_products'] }} Active
+            </span>
+        </div>
         <div class="stat-value">{{ number_format($stats['total_products']) }}</div>
         <div class="stat-icon">📦</div>
-    </div>
-    <div class="stat-card">
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">
+            <span style="color:var(--success);font-weight:600;">● {{ $stats['active_products'] }} active</span> of {{ $stats['total_products'] }} total in catalog
+        </div>
+    </a>
+
+    {{-- Total Orders --}}
+    <a href="{{ route('admin.orders.index') }}" class="stat-card stat-card-link">
         <div class="stat-label">Total Orders</div>
         <div class="stat-value">{{ number_format($stats['total_orders']) }}</div>
         <div class="stat-icon">🛍️</div>
-    </div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">
+            All client bespoke orders
+        </div>
+    </a>
+
+    {{-- Revenue --}}
     <div class="stat-card">
         <div class="stat-label">Revenue</div>
         <div class="stat-value">{{ $currency_symbol }}{{ number_format($stats['total_revenue']) }}</div>
         <div class="stat-icon">💰</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">
+            Total paid transactions
+        </div>
     </div>
-    <div class="stat-card">
+
+    {{-- Customers --}}
+    <a href="{{ route('admin.customers.index') }}" class="stat-card stat-card-link">
         <div class="stat-label">Customers</div>
         <div class="stat-value">{{ number_format($stats['total_customers']) }}</div>
         <div class="stat-icon">👥</div>
-    </div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">
+            Registered atelier accounts
+        </div>
+    </a>
 </div>
 
-{{-- Secondary Stats --}}
-<div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
-    <div class="stat-card">
-        <div class="stat-label">Active Products</div>
-        <div class="stat-value" style="font-size:1.5rem;">{{ $stats['active_products'] }}</div>
-    </div>
-    <div class="stat-card">
+{{-- Operational & Fulfillment Stats Grid --}}
+<div class="stats-grid-3">
+    {{-- Pending / Processing --}}
+    <a href="{{ route('admin.orders.index', ['view' => 'active']) }}" class="stat-card stat-card-link">
         <div class="stat-label d-flex justify-between align-center">
             <span>Pending / Processing</span>
             @if(($stats['pending_orders'] ?? 0) > 0)
-                <span class="badge badge-warning" style="font-size:0.65rem;padding:2px 6px;border-radius:8px;">Action Needed</span>
+                <span class="badge badge-warning" style="font-size:0.65rem;padding:2px 7px;border-radius:10px;font-weight:600;">Action Needed</span>
             @endif
         </div>
-        <div class="stat-value" style="font-size:1.5rem;color:{{ ($stats['pending_orders'] ?? 0) > 0 ? 'var(--warning)' : 'var(--text-primary)' }};">{{ $stats['pending_orders'] }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Shopify Synced</div>
-        <div class="stat-value" style="font-size:1.5rem;color:var(--success);">{{ $stats['synced_products'] }}</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-label">Failed Syncs (7d)</div>
-        <div class="stat-value" style="font-size:1.5rem;color:{{ $stats['failed_syncs'] > 0 ? 'var(--danger)' : 'var(--success)' }};">{{ $stats['failed_syncs'] }}</div>
-    </div>
+        <div class="stat-value" style="font-size:1.85rem;color:{{ ($stats['pending_orders'] ?? 0) > 0 ? 'var(--warning)' : 'var(--text-primary)' }};">
+            {{ $stats['pending_orders'] }}
+        </div>
+        <div class="stat-icon">⏳</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">
+            Awaiting atelier dispatch
+        </div>
+    </a>
+
+    {{-- Delivered Orders (New) --}}
+    <a href="{{ route('admin.orders.index', ['status' => 'delivered']) }}" class="stat-card stat-card-link">
+        <div class="stat-label d-flex justify-between align-center">
+            <span>Delivered Orders</span>
+            <span class="badge badge-success" style="font-size:0.65rem;padding:2px 7px;border-radius:10px;font-weight:600;">Fulfilled</span>
+        </div>
+        <div class="stat-value" style="font-size:1.85rem;color:var(--success);">
+            {{ number_format($stats['delivered_orders'] ?? 0) }}
+        </div>
+        <div class="stat-icon">🚚</div>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">
+            Completed & received by client
+        </div>
+    </a>
+
+    {{-- Combined Shopify Sync (Synced & Failed 7d) --}}
+    <a href="{{ route('admin.shopify.logs') }}" class="stat-card stat-card-link">
+        <div class="stat-label d-flex justify-between align-center">
+            <span>Shopify Sync</span>
+            @if(($stats['failed_syncs'] ?? 0) > 0)
+                <span class="badge badge-danger" style="font-size:0.65rem;padding:2px 7px;border-radius:10px;font-weight:600;">
+                    {{ $stats['failed_syncs'] }} Failed (7d)
+                </span>
+            @else
+                <span class="badge badge-success" style="font-size:0.65rem;padding:2px 7px;border-radius:10px;font-weight:600;">
+                    Healthy
+                </span>
+            @endif
+        </div>
+        <div class="d-flex align-center gap-4" style="margin-top:4px;">
+            <div>
+                <div class="stat-value" style="font-size:1.85rem;color:var(--success);line-height:1.1;">
+                    {{ $stats['synced_products'] }}
+                </div>
+                <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin-top:3px;">
+                    Synced
+                </div>
+            </div>
+            <div style="width:1px;height:34px;background:var(--border-color);"></div>
+            <div>
+                <div class="stat-value" style="font-size:1.85rem;color:{{ ($stats['failed_syncs'] ?? 0) > 0 ? 'var(--danger)' : 'var(--text-muted)' }};line-height:1.1;">
+                    {{ $stats['failed_syncs'] }}
+                </div>
+                <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin-top:3px;">
+                    Failed (7d)
+                </div>
+            </div>
+        </div>
+        <div class="stat-icon" style="opacity:0.85;">🔄</div>
+    </a>
 </div>
 
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">

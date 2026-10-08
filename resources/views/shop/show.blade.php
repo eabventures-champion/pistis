@@ -178,28 +178,55 @@
 @media (max-width: 768px) {
     .product-detail {
         grid-template-columns: 1fr !important;
-        gap: 24px !important;
-        padding: 12px 0 48px 0 !important;
+        gap: 20px !important;
+        padding: 8px 0 60px 0 !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .product-detail-info {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .product-gallery-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
     }
     .product-gallery-layout {
         flex-direction: column-reverse !important;
         gap: 10px !important;
         position: relative !important;
         top: 0 !important;
+        width: 100% !important;
     }
     .main-image-stage {
         height: auto !important;
         aspect-ratio: 4/5 !important;
-        max-height: 72vh !important;
-        min-height: 380px !important;
+        max-height: 65vh !important;
+        min-height: 280px !important;
         width: 100% !important;
-        border-radius: 4px !important;
+        border-radius: 3px !important;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04) !important;
+        background: #f7f7f7 !important;
+        overflow: hidden !important;
+    }
+    .gallery-current-img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: contain !important;
+        object-position: center !important;
+        display: block !important;
+    }
+    .zoom-magnifier {
+        display: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
     }
     .gallery-nav-btn {
         opacity: 0.92 !important;
-        width: 38px !important;
-        height: 38px !important;
+        width: 36px !important;
+        height: 36px !important;
         background: rgba(255, 255, 255, 0.92) !important;
         border-radius: 50% !important;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
@@ -233,8 +260,8 @@
         display: none !important;
     }
     .thumb-item {
-        width: 64px !important;
-        height: 82px !important;
+        width: 60px !important;
+        height: 76px !important;
         flex-shrink: 0 !important;
         scroll-snap-align: start !important;
         border-radius: 3px !important;
@@ -250,8 +277,8 @@
     .gallery-zoom-hint {
         top: 12px !important;
         right: 12px !important;
-        width: 36px !important;
-        height: 36px !important;
+        width: 34px !important;
+        height: 34px !important;
         border-radius: 50% !important;
         background: rgba(255, 255, 255, 0.9) !important;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
@@ -259,21 +286,90 @@
 }
 
 @media (max-width: 480px) {
+    .share-btn-text-full { display: none !important; }
+    .share-btn-text-short { display: inline !important; }
+
+    .color-swatches-container {
+        gap: 6px !important;
+        width: 100% !important;
+    }
+    .color-swatch-option {
+        padding: 6px 11px !important;
+        gap: 6px !important;
+        box-sizing: border-box !important;
+    }
+    .color-swatch-option .swatch-circle {
+        width: 14px !important;
+        height: 14px !important;
+    }
+    .color-swatch-option .swatch-name {
+        font-size: 0.7rem !important;
+        letter-spacing: 0.05em !important;
+    }
+    .color-swatch-option .swatch-price {
+        font-size: 0.66rem !important;
+    }
+
+    .size-options-container {
+        gap: 8px !important;
+        width: 100% !important;
+    }
+    .size-pill-option {
+        min-width: 42px !important;
+        height: 42px !important;
+        padding: 0 12px !important;
+        font-size: 0.75rem !important;
+    }
+
     .product-action-row {
         gap: 8px !important;
+        width: 100% !important;
+        align-items: stretch !important;
     }
     .quantity-stepper {
-        height: 48px !important;
+        height: 46px !important;
+        flex-shrink: 0 !important;
+    }
+    .quantity-stepper button {
+        width: 32px !important;
+        font-size: 1rem !important;
+    }
+    .quantity-stepper .qty-input {
+        width: 34px !important;
+        font-size: 0.88rem !important;
     }
     .add-to-bag-button {
-        height: 48px !important;
-        font-size: 0.78rem !important;
-        letter-spacing: 0.12em !important;
+        height: 46px !important;
+        padding: 0 8px !important;
+        font-size: 0.74rem !important;
+        letter-spacing: 0.08em !important;
+        gap: 6px !important;
+        min-width: 0 !important;
+        flex: 1 1 auto !important;
+        white-space: nowrap !important;
     }
-    .pdp-share-action-btn-wrap {
-        display: flex;
-        align-items: center;
-        gap: 8px;
+    .add-to-bag-button span {
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+    .btn-share-square-action {
+        width: 46px !important;
+        height: 46px !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+@media (max-width: 350px) {
+    .product-action-row {
+        flex-wrap: wrap !important;
+    }
+    .quantity-stepper {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+    .add-to-bag-button {
+        flex: 1 !important;
     }
 }
 
@@ -376,6 +472,8 @@
     border: 1px solid #e5e5e5;
     width: 100%;
     max-width: 500px;
+    max-height: 90vh;
+    max-height: 90dvh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -388,8 +486,25 @@
     transform: translateY(0) scale(1);
 }
 .share-modal-header {
+    flex-shrink: 0;
     padding: 18px 22px;
     border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fafafa;
+}
+.share-modal-body {
+    flex: 1;
+    min-height: 0;
+    padding: 20px 24px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.share-modal-footer {
+    flex-shrink: 0;
+    padding: 14px 24px;
+    border-top: 1px solid #ebebeb;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -417,12 +532,6 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
     margin-bottom: 22px;
-}
-@media (max-width: 480px) {
-    .share-channels-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
-    }
 }
 .share-channel-btn {
     display: flex;
@@ -458,12 +567,14 @@
 }
 .share-copy-bar {
     display: flex;
+    align-items: stretch;
     border: 1px solid #171717;
     position: relative;
     background: #ffffff;
 }
 .share-copy-input {
     flex: 1;
+    min-width: 0;
     border: none;
     padding: 12px 14px;
     font-size: 0.8rem;
@@ -479,7 +590,9 @@
     background: #000000;
     color: #ffffff;
     border: none;
-    padding: 0 18px;
+    width: 46px;
+    min-width: 46px;
+    padding: 0;
     font-family: 'Inter', sans-serif;
     font-size: 0.75rem;
     font-weight: 600;
@@ -488,8 +601,8 @@
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    transition: background 0.15s ease;
+    justify-content: center;
+    transition: background 0.15s ease, color 0.15s ease;
     flex-shrink: 0;
 }
 .share-copy-btn:hover {
@@ -497,6 +610,7 @@
 }
 .share-copy-btn.copied {
     background: #15803d;
+    color: #ffffff;
 }
 .native-share-trigger {
     width: 100%;
@@ -519,6 +633,65 @@
 }
 .native-share-trigger:hover {
     background: #262626;
+}
+
+@media (max-width: 480px) {
+    .product-share-modal-overlay {
+        padding: 12px;
+    }
+    .product-share-modal-dialog {
+        max-height: 92vh;
+        max-height: 92dvh;
+    }
+    .share-modal-header {
+        padding: 12px 16px;
+    }
+    .share-modal-header h3 {
+        font-size: 1.25rem !important;
+    }
+    .share-modal-body {
+        padding: 14px 16px;
+    }
+    .share-preview-card {
+        padding: 8px 10px;
+        margin-bottom: 12px;
+        gap: 10px;
+    }
+    .share-preview-thumb {
+        width: 46px;
+        height: 58px;
+    }
+    .share-channels-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-bottom: 14px;
+    }
+    .share-channel-btn {
+        padding: 8px 4px;
+        font-size: 0.62rem;
+        letter-spacing: 0.04em;
+        gap: 4px;
+    }
+    .share-channel-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+    .native-share-trigger {
+        padding: 9px 12px;
+        font-size: 0.7rem;
+        margin-bottom: 12px;
+    }
+    .share-copy-input {
+        padding: 9px 10px;
+        font-size: 0.75rem;
+    }
+    .share-copy-btn {
+        width: 40px;
+        min-width: 40px;
+    }
+    .share-modal-footer {
+        padding: 10px 16px;
+    }
 }
 </style>
 @endpush
@@ -559,7 +732,7 @@
                                     data-src="{{ $imageUrl }}"
                                     onclick="selectGalleryImage({{ $index }})"
                                     aria-label="View product image {{ $index + 1 }}">
-                                <img src="{{ $imageUrl }}" alt="{{ $product->name }} thumb {{ $index + 1 }}" loading="lazy">
+                                <img src="{{ $imageUrl }}" alt="{{ $product->name }} thumb {{ $index + 1 }}" loading="lazy" onerror="this.onerror=null; this.src='{{ asset('images/placeholder.jpg') }}';">
                                 <span class="thumb-active-ring"></span>
                             </button>
                         @endforeach
@@ -574,16 +747,17 @@
                              alt="{{ $product->name }}" 
                              id="main-gallery-img" 
                              class="gallery-current-img" 
-                             loading="eager">
+                             loading="eager"
+                             onerror="this.onerror=null; this.src='{{ asset('images/placeholder.jpg') }}';">
                         
                         {{-- Zoom Lens Stage --}}
                         <div class="zoom-magnifier" id="zoom-magnifier" style="background-image: url('{{ $galleryImages[0] }}');"></div>
 
                         {{-- Floating Glass Controls --}}
-                        <button type="button" class="gallery-nav-btn prev-btn" id="gallery-nav-prev" onclick="event.stopPropagation(); navigateGallery(-1);" aria-label="Previous Image" style="display: {{ $totalImages > 1 ? 'flex' : 'none' }};">
+                        <button type="button" class="gallery-nav-btn prev-btn" id="gallery-nav-prev" onclick="event.stopPropagation(); if(typeof zoomMagnifier !== 'undefined' && zoomMagnifier) zoomMagnifier.style.opacity = '0'; navigateGallery(-1);" aria-label="Previous Image" style="display: {{ $totalImages > 1 ? 'flex' : 'none' }};">
                             ‹
                         </button>
-                        <button type="button" class="gallery-nav-btn next-btn" id="gallery-nav-next" onclick="event.stopPropagation(); navigateGallery(1);" aria-label="Next Image" style="display: {{ $totalImages > 1 ? 'flex' : 'none' }};">
+                        <button type="button" class="gallery-nav-btn next-btn" id="gallery-nav-next" onclick="event.stopPropagation(); if(typeof zoomMagnifier !== 'undefined' && zoomMagnifier) zoomMagnifier.style.opacity = '0'; navigateGallery(1);" aria-label="Next Image" style="display: {{ $totalImages > 1 ? 'flex' : 'none' }};">
                             ›
                         </button>
                         <div class="gallery-counter-pill" id="gallery-counter-pill" style="display: {{ $totalImages > 1 ? 'flex' : 'none' }};">
@@ -611,18 +785,20 @@
             @endif
 
             <h1 style="font-family:'Cormorant Garamond',serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:300;color:#000000;margin:0 0 8px;letter-spacing:0.02em;">{{ $product->name }}</h1>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
-                <div style="font-size:0.7rem;color:#a3a3a3;letter-spacing:0.15em;text-transform:uppercase;">REF: {{ $product->sku }}</div>
+            <div class="pdp-sku-share-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;gap:10px;">
+                <div class="pdp-sku-badge" style="font-size:0.7rem;color:#a3a3a3;letter-spacing:0.12em;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;">REF: {{ $product->sku }}</div>
                 <button type="button" 
                         class="pdp-share-trigger-btn" 
                         onclick="openProductShareModal()" 
                         title="Share this piece" 
-                        aria-label="Share this piece">
+                        aria-label="Share this piece"
+                        style="flex-shrink:0;">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
                         <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
                     </svg>
-                    <span>SHARE PIECE</span>
+                    <span class="share-btn-text-full">SHARE PIECE</span>
+                    <span class="share-btn-text-short" style="display:none;">SHARE</span>
                 </button>
             </div>
 
@@ -865,7 +1041,7 @@
     <div class="pdp-mobile-sticky-bar" id="pdp-mobile-sticky-bar">
         <div class="pdp-sticky-left">
             @if($totalImages > 0)
-                <img src="{{ $galleryImages[0] }}" alt="{{ $product->name }}" id="pdp-sticky-thumb" class="pdp-sticky-thumb">
+                <img src="{{ $galleryImages[0] }}" alt="{{ $product->name }}" id="pdp-sticky-thumb" class="pdp-sticky-thumb" onerror="this.onerror=null; this.src='{{ asset('images/placeholder.jpg') }}';">
             @endif
             <div class="pdp-sticky-details">
                 <span class="pdp-sticky-name">{{ $product->name }}</span>
@@ -916,7 +1092,7 @@
     <div class="lightbox-dialog" onclick="event.stopPropagation()">
         <button type="button" class="lightbox-close-btn" onclick="closeLightbox()" aria-label="Close fullscreen view">✕</button>
         <div class="lightbox-stage">
-            <img src="{{ $galleryImages[0] }}" alt="{{ $product->name }}" id="lightbox-img" class="lightbox-img">
+            <img src="{{ $galleryImages[0] }}" alt="{{ $product->name }}" id="lightbox-img" class="lightbox-img" onerror="this.onerror=null; this.src='{{ asset('images/placeholder.jpg') }}';">
             @if($totalImages > 1)
                 <button type="button" class="lightbox-nav-btn prev-btn" onclick="navigateLightbox(-1)" aria-label="Previous image">‹</button>
                 <button type="button" class="lightbox-nav-btn next-btn" onclick="navigateLightbox(1)" aria-label="Next image">›</button>
@@ -930,7 +1106,7 @@
                             class="lightbox-thumb {{ $index === 0 ? 'active' : '' }}" 
                             data-index="{{ $index }}"
                             onclick="selectLightboxImage({{ $index }})">
-                        <img src="{{ $imageUrl }}" alt="Thumbnail {{ $index + 1 }}">
+                        <img src="{{ $imageUrl }}" alt="Thumbnail {{ $index + 1 }}" onerror="this.onerror=null; this.src='{{ asset('images/placeholder.jpg') }}';">
                     </button>
                 @endforeach
             </div>
@@ -971,6 +1147,11 @@
         currentIndex = index;
         const newSrc = images[currentIndex];
 
+        // Reset magnifier immediately
+        if (zoomMagnifier) {
+            zoomMagnifier.style.opacity = '0';
+        }
+
         // Update Thumbnails Active State
         const thumbs = document.querySelectorAll('.thumb-item');
         thumbs.forEach((t, i) => {
@@ -995,6 +1176,7 @@
                 mainImg.style.opacity = '1';
                 if (zoomMagnifier) {
                     zoomMagnifier.style.backgroundImage = `url('${newSrc}')`;
+                    zoomMagnifier.style.opacity = '0';
                 }
             };
             tempImg.onerror = function() {
@@ -1012,6 +1194,9 @@
 
     window.navigateGallery = function(direction) {
         if (!images || images.length === 0) return;
+        if (zoomMagnifier) {
+            zoomMagnifier.style.opacity = '0';
+        }
         let newIndex = currentIndex + direction;
         if (newIndex < 0) newIndex = images.length - 1;
         if (newIndex >= images.length) newIndex = 0;
@@ -1091,9 +1276,21 @@
         if (lightboxCounter) lightboxCounter.textContent = `${currentIndex + 1} / ${images.length}`;
     }
 
-    // ─── Luxury Zoom Lens Magnifier ─────────────────────────────
+    // ─── Luxury Zoom Lens Magnifier (Desktop Only) ──────────────────────
     if (mainStage && zoomMagnifier) {
         mainStage.addEventListener('mousemove', function(e) {
+            // Never activate on mobile devices or touch viewports
+            if (window.innerWidth <= 768 || window.matchMedia('(max-width: 768px)').matches || ('ontouchstart' in window && !window.matchMedia('(hover: hover)').matches)) {
+                zoomMagnifier.style.opacity = '0';
+                return;
+            }
+
+            // Never activate when hovering over navigation or control buttons
+            if (e.target && e.target.closest && e.target.closest('.gallery-nav-btn, .gallery-zoom-hint, .gallery-counter-pill, .thumb-item')) {
+                zoomMagnifier.style.opacity = '0';
+                return;
+            }
+
             const rect = mainStage.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
@@ -1107,6 +1304,12 @@
 
         mainStage.addEventListener('mouseleave', function() {
             zoomMagnifier.style.opacity = '0';
+        });
+
+        mainStage.addEventListener('pointerdown', function(e) {
+            if (e.target && e.target.closest && e.target.closest('.gallery-nav-btn, .gallery-zoom-hint, .gallery-counter-pill')) {
+                zoomMagnifier.style.opacity = '0';
+            }
         });
     }
 
@@ -1640,11 +1843,11 @@ function copyProductShareUrl() {
         if (btn) {
             const originalContent = btn.innerHTML;
             btn.classList.add('copied');
-            btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>COPIED!</span>';
+            btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
             setTimeout(function() {
                 btn.classList.remove('copied');
                 btn.innerHTML = originalContent;
-            }, 2500);
+            }, 2200);
         }
         if (typeof showToast === 'function') {
             showToast('Product link copied to clipboard ✓');
@@ -1731,7 +1934,7 @@ document.addEventListener('keydown', function(e) {
         </div>
 
         {{-- Modal Body --}}
-        <div style="padding:20px 24px;overflow-y:auto;max-height:calc(85vh - 70px);">
+        <div class="share-modal-body">
             {{-- Product Preview Card --}}
             <div class="share-preview-card">
                 <img src="{{ $totalImages > 0 ? $galleryImages[0] : asset('images/placeholder.jpg') }}" 
@@ -1787,7 +1990,7 @@ document.addEventListener('keydown', function(e) {
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                     </svg>
-                    <span>X (Twitter)</span>
+                    <span>X</span>
                 </a>
 
                 {{-- Facebook --}}
@@ -1839,18 +2042,18 @@ document.addEventListener('keydown', function(e) {
                         id="share-copy-btn-action" 
                         class="share-copy-btn" 
                         onclick="copyProductShareUrl()" 
-                        title="Copy link to clipboard">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        title="Copy link to clipboard"
+                        aria-label="Copy link to clipboard">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                         <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                     </svg>
-                    <span>COPY LINK</span>
                 </button>
             </div>
         </div>
 
         {{-- Modal Footer --}}
-        <div style="padding:14px 24px;border-top:1px solid #ebebeb;display:flex;align-items:center;justify-content:space-between;background:#fafafa;">
+        <div class="share-modal-footer">
             <span style="font-size:0.72rem;color:#a3a3a3;letter-spacing:0.04em;">Pistis Garment Archive · Direct Share</span>
             <button type="button" onclick="closeProductShareModal()" class="btn btn-sm btn-secondary" style="font-size:0.75rem;padding:6px 18px;border-radius:0;letter-spacing:0.08em;">DONE</button>
         </div>

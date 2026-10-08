@@ -55,10 +55,13 @@ class HeroSlide extends Model
     public static function formatImageUrl(?string $path): ?string
     {
         if (!$path) return null;
+        if (preg_match('#/storage/(.+)$#', $path, $matches)) {
+            return '/storage/' . $matches[1];
+        }
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, '//')) {
             return $path;
         }
-        return asset('storage/' . $path);
+        return '/storage/' . ltrim($path, '/');
     }
 
     public function getImageUrlAttribute(): string

@@ -1,7 +1,7 @@
 @if(!empty($campaignVideo['enabled']) && !empty($campaignVideo['video_url']))
     @php
         $isHomePage = request()->routeIs('home');
-        $shouldAutoTriggerOnCurrentPage = ($campaignVideo['target_page'] === 'all') || ($campaignVideo['target_page'] === 'homepage' && $isHomePage);
+        $shouldAutoTriggerOnCurrentPage = (($campaignVideo['target_page'] === 'all') || ($campaignVideo['target_page'] === 'homepage' && $isHomePage)) && !request()->routeIs('checkout.*') && !request()->routeIs('cart.*');
     @endphp
 
     {{-- Luxury Editorial Campaign Video Modal (Site-wide accessible for manual play, auto-triggers once) --}}
