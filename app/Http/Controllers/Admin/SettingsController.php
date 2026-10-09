@@ -53,6 +53,9 @@ class SettingsController extends Controller
             'social_facebook' => Setting::get('social_facebook', ''),
             'social_whatsapp' => Setting::get('social_whatsapp', ''),
             'social_show_in_footer' => (bool) Setting::get('social_show_in_footer', true),
+            'auspost_api_key' => Setting::get('auspost_api_key', config('services.auspost.api_key', '')),
+            'auspost_origin_postcode' => Setting::get('auspost_origin_postcode', config('services.auspost.origin_postcode', '2000')),
+            'auspost_default_shipping_cost' => Setting::get('auspost_default_shipping_cost', config('services.auspost.default_shipping_cost', '12.00')),
         ];
 
         return view('admin.settings', compact('settings'));
@@ -89,6 +92,9 @@ class SettingsController extends Controller
             'social_facebook' => 'nullable|string|max:255',
             'social_whatsapp' => 'nullable|string|max:255',
             'social_show_in_footer' => 'nullable|boolean',
+            'auspost_api_key' => 'nullable|string|max:255',
+            'auspost_origin_postcode' => 'nullable|string|max:20',
+            'auspost_default_shipping_cost' => 'nullable|numeric|min:0',
         ]);
 
         $fields = [
@@ -99,6 +105,7 @@ class SettingsController extends Controller
             'social_floating_position', 'social_primary_handle', 'social_floating_tagline',
             'social_instagram', 'social_tiktok', 'social_twitter', 'social_youtube',
             'social_pinterest', 'social_facebook', 'social_whatsapp',
+            'auspost_api_key', 'auspost_origin_postcode', 'auspost_default_shipping_cost',
         ];
 
         foreach ($fields as $field) {

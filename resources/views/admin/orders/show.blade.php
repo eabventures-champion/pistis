@@ -106,10 +106,18 @@
                         <span class="badge badge-secondary" style="font-size:0.75rem;">Pending</span>
                     @endif
                 </div>
-                <div class="d-flex justify-between">
+                <div class="d-flex justify-between mb-2">
                     <span class="text-muted" style="font-size:0.85rem;">Admin Notification</span>
                     @if($order->admin_notified_at)
                         <span class="badge badge-success" style="font-size:0.75rem;" title="Received at {{ $order->admin_notified_at->format('M d, Y h:i A') }}">✓ Received</span>
+                    @else
+                        <span class="badge badge-secondary" style="font-size:0.75rem;">Pending</span>
+                    @endif
+                </div>
+                <div class="d-flex justify-between">
+                    <span class="text-muted" style="font-size:0.85rem;">Dispatch Notification</span>
+                    @if($order->shipped_at)
+                        <span class="badge badge-success" style="font-size:0.75rem;" title="Dispatched at {{ $order->shipped_at->format('M d, Y h:i A') }}">✓ Sent</span>
                     @else
                         <span class="badge badge-secondary" style="font-size:0.75rem;">Pending</span>
                     @endif
@@ -133,11 +141,14 @@
             </div>
         </div>
 
-        {{-- Status Update --}}
+        {{-- Status & Shipment Dispatch --}}
         <div class="card mb-4">
-            <div class="card-header"><h3 style="font-size:1rem;">Update Status</h3></div>
+            <div class="card-header d-flex justify-between align-center">
+                <h3 style="font-size:1rem;margin:0;">Fulfillment & Tracking</h3>
+                <span class="badge badge-{{ $order->status_badge }}">{{ ucfirst($order->status) }}</span>
+            </div>
             <div class="card-body">
-                <div class="d-flex justify-between mb-3">
+                <div class="d-flex justify-between mb-2">
                     <span class="text-muted">Payment</span>
                     <span class="badge badge-{{ $order->payment_status_badge }}">{{ ucfirst($order->payment_status) }}</span>
                 </div>
@@ -145,18 +156,62 @@
                     <span class="text-muted">Method</span>
                     <span>{{ ucfirst($order->payment_method ?? 'N/A') }}</span>
                 </div>
+
+                @if($order->tracking_number)
+                    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:12px;margin-bottom:16px;">
+                        <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748b;margin-bottom:4px;">
+                            Active Consignment
+                        </div>
+                        <div class="d-flex justify-between align-center mb-1">
+                            <span style="font-size:0.85rem;color:#334155;">Carrier: <strong>{{ $order->tracking_carrier ?? 'Australia Post' }}</strong></span>
+                            @if($order->shipped_at)
+                                <span style="font-size:0.75rem;color:#64748b;">{{ $order->shipped_at->format('d M, h:i A') }}</span>
+                            @endif
+                        </div>
+                        <div style="font-family:monospace;font-size:0.95rem;font-weight:700;color:#0f172a;letter-spacing:0.05em;word-break:break-all;background:#ffffff;padding:6px 10px;border-radius:4px;border:1px solid #cbd5e1;margin:6px 0;">
+                            {{ $order->tracking_number }}
+                        </div>
+                        @if($order->tracking_url)
+                            <div style="margin-top:8px;">
+                                <a href="{{ $order->tracking_url }}" target="_blank" class="btn btn-sm" style="font-size:0.75rem;padding:5px 12px;background:#dc2626;color:#ffffff;text-decoration:none;border-radius:4px;display:inline-flex;align-items:center;gap:6px;font-weight:600;">
+                                    Track on Australia Post ↗
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                @endif
+
                 <form action="{{ route('admin.orders.update', $order) }}" method="POST">
                     @csrf
                     @method('PATCH')
-                    <div class="form-group">
-                        <label class="form-label">Order Status</label>
-                        <select name="status" class="form-control">
+                    
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:600;">Order Status</label>
+                        <select name="status" id="order-status-select" class="form-control" onchange="toggleTrackingFields(this.value)">
                             @foreach(['pending', 'processing', 'shipped', 'delivered', 'cancelled'] as $s)
                                 <option value="{{ $s }}" {{ $order->status === $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Update Status</button>
+
+                    <div id="tracking-fields-container" style="{{ in_array($order->status, ['shipped', 'delivered']) || !empty($order->tracking_number) ? 'display:block;' : 'display:none;' }}">
+                        <div class="form-group mb-3">
+                            <label class="form-label" style="font-weight:600;font-size:0.85rem;">Courier Carrier</label>
+                            <input type="text" name="tracking_carrier" class="form-control" value="{{ old('tracking_carrier', $order->tracking_carrier ?? 'Australia Post') }}" placeholder="Australia Post">
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="form-label" style="font-weight:600;font-size:0.85rem;">
+                                Australia Post Tracking / Consignment #
+                            </label>
+                            <input type="text" name="tracking_number" class="form-control" value="{{ old('tracking_number', $order->tracking_number) }}" placeholder="e.g. 9970123456780199 or AP-98214">
+                            <small class="text-muted" style="font-size:0.72rem;display:block;margin-top:4px;line-height:1.4;">
+                                Setting status to <strong>Shipped</strong> automatically triggers an email to <strong>{{ $order->customer_email }}</strong> with their direct Australia Post tracking link.
+                            </small>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Update Order</button>
                 </form>
             </div>
         </div>
@@ -257,6 +312,20 @@
         if (modal) {
             modal.style.display = 'none';
             document.body.style.overflow = '';
+        }
+    }
+
+    function toggleTrackingFields(status) {
+        const container = document.getElementById('tracking-fields-container');
+        if (!container) return;
+        if (status === 'shipped' || status === 'delivered') {
+            container.style.display = 'block';
+        } else {
+            // Keep visible if there's already a tracking number entered, otherwise hide
+            const trackingInput = container.querySelector('input[name="tracking_number"]');
+            if (!trackingInput || !trackingInput.value.trim()) {
+                container.style.display = 'none';
+            }
         }
     }
 

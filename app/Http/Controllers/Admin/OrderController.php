@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Services\OrderNotificationService;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -66,12 +67,47 @@ class OrderController extends Controller
     {
         $validated = $request->validate([
             'status' => 'required|in:pending,processing,shipped,delivered,cancelled',
+            'tracking_number' => 'nullable|string|max:100',
+            'tracking_carrier' => 'nullable|string|max:100',
         ]);
 
-        $order->update($validated);
+        $previousStatus = $order->status;
+        $previousTrackingNumber = $order->tracking_number;
+
+        $updateData = [
+            'status' => $validated['status'],
+        ];
+
+        if ($request->has('tracking_number')) {
+            $updateData['tracking_number'] = $validated['tracking_number'] ? trim($validated['tracking_number']) : null;
+        }
+
+        if ($request->has('tracking_carrier')) {
+            $updateData['tracking_carrier'] = $validated['tracking_carrier'] ? trim($validated['tracking_carrier']) : 'Australia Post';
+        }
+
+        $isNowShipped = ($validated['status'] === 'shipped');
+        $statusJustBecameShipped = ($previousStatus !== 'shipped' && $isNowShipped);
+        $newTrackingAddedWhileShipped = ($isNowShipped && !empty($updateData['tracking_number']) && $updateData['tracking_number'] !== $previousTrackingNumber);
+
+        if ($isNowShipped && !$order->shipped_at) {
+            $updateData['shipped_at'] = now();
+        }
+
+        $order->update($updateData);
+
+        // Notify customer via email if status changed to shipped or tracking was updated while shipped
+        if ($statusJustBecameShipped || $newTrackingAddedWhileShipped) {
+            OrderNotificationService::notifyCustomerOrderShipped($order);
+        }
+
+        $msg = 'Order status updated successfully!';
+        if ($statusJustBecameShipped || $newTrackingAddedWhileShipped) {
+            $msg = 'Order updated and dispatch notification email sent to customer!';
+        }
 
         return redirect()->route('admin.orders.show', $order)
-            ->with('success', 'Order status updated!');
+            ->with('success', $msg);
     }
 
     /**

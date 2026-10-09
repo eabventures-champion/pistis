@@ -374,7 +374,31 @@
                             <span class="badge badge-warning" style="background:#ca8a04; color:#fff; padding:4px 10px; border-radius:20px; font-size:0.75rem;">Not Configured</span>
                         </div>
                     @endif
-                    <p class="text-muted" style="font-size:0.8rem; margin:0;">Credentials configured in .env file</p>
+            {{-- Australia Post (AusPost) Settings --}}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-between align-center" style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3 style="font-size:1.05rem; font-weight:700; margin:0; text-transform:uppercase; letter-spacing:0.04em;">Australia Post (AusPost)</h3>
+                    @if(!empty($settings['auspost_api_key']))
+                        <span class="badge" style="background:#16a34a; color:#fff; padding:3px 8px; border-radius:12px; font-size:0.7rem;">API Configured</span>
+                    @else
+                        <span class="badge" style="background:#64748b; color:#fff; padding:3px 8px; border-radius:12px; font-size:0.7rem;">Active (Fallback Ready)</span>
+                    @endif
+                </div>
+                <div class="card-body">
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">AusPost API Key</label>
+                        <input type="text" name="auspost_api_key" class="form-control" value="{{ $settings['auspost_api_key'] }}" placeholder="e.g. 28a1... (from developers.auspost.com.au)">
+                        <small class="text-muted" style="font-size:0.75rem; display:block; margin-top:4px;">Obtained from Australia Post Developer Centre. If left blank, automatic domestic & international rate tables are used.</small>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">Dispatch Origin Postcode</label>
+                        <input type="text" name="auspost_origin_postcode" class="form-control" value="{{ $settings['auspost_origin_postcode'] }}" placeholder="e.g. 2000" style="max-width:180px;">
+                        <small class="text-muted" style="font-size:0.75rem; display:block; margin-top:4px;">Australian postcode your store ships from.</small>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" style="font-weight:600; font-size:0.85rem;">Default Domestic Base Rate ({{ $settings['currency_symbol'] }})</label>
+                        <input type="number" step="0.01" name="auspost_default_shipping_cost" class="form-control" value="{{ $settings['auspost_default_shipping_cost'] }}" placeholder="12.00" style="max-width:180px;">
+                    </div>
                 </div>
             </div>
 

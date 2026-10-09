@@ -67,5 +67,12 @@ return [
         'mode' => env('PAYPAL_MODE', 'sandbox'),
     ],
 
+    'auspost' => [
+        'api_key' => env('AUSPOST_API_KEY', ''),
+        'origin_postcode' => env('AUSPOST_ORIGIN_POSTCODE', '2000'),
+        'base_url' => env('AUSPOST_BASE_URL', 'https://digitalapi.auspost.com.au/postage'),
+        'default_shipping_cost' => (float) env('AUSPOST_DEFAULT_SHIPPING_COST', 12.00),
+    ],
 
 ];
+

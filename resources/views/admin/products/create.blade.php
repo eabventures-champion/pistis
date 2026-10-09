@@ -46,10 +46,12 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Weight (kg)</label>
-                        <input type="number" name="weight" class="form-control" step="0.01" value="{{ old('weight') }}">
+                        <label class="form-label">Weight (kg) *</label>
+                        <input type="number" name="weight" class="form-control" step="0.01" min="0.01" value="{{ old('weight') }}" placeholder="e.g. 0.50" required>
+                        <small style="color:#6b7280;font-size:0.75rem;">Compulsory: Used for Australia Post live parcel weight calculation.</small>
                     </div>
                 </div>
+
             </div>
 
             {{-- Product Accordions & Specifications --}}

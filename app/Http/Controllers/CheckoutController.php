@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Services\AusPostService;
 use App\Services\CartService;
 use App\Services\OrderNotificationService;
 use App\Services\PaymentService;
@@ -14,6 +15,7 @@ class CheckoutController extends Controller
     public function __construct(
         private CartService $cartService,
         private PaymentService $paymentService,
+        private AusPostService $ausPostService,
     ) {}
 
     public function index()
@@ -24,7 +26,6 @@ class CheckoutController extends Controller
             return redirect()->route('shop.index')->with('error', 'Your cart is empty.');
         }
 
-        $totals = $this->cartService->getCartTotals();
         $customer = auth('customer')->user();
 
         if ($customer && ($customer->isDisabled() || $customer->isArchived())) {
@@ -36,14 +37,122 @@ class CheckoutController extends Controller
         }
 
         $savedShipping = session('checkout_shipping', []);
+        if ($customer && empty($savedShipping['postal_code'])) {
+            $savedShipping['postal_code'] = $customer->postal_code;
+        }
+
+        $initialCountry = $savedShipping['country'] ?? $customer->country ?? 'Australia';
+        $initialPostalCode = $savedShipping['postal_code'] ?? $customer->postal_code ?? '';
+        $cartWeight = $this->cartService->getCartWeight();
+
+        // Calculate initial available rates via AusPostService
+        $shippingRates = $this->ausPostService->getRates($initialCountry, $initialPostalCode, $cartWeight);
+        $selectedRateCode = session('checkout_shipping_service_code', $shippingRates[0]['code'] ?? null);
+        $selectedRate = null;
+        foreach ($shippingRates as $rate) {
+            if ($rate['code'] === $selectedRateCode) {
+                $selectedRate = $rate;
+                break;
+            }
+        }
+        if (!$selectedRate && !empty($shippingRates)) {
+            $selectedRate = $shippingRates[0];
+        }
+
+        $initialShippingCost = $selectedRate['cost'] ?? 0.0;
+        session(['checkout_shipping_cost' => $initialShippingCost]);
+        if ($selectedRate) {
+            session([
+                'checkout_shipping_service' => $selectedRate['name'],
+                'checkout_shipping_service_code' => $selectedRate['code'],
+            ]);
+        }
+
+        $totals = $this->cartService->getCartTotals($initialShippingCost);
         
         $paypalClientId = config('services.paypal.client_id');
         $currencyCode = strtoupper(\App\Models\Setting::get('currency_code', 'USD'));
+        $currency_symbol = \App\Models\Setting::get('currency_symbol', '$');
 
-        return view('checkout.index', compact('cart', 'totals', 'customer', 'savedShipping', 'paypalClientId', 'currencyCode'));
+        return view('checkout.index', compact(
+            'cart', 'totals', 'customer', 'savedShipping', 'paypalClientId', 
+            'currencyCode', 'currency_symbol', 'shippingRates', 'selectedRate', 'cartWeight'
+        ));
     }
 
+    /**
+     * AJAX: Calculate AusPost shipping rates based on address and cart weight
+     */
+    public function calculateShippingRates(Request $request)
+    {
+        $validated = $request->validate([
+            'country' => 'required|string|max:100',
+            'postal_code' => 'nullable|string|max:20',
+            'service_code' => 'nullable|string|max:100',
+        ]);
 
+        $cart = $this->cartService->getCart();
+        if ($cart->items->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your cart is empty.'
+            ], 400);
+        }
+
+        $weight = $this->cartService->getCartWeight();
+        $country = $validated['country'];
+        $postcode = $validated['postal_code'] ?? null;
+
+        $rates = $this->ausPostService->getRates($country, $postcode, $weight);
+
+        if (empty($rates)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No shipping rates found for this destination.'
+            ], 422);
+        }
+
+        $selectedServiceCode = $validated['service_code'] ?? null;
+        $selectedRate = null;
+
+        if ($selectedServiceCode) {
+            foreach ($rates as $rate) {
+                if ($rate['code'] === $selectedServiceCode) {
+                    $selectedRate = $rate;
+                    break;
+                }
+            }
+        }
+
+        if (!$selectedRate) {
+            $selectedRate = $rates[0];
+        }
+
+        // Store selected shipping rate in session
+        session([
+            'checkout_shipping_cost' => $selectedRate['cost'],
+            'checkout_shipping_service' => $selectedRate['name'],
+            'checkout_shipping_service_code' => $selectedRate['code'],
+            'checkout_shipping_country' => $country,
+            'checkout_shipping_postal_code' => $postcode,
+        ]);
+
+        $totals = $this->cartService->getCartTotals($selectedRate['cost']);
+        $currencySymbol = \App\Models\Setting::get('currency_symbol', '$');
+
+        return response()->json([
+            'success' => true,
+            'rates' => $rates,
+            'selected_rate' => $selectedRate,
+            'weight_kg' => $weight,
+            'subtotal' => $totals['subtotal'],
+            'shipping' => $totals['shipping'],
+            'total' => $totals['total'],
+            'formatted_subtotal' => $currencySymbol . number_format($totals['subtotal'], 2),
+            'formatted_shipping' => $currencySymbol . number_format($totals['shipping'], 2),
+            'formatted_total' => $currencySymbol . number_format($totals['total'], 2),
+        ]);
+    }
 
     public function process(Request $request)
     {
@@ -56,6 +165,8 @@ class CheckoutController extends Controller
             'city' => 'required|string',
             'state' => 'required|string',
             'country' => 'required|string',
+            'postal_code' => 'required|string|max:20',
+            'shipping_service_code' => 'nullable|string|max:100',
             'notes' => 'nullable|string',
         ]);
 
@@ -85,7 +196,21 @@ class CheckoutController extends Controller
             return back()->with('error', $errorMsg)->withInput();
         }
 
-        $totals = $this->cartService->getCartTotals();
+        $shippingCost = (float) session('checkout_shipping_cost', 0);
+        $shippingServiceName = session('checkout_shipping_service', 'Australia Post Standard');
+
+        if (!empty($validated['shipping_service_code'])) {
+            $rates = $this->ausPostService->getRates($validated['country'], $validated['postal_code'], $this->cartService->getCartWeight());
+            foreach ($rates as $r) {
+                if ($r['code'] === $validated['shipping_service_code']) {
+                    $shippingCost = $r['cost'];
+                    $shippingServiceName = $r['name'];
+                    break;
+                }
+            }
+        }
+
+        $totals = $this->cartService->getCartTotals($shippingCost);
 
         // Premium Seamless Customer Account Management
         $customer = auth('customer')->user();
@@ -104,6 +229,7 @@ class CheckoutController extends Controller
                     'city' => $validated['city'],
                     'state' => $validated['state'],
                     'country' => $validated['country'],
+                    'postal_code' => $validated['postal_code'],
                     'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(32)),
                 ]);
             } else {
@@ -116,6 +242,7 @@ class CheckoutController extends Controller
                     'city' => $validated['city'] ?: $customer->city,
                     'state' => $validated['state'] ?: $customer->state,
                     'country' => $validated['country'] ?: $customer->country,
+                    'postal_code' => $validated['postal_code'] ?: $customer->postal_code,
                 ]);
             }
 
@@ -129,6 +256,7 @@ class CheckoutController extends Controller
                 'city' => $validated['city'] ?: $customer->city,
                 'state' => $validated['state'] ?: $customer->state,
                 'country' => $validated['country'] ?: $customer->country,
+                'postal_code' => $validated['postal_code'] ?: $customer->postal_code,
             ]);
         }
 
@@ -151,7 +279,10 @@ class CheckoutController extends Controller
                 'city' => $validated['city'],
                 'state' => $validated['state'],
                 'country' => $validated['country'],
+                'postal_code' => $validated['postal_code'],
                 'phone' => $validated['phone'],
+                'carrier' => 'Australia Post',
+                'service' => $shippingServiceName,
             ],
             'notes' => $validated['notes'] ?? null,
         ]);

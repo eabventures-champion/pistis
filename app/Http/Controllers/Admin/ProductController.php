@@ -65,7 +65,7 @@ class ProductController extends Controller
             'status' => 'required|in:active,draft,archived',
             'featured' => 'boolean',
             'shopify_sync_enabled' => 'boolean',
-            'weight' => 'nullable|numeric|min:0',
+            'weight' => 'required|numeric|min:0.01',
             'color_images.*.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,avif|max:10240',
         ]);
 
@@ -116,7 +116,7 @@ class ProductController extends Controller
             'status' => 'required|in:active,draft,archived',
             'featured' => 'boolean',
             'shopify_sync_enabled' => 'boolean',
-            'weight' => 'nullable|numeric|min:0',
+            'weight' => 'required|numeric|min:0.01',
             'color_images.*.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,gif,avif|max:10240',
         ]);
 

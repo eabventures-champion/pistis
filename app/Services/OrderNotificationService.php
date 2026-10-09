@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Mail\AdminOrderNotification;
 use App\Mail\CustomerOrderNotification;
+use App\Mail\CustomerOrderShippedNotification;
 use App\Models\Order;
 use App\Models\Setting;
 use App\Models\User;
@@ -86,6 +87,28 @@ class OrderNotificationService
             return true;
         } catch (\Throwable $e) {
             Log::error("Failed to send order notification to Store Email ({$storeEmail}) for Order #{$order->order_number}: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Send order shipped/dispatched notification email to the customer with AusPost tracking.
+     */
+    public static function notifyCustomerOrderShipped(Order $order): bool
+    {
+        $customerEmail = trim($order->customer_email ?? $order->customer?->email ?? '');
+
+        if (empty($customerEmail)) {
+            Log::warning("No customer email address available to send shipped notification for Order #{$order->order_number}");
+            return false;
+        }
+
+        try {
+            Mail::to($customerEmail)->send(new CustomerOrderShippedNotification($order));
+            Log::info("Customer order shipped notification successfully dispatched to ({$customerEmail}) for Order #{$order->order_number} with tracking: {$order->tracking_number}");
+            return true;
+        } catch (\Throwable $e) {
+            Log::error("Failed to send shipped notification to customer ({$customerEmail}) for Order #{$order->order_number}: " . $e->getMessage());
             return false;
         }
     }

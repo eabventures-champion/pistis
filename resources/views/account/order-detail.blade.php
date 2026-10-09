@@ -51,6 +51,96 @@
         </div>
 
         <div>
+            {{-- Shipment & Tracking Banner --}}
+            <div class="card mb-4" style="background:#fafafa;border:1px solid #e5e5e5;overflow:hidden;">
+                <div class="card-header" style="background:#000000;color:#ffffff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <div style="font-size:0.68rem;letter-spacing:0.18em;text-transform:uppercase;color:#a3a3a3;font-weight:700;">Courier Tracking</div>
+                        <h3 style="font-size:1.05rem;margin:2px 0 0;color:#ffffff;">{{ $order->tracking_carrier ?? 'Australia Post' }}</h3>
+                    </div>
+                    <span class="badge badge-{{ $order->status_badge }}" style="font-size:0.75rem;padding:4px 10px;text-transform:uppercase;">
+                        {{ ucfirst($order->status) }}
+                    </span>
+                </div>
+                <div class="card-body" style="padding:20px;">
+                    {{-- Progress Timeline --}}
+                    @php
+                        $steps = ['pending' => 'Order Placed', 'processing' => 'Atelier Preparing', 'shipped' => 'Dispatched', 'delivered' => 'Delivered'];
+                        $statusIndex = match($order->status) {
+                            'pending' => 0,
+                            'processing' => 1,
+                            'shipped' => 2,
+                            'delivered' => 3,
+                            'cancelled' => -1,
+                            default => 0,
+                        };
+                    @endphp
+
+                    @if($order->status !== 'cancelled')
+                        <div style="display:flex;align-items:center;justify-content:space-between;position:relative;margin-bottom:24px;padding:0 8px;">
+                            {{-- Connecting line --}}
+                            <div style="position:absolute;top:14px;left:30px;right:30px;height:2px;background:#e5e5e5;z-index:1;"></div>
+                            <div style="position:absolute;top:14px;left:30px;width:{{ min(100, max(0, ($statusIndex / 3) * 100)) }}%;height:2px;background:#000000;z-index:2;transition:width 0.4s ease;"></div>
+
+                            @foreach(['Placed', 'Preparing', 'Dispatched', 'Delivered'] as $i => $stepLabel)
+                                <div style="position:relative;z-index:3;text-align:center;">
+                                    <div style="width:28px;height:28px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;
+                                        background: {{ $i <= $statusIndex ? '#000000' : '#ffffff' }};
+                                        color: {{ $i <= $statusIndex ? '#ffffff' : '#a3a3a3' }};
+                                        border: 2px solid {{ $i <= $statusIndex ? '#000000' : '#d4d4d4' }};">
+                                        @if($i < $statusIndex)
+                                            ✓
+                                        @else
+                                            {{ $i + 1 }}
+                                        @endif
+                                    </div>
+                                    <div style="font-size:0.72rem;font-weight:{{ $i === $statusIndex ? '700' : '500' }};color:{{ $i === $statusIndex ? '#000000' : '#737373' }};white-space:nowrap;">
+                                        {{ $stepLabel }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div style="background:#fee2e2;color:#991b1b;padding:10px 14px;border-radius:4px;font-size:0.85rem;margin-bottom:16px;">
+                            This order has been cancelled.
+                        </div>
+                    @endif
+
+                    @if($order->tracking_number)
+                        <div style="background:#ffffff;border:1px solid #e5e5e5;border-radius:6px;padding:16px;text-align:center;">
+                            <div style="font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#737373;margin-bottom:4px;">
+                                Consignment Number
+                            </div>
+                            <div style="font-family:monospace;font-size:1.15rem;font-weight:700;letter-spacing:0.08em;color:#171717;margin-bottom:12px;">
+                                {{ $order->tracking_number }}
+                            </div>
+                            @if($order->shipped_at)
+                                <div style="font-size:0.75rem;color:#737373;margin-bottom:14px;">
+                                    Dispatched on {{ $order->shipped_at->format('d M Y, h:i A') }}
+                                </div>
+                            @endif
+                            @if($order->tracking_url)
+                                <a href="{{ $order->tracking_url }}" target="_blank" class="btn btn-primary" style="background:#dc2626;border-color:#dc2626;color:#ffffff;text-decoration:none;font-size:0.8rem;padding:9px 18px;display:inline-flex;align-items:center;gap:6px;font-weight:600;letter-spacing:0.04em;">
+                                    Track on Australia Post &rarr;
+                                </a>
+                            @endif
+                        </div>
+                    @else
+                        <div style="background:#ffffff;border:1px solid #e5e5e5;border-radius:6px;padding:14px;font-size:0.82rem;color:#525252;line-height:1.5;">
+                            @if($order->status === 'processing')
+                                <strong>Status: Atelier Crafting & Inspection</strong><br>
+                                Your order is currently being prepared by our team. Once collected by <strong>Australia Post</strong>, your live tracking details and courier consignment link will automatically appear here.
+                            @elseif($order->status === 'pending')
+                                <strong>Status: Awaiting Atelier Processing</strong><br>
+                                Your order has been placed. Tracking details will update once fulfillment begins.
+                            @else
+                                Tracking information will be updated once your consignment is scanned by the courier.
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            </div>
+
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="d-flex justify-between mb-2">

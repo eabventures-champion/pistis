@@ -35,6 +35,7 @@ Route::delete('/cart/{item}', [CartController::class, 'destroy'])->name('cart.de
 // Checkout
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+Route::post('/checkout/shipping-rates', [CheckoutController::class, 'calculateShippingRates'])->name('checkout.shipping-rates');
 Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
 
 // Payment

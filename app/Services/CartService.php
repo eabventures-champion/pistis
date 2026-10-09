@@ -120,9 +120,27 @@ class CartService
     }
 
     /**
+     * Calculate total weight of the cart items in kilograms
+     */
+    public function getCartWeight(): float
+    {
+        $cart = $this->getCart();
+        $totalWeight = 0.0;
+
+        foreach ($cart->items as $item) {
+            $productWeight = ($item->product && (float) $item->product->weight > 0)
+                ? (float) $item->product->weight
+                : 0.5; // Default 0.5kg per apparel item
+            $totalWeight += $productWeight * $item->quantity;
+        }
+
+        return max(round($totalWeight, 2), 0.2);
+    }
+
+    /**
      * Get cart totals
      */
-    public function getCartTotals(): array
+    public function getCartTotals(?float $customShipping = null): array
     {
         $cart = $this->getCart();
 
@@ -131,7 +149,13 @@ class CartService
         });
 
         $tax = 0; // Can be configured later
-        $shipping = 0; // Can be configured later
+
+        if ($customShipping !== null) {
+            $shipping = max(0.0, (float) $customShipping);
+        } else {
+            $shipping = (float) session('checkout_shipping_cost', 0);
+        }
+
         $total = $subtotal + $tax + $shipping;
 
         return [
@@ -143,3 +167,4 @@ class CartService
         ];
     }
 }
+

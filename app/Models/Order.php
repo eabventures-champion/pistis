@@ -14,6 +14,7 @@ class Order extends Model
         'status', 'is_archived', 'archived_at', 'payment_method', 'payment_reference', 'payment_status',
         'admin_notified_at', 'admin_viewed_at', 'customer_notified_at',
         'shipping_address', 'billing_address', 'notes',
+        'tracking_number', 'tracking_carrier', 'shipped_at',
     ];
 
     protected $casts = [
@@ -23,12 +24,29 @@ class Order extends Model
         'total' => 'decimal:2',
         'is_archived' => 'boolean',
         'archived_at' => 'datetime',
+        'shipped_at' => 'datetime',
         'admin_notified_at' => 'datetime',
         'admin_viewed_at' => 'datetime',
         'customer_notified_at' => 'datetime',
         'shipping_address' => 'array',
         'billing_address' => 'array',
     ];
+
+    public function getTrackingUrlAttribute(): ?string
+    {
+        if (empty($this->tracking_number)) {
+            return null;
+        }
+
+        $cleanNumber = trim($this->tracking_number);
+        $carrier = strtolower($this->tracking_carrier ?? 'australia post');
+
+        if (str_contains($carrier, 'auspost') || str_contains($carrier, 'australia post')) {
+            return "https://auspost.com.au/mypost/track/#/details/{$cleanNumber}";
+        }
+
+        return "https://auspost.com.au/mypost/track/#/details/{$cleanNumber}";
+    }
 
     public function markAdminNotified(): bool
     {

@@ -585,6 +585,90 @@
         </div>
     </div>
 
+    {{-- Shipment & Australia Post Tracking Card --}}
+    <div class="success-card">
+        <div class="success-card-header">
+            <span class="success-card-title">Courier & Dispatch Tracking</span>
+            <span style="font-size:0.72rem;font-family:'Inter',sans-serif;color:#737373;">{{ $order->tracking_carrier ?? 'Australia Post' }}</span>
+        </div>
+        <div class="success-card-body" style="padding:16px;">
+            @php
+                $statusIndex = match($order->status) {
+                    'pending' => 0,
+                    'processing' => 1,
+                    'shipped' => 2,
+                    'delivered' => 3,
+                    'cancelled' => -1,
+                    default => 0,
+                };
+            @endphp
+
+            @if($order->status !== 'cancelled')
+                {{-- Status Step Pipeline --}}
+                <div style="display:flex;align-items:center;justify-content:space-between;position:relative;margin-bottom:20px;padding:4px 6px;">
+                    <div style="position:absolute;top:16px;left:24px;right:24px;height:2px;background:#e5e5e5;z-index:1;"></div>
+                    <div style="position:absolute;top:16px;left:24px;width:{{ min(100, max(0, ($statusIndex / 3) * 100)) }}%;height:2px;background:#000000;z-index:2;transition:width 0.4s ease;"></div>
+
+                    @foreach(['Order Placed', 'Atelier Crafting', 'Dispatched', 'Delivered'] as $i => $stepLabel)
+                        <div style="position:relative;z-index:3;text-align:center;">
+                            <div style="width:24px;height:24px;border-radius:50%;margin:0 auto 5px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:700;
+                                background: {{ $i <= $statusIndex ? '#000000' : '#ffffff' }};
+                                color: {{ $i <= $statusIndex ? '#ffffff' : '#a3a3a3' }};
+                                border: 2px solid {{ $i <= $statusIndex ? '#000000' : '#d4d4d4' }};">
+                                @if($i < $statusIndex)
+                                    ✓
+                                @else
+                                    {{ $i + 1 }}
+                                @endif
+                            </div>
+                            <div style="font-size:0.68rem;font-weight:{{ $i === $statusIndex ? '700' : '500' }};color:{{ $i === $statusIndex ? '#000000' : '#737373' }};white-space:nowrap;">
+                                {{ $stepLabel }}
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+
+            @if($order->tracking_number)
+                <div style="background:#0b0f19;border-radius:4px;padding:16px 20px;text-align:center;color:#ffffff;margin-top:6px;">
+                    <div style="font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:#9ca3af;font-weight:700;margin-bottom:4px;">
+                        Australia Post Consignment
+                    </div>
+                    <div style="font-family:monospace;font-size:1.15rem;font-weight:700;letter-spacing:0.08em;color:#ffffff;margin-bottom:8px;">
+                        {{ $order->tracking_number }}
+                    </div>
+                    @if($order->shipped_at)
+                        <div style="font-size:0.72rem;color:#9ca3af;margin-bottom:12px;">
+                            Dispatched on {{ $order->shipped_at->format('d M Y, h:i A') }}
+                        </div>
+                    @endif
+                    @if($order->tracking_url)
+                        <div>
+                            <a href="{{ $order->tracking_url }}" target="_blank" style="display:inline-block;background:#dc2626;color:#ffffff;font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;text-decoration:none;padding:10px 22px;border-radius:3px;">
+                                Track on Australia Post &rarr;
+                            </a>
+                        </div>
+                    @endif
+                </div>
+            @else
+                <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:4px;padding:12px 14px;font-size:0.78rem;color:#525252;line-height:1.5;">
+                    <div style="font-weight:600;color:#171717;margin-bottom:2px;">
+                        @if($order->status === 'processing')
+                            Atelier Crafting & Packaging in Progress
+                        @elseif($order->status === 'pending')
+                            Order Queued for Fulfillment
+                        @else
+                            Fulfillment in Progress
+                        @endif
+                    </div>
+                    <div>
+                        Your bespoke garments are being prepared at our atelier. As soon as your package is dispatched with Australia Post, a live tracking link will be sent to <strong>{{ $order->customer_email }}</strong> and updated right here.
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+
     {{-- Ordered Items Summary --}}
     @if($order->items && $order->items->count() > 0)
         <div class="success-card">
