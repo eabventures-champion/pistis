@@ -4,16 +4,20 @@
 
 @section('content')
 <style>
+    .table td, .table th {
+        vertical-align: middle !important;
+    }
     .team-badge {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 4px 10px;
+        padding: 5px 12px;
         border-radius: 9999px;
         font-size: 0.72rem;
         font-weight: 700;
         letter-spacing: 0.05em;
         text-transform: uppercase;
+        white-space: nowrap !important;
     }
     .team-badge-super {
         background: #09090b;
@@ -49,36 +53,52 @@
         display: inline-flex;
         align-items: center;
         gap: 4px;
-        padding: 3px 8px;
+        padding: 4px 8px;
         border-radius: 4px;
         font-size: 0.72rem;
         background: #f4f4f5;
         color: #3f3f46;
         border: 1px solid #e4e4e7;
         margin: 2px 2px;
+        white-space: nowrap !important;
     }
 
     .action-icon-btn {
-        background: none;
+        background: #ffffff;
         border: 1px solid #e4e4e7;
         border-radius: 6px;
-        padding: 6px 10px;
+        padding: 6px 12px;
         cursor: pointer;
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        font-size: 0.75rem;
+        font-size: 0.78rem;
+        font-weight: 500;
         color: #27272a;
         transition: all 0.15s;
+        white-space: nowrap !important;
     }
     .action-icon-btn:hover {
         background: #f4f4f5;
         border-color: #d4d4d8;
     }
+    .action-icon-btn.btn-danger-soft {
+        color: #b91c1c;
+        border-color: #fecaca;
+        background: #fff5f5;
+    }
     .action-icon-btn.btn-danger-soft:hover {
         background: #fee2e2;
-        color: #b91c1c;
+        color: #991b1b;
         border-color: #fca5a5;
+    }
+
+    .admin-actions-wrap {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap !important;
+        justify-content: flex-end;
     }
 
     /* Modal styling */
@@ -174,34 +194,34 @@
         <table class="table" style="width:100%;margin:0;">
             <thead>
                 <tr style="border-bottom:1px solid #f4f4f5;background:#fafafa;font-size:0.72rem;letter-spacing:0.06em;text-transform:uppercase;color:#71717a;">
-                    <th style="padding:12px 20px;text-align:left;">Administrator</th>
-                    <th style="padding:12px 16px;text-align:left;">Role</th>
-                    <th style="padding:12px 16px;text-align:left;">Permitted Sidebar Menus</th>
-                    <th style="padding:12px 16px;text-align:left;">Status</th>
-                    <th style="padding:12px 20px;text-align:right;">Actions</th>
+                    <th style="padding:14px 20px;text-align:left;vertical-align:middle;">Administrator</th>
+                    <th style="padding:14px 16px;text-align:left;vertical-align:middle;white-space:nowrap;">Role</th>
+                    <th style="padding:14px 16px;text-align:left;vertical-align:middle;white-space:nowrap;">Permitted Sidebar Menus</th>
+                    <th style="padding:14px 16px;text-align:left;vertical-align:middle;white-space:nowrap;">Status</th>
+                    <th style="padding:14px 20px;text-align:right;vertical-align:middle;white-space:nowrap;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($admins as $admin)
                     <tr style="border-bottom:1px solid #f4f4f5;font-size:0.85rem;">
-                        <td style="padding:14px 20px;">
+                        <td style="padding:16px 20px;vertical-align:middle;">
                             <div style="display:flex;align-items:center;gap:12px;">
-                                <div style="width:36px;height:36px;border-radius:50%;background:#09090b;color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;">
+                                <div style="width:38px;height:38px;border-radius:50%;background:#09090b;color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;flex-shrink:0;">
                                     {{ strtoupper(substr($admin->name, 0, 1)) }}
                                 </div>
                                 <div>
                                     <div style="font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:6px;">
                                         {{ $admin->name }}
                                         @if($admin->id === auth()->id())
-                                            <span style="font-size:0.65rem;background:#f4f4f5;color:#525252;padding:1px 6px;border-radius:4px;">YOU</span>
+                                            <span style="font-size:0.65rem;background:#f4f4f5;color:#525252;padding:1px 6px;border-radius:4px;font-weight:600;">YOU</span>
                                         @endif
                                     </div>
-                                    <div class="text-muted" style="font-size:0.75rem;">{{ $admin->email }}</div>
+                                    <div class="text-muted" style="font-size:0.78rem;">{{ $admin->email }}</div>
                                 </div>
                             </div>
                         </td>
 
-                        <td style="padding:14px 16px;">
+                        <td style="padding:16px 16px;vertical-align:middle;white-space:nowrap;">
                             @if($admin->isSuperAdmin())
                                 <span class="team-badge team-badge-super">👑 Super Admin</span>
                             @elseif($admin->role === 'store_manager')
@@ -217,11 +237,11 @@
                             @endif
                         </td>
 
-                        <td style="padding:14px 16px;max-width:320px;">
+                        <td style="padding:16px 16px;vertical-align:middle;white-space:nowrap;">
                             @if($admin->isSuperAdmin())
-                                <span style="font-size:0.75rem;color:#15803d;font-weight:600;">✓ Full Unrestricted Access (All Menus)</span>
+                                <span style="font-size:0.78rem;color:#15803d;font-weight:600;white-space:nowrap;">✓ Full Unrestricted Access (All Menus)</span>
                             @else
-                                <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                                <div style="display:flex;flex-wrap:wrap;gap:4px;max-width:340px;">
                                     @foreach($admin->permissions ?? [] as $permKey)
                                         @if(isset($permissions[$permKey]))
                                             <span class="perm-pill" title="{{ $permissions[$permKey]['desc'] }}">
@@ -236,15 +256,15 @@
                             @endif
                         </td>
 
-                        <td style="padding:14px 16px;">
+                        <td style="padding:16px 16px;vertical-align:middle;white-space:nowrap;">
                             @if($admin->isSuspended())
-                                <span style="display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:12px;background:#fee2e2;color:#b91c1c;font-size:0.72rem;font-weight:600;">
+                                <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:12px;background:#fee2e2;color:#b91c1c;font-size:0.74rem;font-weight:600;white-space:nowrap;">
                                     <span style="width:6px;height:6px;border-radius:50%;background:#dc2626;"></span>
                                     Suspended
                                 </span>
                             @elseif($admin->isPendingInvitation())
-                                <div>
-                                    <span style="display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:12px;background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:600;">
+                                <div style="white-space:nowrap;">
+                                    <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:12px;background:#fef3c7;color:#92400e;font-size:0.74rem;font-weight:600;white-space:nowrap;">
                                         <span style="width:6px;height:6px;border-radius:50%;background:#d97706;"></span>
                                         Invited (Pending)
                                     </span>
@@ -255,15 +275,15 @@
                                     @endif
                                 </div>
                             @else
-                                <span style="display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:12px;background:#dcfce7;color:#15803d;font-size:0.72rem;font-weight:600;">
+                                <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:12px;background:#dcfce7;color:#15803d;font-size:0.74rem;font-weight:600;white-space:nowrap;">
                                     <span style="width:6px;height:6px;border-radius:50%;background:#16a34a;"></span>
                                     Active
                                 </span>
                             @endif
                         </td>
 
-                        <td style="padding:14px 20px;text-align:right;">
-                            <div style="display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+                        <td style="padding:16px 20px;text-align:right;vertical-align:middle;white-space:nowrap;">
+                            <div class="admin-actions-wrap">
                                 {{-- Edit Role/Permissions --}}
                                 <button type="button" class="action-icon-btn" 
                                         onclick="openEditModal({{ json_encode([
