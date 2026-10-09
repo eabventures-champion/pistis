@@ -34,6 +34,18 @@ class AdminAuthController extends Controller
                     ->withInput($request->only('email', 'remember'));
             }
 
+            if (Auth::user()->isSuspended()) {
+                Auth::logout();
+                return back()->withErrors(['email' => 'Your administrative account has been suspended by the Super Administrator.'])
+                    ->withInput($request->only('email', 'remember'));
+            }
+
+            if (Auth::user()->isPendingInvitation()) {
+                Auth::logout();
+                return back()->withErrors(['email' => 'Please use the invitation link sent to your email to complete your account setup.'])
+                    ->withInput($request->only('email', 'remember'));
+            }
+
             $request->session()->regenerate();
             return redirect()->intended(route('admin.dashboard'));
         }

@@ -404,74 +404,114 @@
                     </a>
                 </li>
 
-                <li class="sidebar-section"><span class="section-label">Catalog & Content</span></li>
-                <li>
-                    <a href="{{ route('admin.hero-slides.index') }}" class="{{ request()->routeIs('admin.hero-slides.*') ? 'active' : '' }}" title="Hero Slider">
-                        <span class="icon">🖼️</span> <span class="menu-label">Hero Slider</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.campaign-video.index') }}" class="{{ request()->routeIs('admin.campaign-video.*') ? 'active' : '' }}" title="Campaign Video">
-                        <span class="icon">🎬</span> <span class="menu-label">Campaign Video</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.settings.index') }}#social-settings" title="Floating Social Media & Handles">
-                        <span class="icon">📱</span> <span class="menu-label">Social Media</span>
-                        <span class="sidebar-badge" style="background:#0f172a;color:#ffffff;font-size:0.6rem;padding:2px 6px;border-radius:10px;font-weight:700;letter-spacing:0.04em;">FLOATING</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.products.index') }}" class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}" title="Products">
-                        <span class="icon">📦</span> <span class="menu-label">Products</span>
-                        <span class="sidebar-badge black-badge" title="{{ $sidebarProductsCount ?? 0 }} Products">{{ $sidebarProductsCount ?? 0 }}</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.categories.index') }}" class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}" title="Categories">
-                        <span class="icon">🏷️</span> <span class="menu-label">Categories</span>
-                        <span class="sidebar-badge black-badge" title="{{ $sidebarCategoriesCount ?? 0 }} Categories">{{ $sidebarCategoriesCount ?? 0 }}</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.size-guides.index') }}" class="{{ request()->routeIs('admin.size-guides.*') ? 'active' : '' }}" title="Size Guides">
-                        <span class="icon">📏</span> <span class="menu-label">Size Guides</span>
-                        <span class="sidebar-badge black-badge" title="{{ $sidebarSizeGuidesCount ?? 0 }} Size Guides">{{ $sidebarSizeGuidesCount ?? 0 }}</span>
-                    </a>
-                </li>
+                @if(auth()->user()->hasPermission('hero_slides') || auth()->user()->hasPermission('campaign_video') || auth()->user()->hasPermission('social_media') || auth()->user()->hasPermission('products') || auth()->user()->hasPermission('categories') || auth()->user()->hasPermission('size_guides'))
+                    <li class="sidebar-section"><span class="section-label">Catalog & Content</span></li>
+                    @if(auth()->user()->hasPermission('hero_slides'))
+                        <li>
+                            <a href="{{ route('admin.hero-slides.index') }}" class="{{ request()->routeIs('admin.hero-slides.*') ? 'active' : '' }}" title="Hero Slider">
+                                <span class="icon">🖼️</span> <span class="menu-label">Hero Slider</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if(auth()->user()->hasPermission('campaign_video'))
+                        <li>
+                            <a href="{{ route('admin.campaign-video.index') }}" class="{{ request()->routeIs('admin.campaign-video.*') ? 'active' : '' }}" title="Campaign Video">
+                                <span class="icon">🎬</span> <span class="menu-label">Campaign Video</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if(auth()->user()->hasPermission('social_media'))
+                        <li>
+                            <a href="{{ route('admin.settings.index') }}#social-settings" title="Floating Social Media & Handles">
+                                <span class="icon">📱</span> <span class="menu-label">Social Media</span>
+                                <span class="sidebar-badge" style="background:#0f172a;color:#ffffff;font-size:0.6rem;padding:2px 6px;border-radius:10px;font-weight:700;letter-spacing:0.04em;">FLOATING</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if(auth()->user()->hasPermission('products'))
+                        <li>
+                            <a href="{{ route('admin.products.index') }}" class="{{ request()->routeIs('admin.products.*') ? 'active' : '' }}" title="Products">
+                                <span class="icon">📦</span> <span class="menu-label">Products</span>
+                                <span class="sidebar-badge black-badge" title="{{ $sidebarProductsCount ?? 0 }} Products">{{ $sidebarProductsCount ?? 0 }}</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if(auth()->user()->hasPermission('categories'))
+                        <li>
+                            <a href="{{ route('admin.categories.index') }}" class="{{ request()->routeIs('admin.categories.*') ? 'active' : '' }}" title="Categories">
+                                <span class="icon">🏷️</span> <span class="menu-label">Categories</span>
+                                <span class="sidebar-badge black-badge" title="{{ $sidebarCategoriesCount ?? 0 }} Categories">{{ $sidebarCategoriesCount ?? 0 }}</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if(auth()->user()->hasPermission('size_guides'))
+                        <li>
+                            <a href="{{ route('admin.size-guides.index') }}" class="{{ request()->routeIs('admin.size-guides.*') ? 'active' : '' }}" title="Size Guides">
+                                <span class="icon">📏</span> <span class="menu-label">Size Guides</span>
+                                <span class="sidebar-badge black-badge" title="{{ $sidebarSizeGuidesCount ?? 0 }} Size Guides">{{ $sidebarSizeGuidesCount ?? 0 }}</span>
+                            </a>
+                        </li>
+                    @endif
+                @endif
 
-                <li class="sidebar-section"><span class="section-label">Sales</span></li>
-                <li>
-                    <a href="{{ route('admin.orders.index') }}" class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" title="Orders">
-                        <span class="icon">🛍️</span>
-                        <span class="menu-label">Orders</span>
-                        @if(($pendingOrdersCount ?? 0) > 0)
-                            <span class="sidebar-badge black-badge has-pending" title="{{ $pendingOrdersCount }} Pending / Processing Orders">{{ $pendingOrdersCount }}</span>
-                        @elseif(($totalOrdersCount ?? 0) > 0)
-                            <span class="sidebar-badge black-badge" title="{{ $totalOrdersCount }} Total Orders">{{ $totalOrdersCount }}</span>
-                        @endif
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('admin.customers.index') }}" class="{{ request()->routeIs('admin.customers.*') ? 'active' : '' }}" title="Customers">
-                        <span class="icon">👥</span> <span class="menu-label">Customers</span>
-                        <span class="sidebar-badge black-badge" title="{{ $sidebarCustomersCount ?? 0 }} Customers">{{ $sidebarCustomersCount ?? 0 }}</span>
-                    </a>
-                </li>
+                @if(auth()->user()->hasPermission('orders') || auth()->user()->hasPermission('customers') || auth()->user()->hasPermission('subscribers'))
+                    <li class="sidebar-section"><span class="section-label">Sales</span></li>
+                    @if(auth()->user()->hasPermission('orders'))
+                        <li>
+                            <a href="{{ route('admin.orders.index') }}" class="{{ request()->routeIs('admin.orders.*') ? 'active' : '' }}" title="Orders">
+                                <span class="icon">🛍️</span>
+                                <span class="menu-label">Orders</span>
+                                @if(($pendingOrdersCount ?? 0) > 0)
+                                    <span class="sidebar-badge black-badge has-pending" title="{{ $pendingOrdersCount }} Pending / Processing Orders">{{ $pendingOrdersCount }}</span>
+                                @elseif(($totalOrdersCount ?? 0) > 0)
+                                    <span class="sidebar-badge black-badge" title="{{ $totalOrdersCount }} Total Orders">{{ $totalOrdersCount }}</span>
+                                @endif
+                            </a>
+                        </li>
+                    @endif
+                    @if(auth()->user()->hasPermission('customers'))
+                        <li>
+                            <a href="{{ route('admin.customers.index') }}" class="{{ request()->routeIs('admin.customers.*') ? 'active' : '' }}" title="Customers">
+                                <span class="icon">👥</span> <span class="menu-label">Customers</span>
+                                <span class="sidebar-badge black-badge" title="{{ $sidebarCustomersCount ?? 0 }} Customers">{{ $sidebarCustomersCount ?? 0 }}</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if(auth()->user()->hasPermission('subscribers'))
+                        <li>
+                            <a href="{{ route('admin.subscribers.index') }}" class="{{ request()->routeIs('admin.subscribers.*') ? 'active' : '' }}" title="Inner Circle Subscribers">
+                                <span class="icon">✉️</span> <span class="menu-label">Inner Circle</span>
+                                <span class="sidebar-badge black-badge" title="{{ $sidebarSubscribersCount ?? 0 }} Subscribers">{{ $sidebarSubscribersCount ?? 0 }}</span>
+                            </a>
+                        </li>
+                    @endif
+                @endif
 
-                <li class="sidebar-section"><span class="section-label">Shopify</span></li>
-                <li>
-                    <a href="{{ route('admin.shopify.logs') }}" class="{{ request()->routeIs('admin.shopify.*') ? 'active' : '' }}" title="Sync & Logs">
-                        <span class="icon">🔄</span> <span class="menu-label">Sync & Logs</span>
-                    </a>
-                </li>
+                @if(auth()->user()->hasPermission('shopify'))
+                    <li class="sidebar-section"><span class="section-label">Shopify</span></li>
+                    <li>
+                        <a href="{{ route('admin.shopify.logs') }}" class="{{ request()->routeIs('admin.shopify.*') ? 'active' : '' }}" title="Sync & Logs">
+                            <span class="icon">🔄</span> <span class="menu-label">Sync & Logs</span>
+                        </a>
+                    </li>
+                @endif
 
                 <li class="sidebar-section"><span class="section-label">System</span></li>
-                <li>
-                    <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" title="Settings">
-                        <span class="icon">⚙️</span> <span class="menu-label">Settings</span>
-                    </a>
-                </li>
+                @if(auth()->user()->isSuperAdmin())
+                    <li>
+                        <a href="{{ route('admin.team.index') }}" class="{{ request()->routeIs('admin.team.*') ? 'active' : '' }}" title="Admin Team & Roles">
+                            <span class="icon">👥</span> <span class="menu-label">Team & Roles</span>
+                            <span class="sidebar-badge" style="background:#09090b;color:#ffffff;font-size:0.6rem;padding:2px 6px;border-radius:10px;font-weight:700;">SUPER</span>
+                        </a>
+                    </li>
+                @endif
+                @if(auth()->user()->hasPermission('settings'))
+                    <li>
+                        <a href="{{ route('admin.settings.index') }}" class="{{ request()->routeIs('admin.settings.*') ? 'active' : '' }}" title="Settings">
+                            <span class="icon">⚙️</span> <span class="menu-label">Settings</span>
+                        </a>
+                    </li>
+                @endif
                 <li>
                     <a href="{{ route('home') }}" target="_blank" title="View Store">
                         <span class="icon">🌐</span> <span class="menu-label">View Store</span>
@@ -591,9 +631,12 @@
                     </div>
 
                     {{-- Admin Profile Pill --}}
-                    <div class="topbar-user">
+                    <div class="topbar-user" style="display:flex;align-items:center;gap:10px;">
                         <div class="topbar-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}</div>
-                        <span class="topbar-username">{{ auth()->user()->name ?? 'Admin' }}</span>
+                        <div style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.2;">
+                            <span class="topbar-username" style="font-weight:700;">{{ auth()->user()->name ?? 'Admin' }}</span>
+                            <span style="font-size:0.65rem;color:#71717a;letter-spacing:0.04em;">{{ auth()->user()->role_title ?? 'Admin' }}</span>
+                        </div>
                     </div>
                 </div>
             </header>

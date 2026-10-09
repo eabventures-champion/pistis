@@ -197,14 +197,16 @@
                     <div class="footer-col">
                         <h4>Inner Circle</h4>
                         <p style="font-size:0.8rem;color:#737373;margin-bottom:12px;">Subscribe to receive private capsule previews and editorial lookbooks.</p>
-                        <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Thank you for joining Pistis.');">
-                            <input type="email" placeholder="ENTER YOUR EMAIL" required>
-                            <button type="submit" aria-label="Subscribe">→</button>
+                        <form id="inner-circle-form" class="newsletter-form" action="{{ route('newsletter.subscribe') }}" method="POST">
+                            @csrf
+                            <input type="email" name="email" id="inner-circle-email" placeholder="ENTER YOUR EMAIL" required autocomplete="email">
+                            <button type="submit" id="inner-circle-submit-btn" aria-label="Subscribe">→</button>
                         </form>
+                        <div id="inner-circle-feedback" style="display:none;font-size:0.75rem;margin-top:10px;line-height:1.4;letter-spacing:0.02em;"></div>
                     </div>
                 </div>
                 <div class="footer-bottom">
-                    <span>&copy; {{ date('Y') }} PISTIS MAISON. ALL RIGHTS RESERVED.</span>
+                    <span>&copy; {{ date('Y') }} PISTIS COLLECTIONS. ALL RIGHTS RESERVED.</span>
                     <span>EDITION 2026 · MONOCHROME ARCHIVE</span>
                 </div>
             </div>
@@ -227,6 +229,58 @@
                 }
             }
         });
+
+        // ─── Inner Circle Newsletter Subscription ────────────────────────
+        const innerCircleForm = document.getElementById('inner-circle-form');
+        if (innerCircleForm) {
+            innerCircleForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const input = document.getElementById('inner-circle-email');
+                const btn = document.getElementById('inner-circle-submit-btn');
+                const feedback = document.getElementById('inner-circle-feedback');
+                const email = input ? input.value.trim() : '';
+
+                if (!email) return;
+
+                btn.disabled = true;
+                const originalText = btn.textContent;
+                btn.textContent = '…';
+                feedback.style.display = 'none';
+
+                fetch("{{ route('newsletter.subscribe') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]') ? document.querySelector('meta[name="csrf-token"]').getAttribute('content') : ''
+                    },
+                    body: JSON.stringify({ email: email })
+                })
+                .then(res => res.json().then(data => ({ status: res.status, ok: res.ok, body: data })))
+                .then(({ ok, body }) => {
+                    feedback.style.display = 'block';
+                    if (ok && body.success) {
+                        feedback.style.color = '#86efac';
+                        feedback.textContent = body.message;
+                        if (!body.already_subscribed) {
+                            input.value = '';
+                        }
+                    } else {
+                        feedback.style.color = '#fca5a5';
+                        feedback.textContent = body.message || (body.errors && body.errors.email ? body.errors.email[0] : 'Could not subscribe. Please try again.');
+                    }
+                })
+                .catch(() => {
+                    feedback.style.display = 'block';
+                    feedback.style.color = '#fca5a5';
+                    feedback.textContent = 'Network error. Please try again later.';
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.textContent = originalText;
+                });
+            });
+        }
     </script>
 </body>
 </html>

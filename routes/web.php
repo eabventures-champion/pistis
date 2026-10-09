@@ -11,11 +11,15 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ShopifySyncController;
 use App\Http\Controllers\Admin\SizeGuideController;
+use App\Http\Controllers\Admin\SubscriberController;
+use App\Http\Controllers\Admin\AdminTeamController;
 use App\Http\Controllers\AdminAuthController;
+use App\Http\Controllers\AdminInvitationController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
@@ -43,6 +47,9 @@ Route::get('/payment/callback', [PaymentController::class, 'callback'])->name('p
 Route::post('/payment/paypal/create/{order}', [CheckoutController::class, 'createPayPalOrder'])->name('payment.paypal.create');
 Route::post('/payment/paypal/capture/{order}', [CheckoutController::class, 'capturePayPalOrder'])->name('payment.paypal.capture');
 
+// Inner Circle / Newsletter
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+
 
 // ─── Customer Auth ───────────────────────────────────────────────────
 Route::middleware('guest:customer')->group(function () {
@@ -68,74 +75,116 @@ Route::prefix('admin')->group(function () {
     Route::get('/login', [AdminAuthController::class, 'showLogin'])->name('admin.login');
     Route::post('/login', [AdminAuthController::class, 'login']);
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
+
+    // Admin Invitation Setup
+    Route::get('/invitations/accept/{token}', [AdminInvitationController::class, 'showAccept'])->name('admin.invitations.accept');
+    Route::post('/invitations/accept/{token}', [AdminInvitationController::class, 'processAccept'])->name('admin.invitations.process');
 });
 
 // ─── Admin Panel ─────────────────────────────────────────────────────
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+    // Super Admin: Team & Permissions Management
+    Route::middleware('super_admin')->group(function () {
+        Route::get('/team', [AdminTeamController::class, 'index'])->name('team.index');
+        Route::post('/team', [AdminTeamController::class, 'store'])->name('team.store');
+        Route::patch('/team/{user}', [AdminTeamController::class, 'update'])->name('team.update');
+        Route::post('/team/{user}/resend-invite', [AdminTeamController::class, 'resendInvite'])->name('team.resend-invite');
+        Route::post('/team/{user}/toggle-status', [AdminTeamController::class, 'toggleStatus'])->name('team.toggle-status');
+        Route::delete('/team/{user}', [AdminTeamController::class, 'destroy'])->name('team.destroy');
+    });
+
     // Products
-    Route::delete('/products/destroy-all', [ProductController::class, 'destroyAll'])->name('products.destroy-all');
-    Route::post('/products/bulk-action', [ProductController::class, 'bulkAction'])->name('products.bulk-action');
-    Route::resource('products', ProductController::class);
+    Route::middleware('admin.permission:products')->group(function () {
+        Route::delete('/products/destroy-all', [ProductController::class, 'destroyAll'])->name('products.destroy-all');
+        Route::post('/products/bulk-action', [ProductController::class, 'bulkAction'])->name('products.bulk-action');
+        Route::resource('products', ProductController::class);
+    });
 
     // Categories
-    Route::post('/categories/toggle-homepage-section', [CategoryController::class, 'toggleHomepageSection'])->name('categories.toggle-homepage-section');
-    Route::post('/categories/toggle-editorial-badges', [CategoryController::class, 'toggleEditorialBadges'])->name('categories.toggle-editorial-badges');
-    Route::delete('/categories/bulk-destroy', [CategoryController::class, 'bulkDestroy'])->name('categories.bulk-destroy');
-    Route::patch('/categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle-status');
-    Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit']);
+    Route::middleware('admin.permission:categories')->group(function () {
+        Route::post('/categories/toggle-homepage-section', [CategoryController::class, 'toggleHomepageSection'])->name('categories.toggle-homepage-section');
+        Route::post('/categories/toggle-editorial-badges', [CategoryController::class, 'toggleEditorialBadges'])->name('categories.toggle-editorial-badges');
+        Route::delete('/categories/bulk-destroy', [CategoryController::class, 'bulkDestroy'])->name('categories.bulk-destroy');
+        Route::patch('/categories/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('categories.toggle-status');
+        Route::resource('categories', CategoryController::class)->except(['show', 'create', 'edit']);
+    });
 
     // Orders
-    Route::post('/orders/mark-all-read', [OrderController::class, 'markAllRead'])->name('orders.mark-all-read');
-    Route::post('/orders/bulk-action', [OrderController::class, 'bulkAction'])->name('orders.bulk-action');
-    Route::post('/orders/{order}/archive', [OrderController::class, 'archive'])->name('orders.archive');
-    Route::post('/orders/{order}/unarchive', [OrderController::class, 'unarchive'])->name('orders.unarchive');
-    Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::patch('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
+    Route::middleware('admin.permission:orders')->group(function () {
+        Route::post('/orders/mark-all-read', [OrderController::class, 'markAllRead'])->name('orders.mark-all-read');
+        Route::post('/orders/bulk-action', [OrderController::class, 'bulkAction'])->name('orders.bulk-action');
+        Route::post('/orders/{order}/archive', [OrderController::class, 'archive'])->name('orders.archive');
+        Route::post('/orders/{order}/unarchive', [OrderController::class, 'unarchive'])->name('orders.unarchive');
+        Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::patch('/orders/{order}', [OrderController::class, 'update'])->name('orders.update');
+    });
 
     // Customers
-    Route::post('/customers/bulk-action', [CustomerController::class, 'bulkAction'])->name('customers.bulk-action');
-    Route::post('/customers/archive-all', [CustomerController::class, 'archiveAll'])->name('customers.archive-all');
-    Route::post('/customers/unarchive-all', [CustomerController::class, 'unarchiveAll'])->name('customers.unarchive-all');
-    Route::post('/customers/disable-all', [CustomerController::class, 'disableAll'])->name('customers.disable-all');
-    Route::post('/customers/enable-all', [CustomerController::class, 'enableAll'])->name('customers.enable-all');
-    Route::post('/customers/destroy-all', [CustomerController::class, 'destroyAll'])->name('customers.destroy-all');
-    Route::post('/customers/{customer}/archive', [CustomerController::class, 'archive'])->name('customers.archive');
-    Route::post('/customers/{customer}/unarchive', [CustomerController::class, 'unarchive'])->name('customers.unarchive');
-    Route::post('/customers/{customer}/disable', [CustomerController::class, 'disable'])->name('customers.disable');
-    Route::post('/customers/{customer}/enable', [CustomerController::class, 'enable'])->name('customers.enable');
-    Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
-    Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
-    Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+    Route::middleware('admin.permission:customers')->group(function () {
+        Route::post('/customers/bulk-action', [CustomerController::class, 'bulkAction'])->name('customers.bulk-action');
+        Route::post('/customers/archive-all', [CustomerController::class, 'archiveAll'])->name('customers.archive-all');
+        Route::post('/customers/unarchive-all', [CustomerController::class, 'unarchiveAll'])->name('customers.unarchive-all');
+        Route::post('/customers/disable-all', [CustomerController::class, 'disableAll'])->name('customers.disable-all');
+        Route::post('/customers/enable-all', [CustomerController::class, 'enableAll'])->name('customers.enable-all');
+        Route::post('/customers/destroy-all', [CustomerController::class, 'destroyAll'])->name('customers.destroy-all');
+        Route::post('/customers/{customer}/archive', [CustomerController::class, 'archive'])->name('customers.archive');
+        Route::post('/customers/{customer}/unarchive', [CustomerController::class, 'unarchive'])->name('customers.unarchive');
+        Route::post('/customers/{customer}/disable', [CustomerController::class, 'disable'])->name('customers.disable');
+        Route::post('/customers/{customer}/enable', [CustomerController::class, 'enable'])->name('customers.enable');
+        Route::delete('/customers/{customer}', [CustomerController::class, 'destroy'])->name('customers.destroy');
+        Route::get('/customers', [CustomerController::class, 'index'])->name('customers.index');
+        Route::get('/customers/{customer}', [CustomerController::class, 'show'])->name('customers.show');
+    });
 
     // Shopify Sync
-    Route::post('/shopify/sync/{product}', [ShopifySyncController::class, 'syncProduct'])->name('shopify.sync-product');
-    Route::post('/shopify/sync-all', [ShopifySyncController::class, 'syncAll'])->name('shopify.sync-all');
-    Route::post('/shopify/pull', [ShopifySyncController::class, 'pullFromShopify'])->name('shopify.pull');
-    Route::get('/shopify/logs', [ShopifySyncController::class, 'logs'])->name('shopify.logs');
-    Route::post('/shopify/test-connection', [ShopifySyncController::class, 'testConnection'])->name('shopify.test-connection');
+    Route::middleware('admin.permission:shopify')->group(function () {
+        Route::post('/shopify/sync/{product}', [ShopifySyncController::class, 'syncProduct'])->name('shopify.sync-product');
+        Route::post('/shopify/sync-all', [ShopifySyncController::class, 'syncAll'])->name('shopify.sync-all');
+        Route::post('/shopify/pull', [ShopifySyncController::class, 'pullFromShopify'])->name('shopify.pull');
+        Route::get('/shopify/logs', [ShopifySyncController::class, 'logs'])->name('shopify.logs');
+        Route::post('/shopify/test-connection', [ShopifySyncController::class, 'testConnection'])->name('shopify.test-connection');
+    });
 
     // Settings
-    Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
-    Route::delete('/settings/remove-logo', [SettingsController::class, 'removeLogo'])->name('settings.remove-logo');
-    Route::post('/settings/wipe-data', [SettingsController::class, 'wipeData'])->name('settings.wipe-data');
+    Route::middleware('admin.permission:settings')->group(function () {
+        Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+        Route::delete('/settings/remove-logo', [SettingsController::class, 'removeLogo'])->name('settings.remove-logo');
+        Route::post('/settings/wipe-data', [SettingsController::class, 'wipeData'])->name('settings.wipe-data')->middleware('super_admin');
+    });
 
     // Campaign Video Management
-    Route::get('/campaign-video', [CampaignVideoController::class, 'index'])->name('campaign-video.index');
-    Route::post('/campaign-video', [CampaignVideoController::class, 'update'])->name('campaign-video.update');
-    Route::delete('/campaign-video/remove-video', [CampaignVideoController::class, 'removeVideo'])->name('campaign-video.remove-video');
+    Route::middleware('admin.permission:campaign_video')->group(function () {
+        Route::get('/campaign-video', [CampaignVideoController::class, 'index'])->name('campaign-video.index');
+        Route::post('/campaign-video', [CampaignVideoController::class, 'update'])->name('campaign-video.update');
+        Route::delete('/campaign-video/remove-video', [CampaignVideoController::class, 'removeVideo'])->name('campaign-video.remove-video');
+    });
 
     // Hero Slides Management
-    Route::post('/hero-slides/reorder', [HeroSlideController::class, 'reorder'])->name('hero-slides.reorder');
-    Route::post('/hero-slides/{hero_slide}/toggle-status', [HeroSlideController::class, 'toggleStatus'])->name('hero-slides.toggle-status');
-    Route::post('/hero-slides/{hero_slide}/duplicate', [HeroSlideController::class, 'duplicate'])->name('hero-slides.duplicate');
-    Route::resource('hero-slides', HeroSlideController::class);
+    Route::middleware('admin.permission:hero_slides')->group(function () {
+        Route::post('/hero-slides/reorder', [HeroSlideController::class, 'reorder'])->name('hero-slides.reorder');
+        Route::post('/hero-slides/{hero_slide}/toggle-status', [HeroSlideController::class, 'toggleStatus'])->name('hero-slides.toggle-status');
+        Route::post('/hero-slides/{hero_slide}/duplicate', [HeroSlideController::class, 'duplicate'])->name('hero-slides.duplicate');
+        Route::resource('hero-slides', HeroSlideController::class);
+    });
 
     // Size Guides Management
-    Route::post('/size-guides/{sizeGuide}/toggle-status', [SizeGuideController::class, 'toggleStatus'])->name('size-guides.toggle-status');
-    Route::resource('size-guides', SizeGuideController::class);
+    Route::middleware('admin.permission:size_guides')->group(function () {
+        Route::post('/size-guides/{sizeGuide}/toggle-status', [SizeGuideController::class, 'toggleStatus'])->name('size-guides.toggle-status');
+        Route::resource('size-guides', SizeGuideController::class);
+    });
+
+    // Inner Circle Subscribers
+    Route::middleware('admin.permission:subscribers')->group(function () {
+        Route::get('/subscribers/export', [SubscriberController::class, 'export'])->name('subscribers.export');
+        Route::get('/subscribers/campaign', [SubscriberController::class, 'campaign'])->name('subscribers.campaign');
+        Route::post('/subscribers/campaign/send', [SubscriberController::class, 'sendCampaign'])->name('subscribers.campaign.send');
+        Route::post('/subscribers/{subscriber}/toggle-status', [SubscriberController::class, 'toggleStatus'])->name('subscribers.toggle-status');
+        Route::delete('/subscribers/{subscriber}', [SubscriberController::class, 'destroy'])->name('subscribers.destroy');
+        Route::get('/subscribers', [SubscriberController::class, 'index'])->name('subscribers.index');
+    });
 });
