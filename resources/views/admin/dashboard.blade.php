@@ -69,6 +69,16 @@
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
     border-color: #cbd5e1;
 }
+.stat-card .stat-label {
+    padding-right: 52px;
+}
+.stat-card .stat-label .badge {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.stat-card .stat-icon {
+    pointer-events: none;
+}
 </style>
 @endpush
 
@@ -76,13 +86,13 @@
 <div class="stats-grid">
     {{-- Combined Products: Total & Active --}}
     <a href="{{ route('admin.products.index') }}" class="stat-card stat-card-link">
-        <div class="stat-label d-flex justify-between align-center">
-            <span>Products</span>
-            <span class="badge badge-success" style="font-size:0.68rem;padding:2px 8px;border-radius:10px;font-weight:600;">
+        <div class="stat-label">Products</div>
+        <div class="d-flex align-center gap-2" style="margin-bottom:2px;">
+            <div class="stat-value">{{ number_format($stats['total_products']) }}</div>
+            <span class="badge badge-success" style="font-size:0.7rem;padding:3px 9px;border-radius:12px;font-weight:600;letter-spacing:0.03em;">
                 {{ $stats['active_products'] }} Active
             </span>
         </div>
-        <div class="stat-value">{{ number_format($stats['total_products']) }}</div>
         <div class="stat-icon">📦</div>
         <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">
             <span style="color:var(--success);font-weight:600;">● {{ $stats['active_products'] }} active</span> of {{ $stats['total_products'] }} total in catalog
@@ -124,14 +134,14 @@
 <div class="stats-grid-3">
     {{-- Pending / Processing --}}
     <a href="{{ route('admin.orders.index', ['view' => 'active']) }}" class="stat-card stat-card-link">
-        <div class="stat-label d-flex justify-between align-center">
-            <span>Pending / Processing</span>
+        <div class="stat-label">Pending / Processing</div>
+        <div class="d-flex align-center gap-2" style="margin-bottom:2px;">
+            <div class="stat-value" style="font-size:1.85rem;color:{{ ($stats['pending_orders'] ?? 0) > 0 ? 'var(--warning)' : 'var(--text-primary)' }};">
+                {{ $stats['pending_orders'] }}
+            </div>
             @if(($stats['pending_orders'] ?? 0) > 0)
-                <span class="badge badge-warning" style="font-size:0.65rem;padding:2px 7px;border-radius:10px;font-weight:600;">Action Needed</span>
+                <span class="badge badge-warning" style="font-size:0.7rem;padding:3px 9px;border-radius:12px;font-weight:600;letter-spacing:0.03em;">Action Needed</span>
             @endif
-        </div>
-        <div class="stat-value" style="font-size:1.85rem;color:{{ ($stats['pending_orders'] ?? 0) > 0 ? 'var(--warning)' : 'var(--text-primary)' }};">
-            {{ $stats['pending_orders'] }}
         </div>
         <div class="stat-icon">⏳</div>
         <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">
@@ -141,12 +151,12 @@
 
     {{-- Delivered Orders (New) --}}
     <a href="{{ route('admin.orders.index', ['status' => 'delivered']) }}" class="stat-card stat-card-link">
-        <div class="stat-label d-flex justify-between align-center">
-            <span>Delivered Orders</span>
-            <span class="badge badge-success" style="font-size:0.65rem;padding:2px 7px;border-radius:10px;font-weight:600;">Fulfilled</span>
-        </div>
-        <div class="stat-value" style="font-size:1.85rem;color:var(--success);">
-            {{ number_format($stats['delivered_orders'] ?? 0) }}
+        <div class="stat-label">Delivered Orders</div>
+        <div class="d-flex align-center gap-2" style="margin-bottom:2px;">
+            <div class="stat-value" style="font-size:1.85rem;color:var(--success);">
+                {{ number_format($stats['delivered_orders'] ?? 0) }}
+            </div>
+            <span class="badge badge-success" style="font-size:0.7rem;padding:3px 9px;border-radius:12px;font-weight:600;letter-spacing:0.03em;">Fulfilled</span>
         </div>
         <div class="stat-icon">🚚</div>
         <div style="font-size:0.75rem;color:var(--text-muted);margin-top:6px;">
