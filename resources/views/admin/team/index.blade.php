@@ -64,39 +64,71 @@
     }
 
     .action-icon-btn {
-        background: #ffffff;
-        border: 1px solid #e4e4e7;
+        width: 32px;
+        height: 32px;
+        padding: 0;
         border-radius: 6px;
-        padding: 6px 12px;
-        cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        font-size: 0.78rem;
-        font-weight: 500;
-        color: #27272a;
-        transition: all 0.15s;
-        white-space: nowrap !important;
+        justify-content: center;
+        border: 1px solid #e4e4e7;
+        background: #ffffff;
+        color: #52525b;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        flex-shrink: 0;
+        user-select: none;
     }
     .action-icon-btn:hover {
         background: #f4f4f5;
         border-color: #d4d4d8;
+        color: #18181b;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+    .action-icon-btn:active {
+        transform: translateY(0);
+    }
+    .action-icon-btn.btn-edit:hover {
+        background: #18181b;
+        border-color: #18181b;
+        color: #ffffff;
+    }
+    .action-icon-btn.btn-warning-soft {
+        color: #d97706;
+        border-color: #fef3c7;
+        background: #fffbeb;
+    }
+    .action-icon-btn.btn-warning-soft:hover {
+        background: #fde68a;
+        border-color: #f59e0b;
+        color: #92400e;
+    }
+    .action-icon-btn.btn-success-soft {
+        color: #16a34a;
+        border-color: #dcfce7;
+        background: #f0fdf4;
+    }
+    .action-icon-btn.btn-success-soft:hover {
+        background: #bbf7d0;
+        border-color: #22c55e;
+        color: #14532d;
     }
     .action-icon-btn.btn-danger-soft {
-        color: #b91c1c;
-        border-color: #fecaca;
-        background: #fff5f5;
+        color: #dc2626;
+        border-color: #fee2e2;
+        background: #fef2f2;
     }
     .action-icon-btn.btn-danger-soft:hover {
-        background: #fee2e2;
+        background: #fecaca;
         color: #991b1b;
-        border-color: #fca5a5;
+        border-color: #ef4444;
     }
 
     .admin-actions-wrap {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
         white-space: nowrap !important;
         justify-content: flex-end;
     }
@@ -198,7 +230,7 @@
                     <th style="padding:14px 16px;text-align:left;vertical-align:middle;white-space:nowrap;">Role</th>
                     <th style="padding:14px 16px;text-align:left;vertical-align:middle;white-space:nowrap;">Permitted Sidebar Menus</th>
                     <th style="padding:14px 16px;text-align:left;vertical-align:middle;white-space:nowrap;">Status</th>
-                    <th style="padding:14px 20px;text-align:right;vertical-align:middle;white-space:nowrap;">Actions</th>
+                    <th style="padding:14px 20px;text-align:right;vertical-align:middle;white-space:nowrap;width:120px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -282,10 +314,10 @@
                             @endif
                         </td>
 
-                        <td style="padding:16px 20px;text-align:right;vertical-align:middle;white-space:nowrap;">
+                        <td style="padding:16px 20px;text-align:right;vertical-align:middle;white-space:nowrap;width:120px;">
                             <div class="admin-actions-wrap">
                                 {{-- Edit Role/Permissions --}}
-                                <button type="button" class="action-icon-btn" 
+                                <button type="button" class="action-icon-btn btn-edit" 
                                         onclick="openEditModal({{ json_encode([
                                             'id' => $admin->id,
                                             'name' => $admin->name,
@@ -294,22 +326,33 @@
                                             'is_super_admin' => $admin->is_super_admin,
                                             'permissions' => $admin->permissions ?? [],
                                         ]) }})"
-                                        title="Edit Role & Permissions">
-                                    ✏️ Edit
+                                        title="Edit Role & Permissions"
+                                        aria-label="Edit Role & Permissions">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                    </svg>
                                 </button>
 
                                 {{-- Pending Invitation Actions --}}
                                 @if($admin->isPendingInvitation())
                                     <button type="button" class="action-icon-btn" 
                                             onclick="copyInviteLink('{{ route('admin.invitations.accept', $admin->invitation_token) }}')" 
-                                            title="Copy invitation link directly">
-                                        🔗 Copy Link
+                                            title="Copy invitation link"
+                                            aria-label="Copy invitation link">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                                        </svg>
                                     </button>
 
                                     <form action="{{ route('admin.team.resend-invite', $admin) }}" method="POST" style="margin:0;">
                                         @csrf
-                                        <button type="submit" class="action-icon-btn" title="Resend invitation email">
-                                            ✉️ Resend
+                                        <button type="submit" class="action-icon-btn" title="Resend invitation email" aria-label="Resend invitation email">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                                <polyline points="22,6 12,13 2,6"></polyline>
+                                            </svg>
                                         </button>
                                     </form>
                                 @endif
@@ -318,20 +361,33 @@
                                 @if($admin->id !== auth()->id() && (!$admin->isSuperAdmin() || \App\Models\User::where('is_super_admin', true)->count() > 1))
                                     <form action="{{ route('admin.team.toggle-status', $admin) }}" method="POST" style="margin:0;">
                                         @csrf
-                                        <button type="submit" class="action-icon-btn" title="{{ $admin->isSuspended() ? 'Reactivate administrator' : 'Suspend administrator' }}">
-                                            @if($admin->isSuspended())
-                                                <span style="color:#16a34a;">Restore</span>
-                                            @else
-                                                <span style="color:#d97706;">Suspend</span>
-                                            @endif
-                                        </button>
+                                        @if($admin->isSuspended())
+                                            <button type="submit" class="action-icon-btn btn-success-soft" title="Reactivate administrator" aria-label="Reactivate administrator">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                                                </svg>
+                                            </button>
+                                        @else
+                                            <button type="submit" class="action-icon-btn btn-warning-soft" title="Suspend administrator" aria-label="Suspend administrator">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                                                </svg>
+                                            </button>
+                                        @endif
                                     </form>
 
                                     <form action="{{ route('admin.team.destroy', $admin) }}" method="POST" style="margin:0;" onsubmit="return confirm('Remove administrator {{ $admin->name }}? All dashboard access will be permanently revoked.');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="action-icon-btn btn-danger-soft" title="Delete administrator">
-                                            ✕
+                                        <button type="submit" class="action-icon-btn btn-danger-soft" title="Delete administrator" aria-label="Delete administrator">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="3 6 5 6 21 6"></polyline>
+                                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                                            </svg>
                                         </button>
                                     </form>
                                 @endif

@@ -347,6 +347,73 @@
             color: #0f172a;
         }
 
+        .topbar-user-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: 1px solid transparent;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: all 0.15s ease;
+        }
+        .topbar-user-btn:hover,
+        .topbar-user-btn.active {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        .profile-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 260px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+            z-index: 120;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .profile-menu.open {
+            display: flex;
+            animation: fadeInDown 0.15s ease-out;
+        }
+        .profile-menu-header {
+            padding: 14px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .profile-menu-body {
+            padding: 6px;
+        }
+        .profile-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: #1e293b;
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: all 0.15s ease;
+        }
+        .profile-menu-item:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+        .profile-menu-logout {
+            color: #dc2626;
+        }
+        .profile-menu-logout:hover {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
         @media (max-width: 900px) {
             .admin-topbar {
                 margin: 0 -16px 16px -16px;
@@ -363,7 +430,8 @@
             .topbar-view-store span {
                 display: none;
             }
-            .notifications-menu {
+            .notifications-menu,
+            .profile-menu {
                 position: fixed;
                 top: 60px;
                 right: 12px;
@@ -497,6 +565,11 @@
                 @endif
 
                 <li class="sidebar-section"><span class="section-label">System</span></li>
+                <li>
+                    <a href="{{ route('admin.profile.index') }}" class="{{ request()->routeIs('admin.profile.*') ? 'active' : '' }}" title="My Profile & Security">
+                        <span class="icon">👤</span> <span class="menu-label">My Profile</span>
+                    </a>
+                </li>
                 @if(auth()->user()->isSuperAdmin())
                     <li>
                         <a href="{{ route('admin.team.index') }}" class="{{ request()->routeIs('admin.team.*') ? 'active' : '' }}" title="Admin Team & Roles">
@@ -630,12 +703,70 @@
                         </div>
                     </div>
 
-                    {{-- Admin Profile Pill --}}
-                    <div class="topbar-user" style="display:flex;align-items:center;gap:10px;">
-                        <div class="topbar-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}</div>
-                        <div style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.2;">
-                            <span class="topbar-username" style="font-weight:700;">{{ auth()->user()->name ?? 'Admin' }}</span>
-                            <span style="font-size:0.65rem;color:#71717a;letter-spacing:0.04em;">{{ auth()->user()->role_title ?? 'Admin' }}</span>
+                    {{-- Admin Profile Menu Dropdown --}}
+                    <div class="topbar-dropdown" id="topbar-profile-dropdown">
+                        <button type="button" class="topbar-user-btn" id="profile-toggle-btn" onclick="toggleProfileMenu(event)" title="Account & Security" aria-expanded="false">
+                            <div class="topbar-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}</div>
+                            <div style="display:flex;flex-direction:column;align-items:flex-start;line-height:1.2;">
+                                <span class="topbar-username" style="font-weight:700;">{{ auth()->user()->name ?? 'Admin' }}</span>
+                                <span style="font-size:0.65rem;color:#71717a;letter-spacing:0.04em;">{{ auth()->user()->role_title ?? 'Admin' }}</span>
+                            </div>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#71717a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:2px;">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+
+                        <div class="profile-menu" id="profile-menu">
+                            <div class="profile-menu-header">
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div class="topbar-avatar" style="width:36px;height:36px;font-size:0.9rem;">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}</div>
+                                    <div style="min-width:0;flex:1;">
+                                        <div style="font-weight:700;font-size:0.85rem;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ auth()->user()->name }}</div>
+                                        <div style="font-size:0.75rem;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ auth()->user()->email }}</div>
+                                    </div>
+                                </div>
+                                <div style="margin-top:8px;">
+                                    <span style="display:inline-block;font-size:0.65rem;font-weight:700;letter-spacing:0.05em;padding:2px 8px;border-radius:12px;background:#09090b;color:#ffffff;">
+                                        {{ strtoupper(auth()->user()->role_title ?? 'ADMIN') }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="profile-menu-body">
+                                <a href="{{ route('admin.profile.index') }}" class="profile-menu-item">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                    <span>My Profile</span>
+                                </a>
+
+                                <a href="{{ route('admin.profile.index') }}#password-section" class="profile-menu-item">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                    <span>Change Password</span>
+                                </a>
+
+                                @if(auth()->user()->isSuperAdmin())
+                                    <a href="{{ route('admin.team.index') }}" class="profile-menu-item">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                        <span>Team & Roles</span>
+                                    </a>
+                                @endif
+
+                                @if(auth()->user()->hasPermission('settings'))
+                                    <a href="{{ route('admin.settings.index') }}" class="profile-menu-item">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                                        <span>Store Settings</span>
+                                    </a>
+                                @endif
+
+                                <div style="height:1px;background:#f1f5f9;margin:4px 0;"></div>
+
+                                <form action="{{ route('admin.logout') }}" method="POST" style="margin:0;">
+                                    @csrf
+                                    <button type="submit" class="profile-menu-item profile-menu-logout" style="width:100%;background:none;border:none;cursor:pointer;text-align:left;">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                        <span>Sign Out</span>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -680,11 +811,22 @@
             if (backdrop) backdrop.classList.toggle('active');
         }
 
-        // Topbar Notifications Dropdown
-        function toggleNotificationsMenu(event) {
+        // Topbar Profile Dropdown
+        function toggleProfileMenu(event) {
             if (event) event.stopPropagation();
-            const menu = document.getElementById('notifications-menu');
-            const btn = document.getElementById('notifications-toggle-btn');
+            const menu = document.getElementById('profile-menu');
+            const btn = document.getElementById('profile-toggle-btn');
+            // Close notifications menu if open
+            const notifMenu = document.getElementById('notifications-menu');
+            const notifBtn = document.getElementById('notifications-toggle-btn');
+            if (notifMenu && notifMenu.classList.contains('open')) {
+                notifMenu.classList.remove('open');
+                if (notifBtn) {
+                    notifBtn.classList.remove('active');
+                    notifBtn.setAttribute('aria-expanded', 'false');
+                }
+            }
+
             if (menu) {
                 const isOpen = menu.classList.toggle('open');
                 if (btn) {
@@ -694,16 +836,53 @@
             }
         }
 
-        // Close notifications dropdown when clicking outside
-        window.addEventListener('click', function(e) {
+        // Topbar Notifications Dropdown
+        function toggleNotificationsMenu(event) {
+            if (event) event.stopPropagation();
             const menu = document.getElementById('notifications-menu');
             const btn = document.getElementById('notifications-toggle-btn');
-            if (menu && menu.classList.contains('open')) {
-                if (!menu.contains(e.target) && !btn.contains(e.target)) {
-                    menu.classList.remove('open');
-                    if (btn) {
-                        btn.classList.remove('active');
-                        btn.setAttribute('aria-expanded', 'false');
+            // Close profile menu if open
+            const profMenu = document.getElementById('profile-menu');
+            const profBtn = document.getElementById('profile-toggle-btn');
+            if (profMenu && profMenu.classList.contains('open')) {
+                profMenu.classList.remove('open');
+                if (profBtn) {
+                    profBtn.classList.remove('active');
+                    profBtn.setAttribute('aria-expanded', 'false');
+                }
+            }
+
+            if (menu) {
+                const isOpen = menu.classList.toggle('open');
+                if (btn) {
+                    btn.classList.toggle('active', isOpen);
+                    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                }
+            }
+        }
+
+        // Close dropdowns when clicking outside
+        window.addEventListener('click', function(e) {
+            const notifMenu = document.getElementById('notifications-menu');
+            const notifBtn = document.getElementById('notifications-toggle-btn');
+            if (notifMenu && notifMenu.classList.contains('open')) {
+                if (!notifMenu.contains(e.target) && !notifBtn.contains(e.target)) {
+                    notifMenu.classList.remove('open');
+                    if (notifBtn) {
+                        notifBtn.classList.remove('active');
+                        notifBtn.setAttribute('aria-expanded', 'false');
+                    }
+                }
+            }
+
+            const profMenu = document.getElementById('profile-menu');
+            const profBtn = document.getElementById('profile-toggle-btn');
+            if (profMenu && profMenu.classList.contains('open')) {
+                if (!profMenu.contains(e.target) && !profBtn.contains(e.target)) {
+                    profMenu.classList.remove('open');
+                    if (profBtn) {
+                        profBtn.classList.remove('active');
+                        profBtn.setAttribute('aria-expanded', 'false');
                     }
                 }
             }

@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\ShopifySyncController;
+use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\SizeGuideController;
 use App\Http\Controllers\Admin\SubscriberController;
 use App\Http\Controllers\Admin\AdminTeamController;
@@ -84,6 +85,12 @@ Route::prefix('admin')->group(function () {
 // ─── Admin Panel ─────────────────────────────────────────────────────
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Admin Profile & Password Management (Available to all authenticated admins)
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::post('/profile/logout-other-devices', [ProfileController::class, 'logoutOtherDevices'])->name('profile.logout-other-devices');
 
     // Super Admin: Team & Permissions Management
     Route::middleware('super_admin')->group(function () {
