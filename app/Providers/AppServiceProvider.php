@@ -70,6 +70,13 @@ class AppServiceProvider extends ServiceProvider
                     'pinterest' => \App\Models\Setting::get('social_pinterest', ''),
                     'facebook' => \App\Models\Setting::get('social_facebook', ''),
                     'whatsapp' => \App\Models\Setting::get('social_whatsapp', ''),
+                    'instagram_enabled' => (bool) \App\Models\Setting::get('social_instagram_enabled', '1'),
+                    'tiktok_enabled' => (bool) \App\Models\Setting::get('social_tiktok_enabled', '1'),
+                    'twitter_enabled' => (bool) \App\Models\Setting::get('social_twitter_enabled', '1'),
+                    'youtube_enabled' => (bool) \App\Models\Setting::get('social_youtube_enabled', '1'),
+                    'pinterest_enabled' => (bool) \App\Models\Setting::get('social_pinterest_enabled', '1'),
+                    'facebook_enabled' => (bool) \App\Models\Setting::get('social_facebook_enabled', '1'),
+                    'whatsapp_enabled' => (bool) \App\Models\Setting::get('social_whatsapp_enabled', '1'),
                     'show_in_footer' => (bool) \App\Models\Setting::get('social_show_in_footer', true),
                 ];
                 \Illuminate\Support\Facades\View::share('socialSettings', $socialSettings);

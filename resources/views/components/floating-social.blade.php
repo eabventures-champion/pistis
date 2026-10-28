@@ -65,8 +65,12 @@
         ],
     ];
 
-    // Filter to only platforms with configured links/handles
-    $activePlatforms = array_filter($platforms, fn($p) => !empty($p['url']));
+    // Filter to only platforms with configured links/handles and enabled
+    $activePlatforms = array_filter($platforms, function($p) use ($socialSettings) {
+        $enabledKey = $p['key'] . '_enabled';
+        $isEnabled = !isset($socialSettings[$enabledKey]) || (bool)$socialSettings[$enabledKey];
+        return !empty($p['url']) && $isEnabled;
+    });
     $hasCampaignFilm = !empty($campaignVideo['enabled']) && !empty($campaignVideo['video_url']);
 @endphp
 

@@ -43,6 +43,9 @@ class DashboardController extends Controller
             'instagram' => Setting::get('social_instagram', ''),
             'tiktok' => Setting::get('social_tiktok', ''),
             'whatsapp' => Setting::get('social_whatsapp', ''),
+            'instagram_enabled' => (bool) Setting::get('social_instagram_enabled', '1'),
+            'tiktok_enabled' => (bool) Setting::get('social_tiktok_enabled', '1'),
+            'whatsapp_enabled' => (bool) Setting::get('social_whatsapp_enabled', '1'),
             'connect_url' => route('social.connect'),
         ];
 

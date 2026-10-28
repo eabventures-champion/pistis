@@ -6,6 +6,9 @@
     $instagram = $instagram ?? ($socialInfo['instagram'] ?? ($settings['social_instagram'] ?? ''));
     $tiktok = $tiktok ?? ($socialInfo['tiktok'] ?? ($settings['social_tiktok'] ?? ''));
     $whatsapp = $whatsapp ?? ($socialInfo['whatsapp'] ?? ($settings['social_whatsapp'] ?? ''));
+    $instagramEnabled = $instagramEnabled ?? ($socialInfo['instagram_enabled'] ?? ($settings['social_instagram_enabled'] ?? true));
+    $tiktokEnabled = $tiktokEnabled ?? ($socialInfo['tiktok_enabled'] ?? ($settings['social_tiktok_enabled'] ?? true));
+    $whatsappEnabled = $whatsappEnabled ?? ($socialInfo['whatsapp_enabled'] ?? ($settings['social_whatsapp_enabled'] ?? true));
     $prefix = $prefix ?? 'dash';
 @endphp
 
@@ -74,7 +77,7 @@
                             ★ All-in-One Social Hub (Recommended)
                         </button>
                         
-                        @if(!empty($instagram))
+                        @if(!empty($instagram) && !empty($instagramEnabled))
                             <button type="button" 
                                     class="btn btn-sm {{ $prefix }}_mode_btn" 
                                     onclick="setQrMode('{{ $prefix }}', 'instagram', '{{ str_starts_with($instagram, 'http') ? $instagram : 'https://instagram.com/' . ltrim($instagram, '@') }}')"
@@ -83,7 +86,7 @@
                             </button>
                         @endif
 
-                        @if(!empty($tiktok))
+                        @if(!empty($tiktok) && !empty($tiktokEnabled))
                             <button type="button" 
                                     class="btn btn-sm {{ $prefix }}_mode_btn" 
                                     onclick="setQrMode('{{ $prefix }}', 'tiktok', '{{ str_starts_with($tiktok, 'http') ? $tiktok : 'https://tiktok.com/@' . ltrim($tiktok, '@') }}')"
@@ -103,19 +106,19 @@
                         <span style="display:inline-flex;align-items:center;gap:6px;background:#f1f5f9;border:1px solid #e2e8f0;padding:4px 10px;border-radius:6px;font-size:0.76rem;font-weight:600;color:#0f172a;">
                             <span style="color:#d4af37;">👑</span> {{ $primaryHandle }}
                         </span>
-                        @if(!empty($instagram))
+                        @if(!empty($instagram) && !empty($instagramEnabled))
                             <span style="display:inline-flex;align-items:center;gap:6px;background:#fdf2f8;border:1px solid #fbcfe8;padding:4px 10px;border-radius:6px;font-size:0.76rem;font-weight:600;color:#db2777;">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/></svg>
                                 Instagram Linked
                             </span>
                         @endif
-                        @if(!empty($tiktok))
+                        @if(!empty($tiktok) && !empty($tiktokEnabled))
                             <span style="display:inline-flex;align-items:center;gap:6px;background:#f0fdfa;border:1px solid #ccfbf1;padding:4px 10px;border-radius:6px;font-size:0.76rem;font-weight:600;color:#0d9488;">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.29 0 .58.04.86.12V9.42a6.37 6.37 0 0 0-.86-.06 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.34-6.34V8.58a8.28 8.28 0 0 0 4.84 1.56V6.69z"/></svg>
                                 TikTok Linked
                             </span>
                         @endif
-                        @if(!empty($whatsapp))
+                        @if(!empty($whatsapp) && !empty($whatsappEnabled))
                             <span style="display:inline-flex;align-items:center;gap:6px;background:#f0fdf4;border:1px solid #bbf7d0;padding:4px 10px;border-radius:6px;font-size:0.76rem;font-weight:600;color:#16a34a;">
                                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
                                 WhatsApp Concierge

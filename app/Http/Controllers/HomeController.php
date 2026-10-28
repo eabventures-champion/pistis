@@ -90,7 +90,7 @@ class HomeController extends Controller
 
         // 1. Instagram
         $instagram = Setting::get('social_instagram');
-        if (!empty($instagram)) {
+        if (Setting::get('social_instagram_enabled', '1') == '1' && !empty($instagram)) {
             $channels[] = [
                 'key' => 'instagram',
                 'name' => 'Instagram',
@@ -106,7 +106,7 @@ class HomeController extends Controller
 
         // 2. TikTok
         $tiktok = Setting::get('social_tiktok');
-        if (!empty($tiktok)) {
+        if (Setting::get('social_tiktok_enabled', '1') == '1' && !empty($tiktok)) {
             $channels[] = [
                 'key' => 'tiktok',
                 'name' => 'TikTok',
@@ -122,7 +122,7 @@ class HomeController extends Controller
 
         // 3. WhatsApp Concierge
         $whatsapp = Setting::get('social_whatsapp');
-        if (!empty($whatsapp)) {
+        if (Setting::get('social_whatsapp_enabled', '1') == '1' && !empty($whatsapp)) {
             $cleanPhone = preg_replace('/[^0-9]/', '', $whatsapp);
             $channels[] = [
                 'key' => 'whatsapp',
@@ -139,7 +139,7 @@ class HomeController extends Controller
 
         // 4. X (Twitter)
         $twitter = Setting::get('social_twitter');
-        if (!empty($twitter)) {
+        if (Setting::get('social_twitter_enabled', '1') == '1' && !empty($twitter)) {
             $channels[] = [
                 'key' => 'twitter',
                 'name' => 'X (formerly Twitter)',
@@ -155,7 +155,7 @@ class HomeController extends Controller
 
         // 5. YouTube
         $youtube = Setting::get('social_youtube');
-        if (!empty($youtube)) {
+        if (Setting::get('social_youtube_enabled', '1') == '1' && !empty($youtube)) {
             $channels[] = [
                 'key' => 'youtube',
                 'name' => 'YouTube',
@@ -171,7 +171,7 @@ class HomeController extends Controller
 
         // 6. Pinterest
         $pinterest = Setting::get('social_pinterest');
-        if (!empty($pinterest)) {
+        if (Setting::get('social_pinterest_enabled', '1') == '1' && !empty($pinterest)) {
             $channels[] = [
                 'key' => 'pinterest',
                 'name' => 'Pinterest',
@@ -187,7 +187,7 @@ class HomeController extends Controller
 
         // 7. Facebook
         $facebook = Setting::get('social_facebook');
-        if (!empty($facebook)) {
+        if (Setting::get('social_facebook_enabled', '1') == '1' && !empty($facebook)) {
             $channels[] = [
                 'key' => 'facebook',
                 'name' => 'Facebook',
@@ -201,12 +201,15 @@ class HomeController extends Controller
             ];
         }
 
+        $showStorefront = (bool) Setting::get('social_hub_show_storefront', '0');
+
         return view('social-connect', compact(
             'channels',
             'primaryHandle',
             'tagline',
             'storeName',
-            'logoUrl'
+            'logoUrl',
+            'showStorefront'
         ));
     }
 }

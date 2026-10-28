@@ -52,6 +52,14 @@ class SettingsController extends Controller
             'social_pinterest' => Setting::get('social_pinterest', ''),
             'social_facebook' => Setting::get('social_facebook', ''),
             'social_whatsapp' => Setting::get('social_whatsapp', ''),
+            'social_instagram_enabled' => (bool) Setting::get('social_instagram_enabled', '1'),
+            'social_tiktok_enabled' => (bool) Setting::get('social_tiktok_enabled', '1'),
+            'social_whatsapp_enabled' => (bool) Setting::get('social_whatsapp_enabled', '1'),
+            'social_twitter_enabled' => (bool) Setting::get('social_twitter_enabled', '1'),
+            'social_youtube_enabled' => (bool) Setting::get('social_youtube_enabled', '1'),
+            'social_pinterest_enabled' => (bool) Setting::get('social_pinterest_enabled', '1'),
+            'social_facebook_enabled' => (bool) Setting::get('social_facebook_enabled', '1'),
+            'social_hub_show_storefront' => (bool) Setting::get('social_hub_show_storefront', '0'),
             'social_show_in_footer' => (bool) Setting::get('social_show_in_footer', true),
             'auspost_api_key' => Setting::get('auspost_api_key', config('services.auspost.api_key', '')),
             'auspost_origin_postcode' => Setting::get('auspost_origin_postcode', config('services.auspost.origin_postcode', '2000')),
@@ -91,6 +99,14 @@ class SettingsController extends Controller
             'social_pinterest' => 'nullable|string|max:255',
             'social_facebook' => 'nullable|string|max:255',
             'social_whatsapp' => 'nullable|string|max:255',
+            'social_instagram_enabled' => 'nullable|boolean',
+            'social_tiktok_enabled' => 'nullable|boolean',
+            'social_whatsapp_enabled' => 'nullable|boolean',
+            'social_twitter_enabled' => 'nullable|boolean',
+            'social_youtube_enabled' => 'nullable|boolean',
+            'social_pinterest_enabled' => 'nullable|boolean',
+            'social_facebook_enabled' => 'nullable|boolean',
+            'social_hub_show_storefront' => 'nullable|boolean',
             'social_show_in_footer' => 'nullable|boolean',
             'auspost_api_key' => 'nullable|string|max:255',
             'auspost_origin_postcode' => 'nullable|string|max:20',
@@ -119,6 +135,14 @@ class SettingsController extends Controller
         Setting::set('homepage_show_editorial_categories', $request->boolean('homepage_show_editorial_categories') ? '1' : '0');
         Setting::set('social_floating_enabled', $request->boolean('social_floating_enabled') ? '1' : '0');
         Setting::set('social_show_in_footer', $request->boolean('social_show_in_footer') ? '1' : '0');
+        Setting::set('social_instagram_enabled', $request->boolean('social_instagram_enabled') ? '1' : '0');
+        Setting::set('social_tiktok_enabled', $request->boolean('social_tiktok_enabled') ? '1' : '0');
+        Setting::set('social_whatsapp_enabled', $request->boolean('social_whatsapp_enabled') ? '1' : '0');
+        Setting::set('social_twitter_enabled', $request->boolean('social_twitter_enabled') ? '1' : '0');
+        Setting::set('social_youtube_enabled', $request->boolean('social_youtube_enabled') ? '1' : '0');
+        Setting::set('social_pinterest_enabled', $request->boolean('social_pinterest_enabled') ? '1' : '0');
+        Setting::set('social_facebook_enabled', $request->boolean('social_facebook_enabled') ? '1' : '0');
+        Setting::set('social_hub_show_storefront', $request->boolean('social_hub_show_storefront') ? '1' : '0');
 
         // Handle Logo file upload
         if ($request->hasFile('store_logo')) {

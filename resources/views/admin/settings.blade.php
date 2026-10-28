@@ -289,48 +289,116 @@
 
                     {{-- Channel Links & Handles --}}
                     <h4 style="font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#0f172a;margin:0 0 8px 0;">Platform Channels & Links</h4>
-                    <p class="text-muted" style="font-size:0.75rem;margin:0 0 14px 0;">Enter full URL (<code>https://...</code>) or username/handle (<code>@pistisofficial</code>). Empty channels will be automatically hidden.</p>
+                    <p class="text-muted" style="font-size:0.75rem;margin:0 0 14px 0;">Enter full URL (<code>https://...</code>) or username/handle (<code>@pistisofficial</code>). Use the toggles to enable or disable individual channels.</p>
 
-                    <div class="form-group mb-3">
-                        <label class="form-label" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
-                            <span>📸</span> Instagram Profile / Handle
+                    {{-- Connect Hub Storefront Card Toggle --}}
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:18px;">
+                        <div>
+                            <strong style="font-size:0.84rem;color:#0f172a;display:block;">Show "Explore Official Storefront" on Connect Hub</strong>
+                            <small class="text-muted" style="font-size:0.73rem;">Show/hide the shopping collection card at the bottom of the QR landing page</small>
+                        </div>
+                        <label class="switch" style="position:relative;display:inline-block;width:44px;height:24px;margin:0;">
+                            <input type="checkbox" name="social_hub_show_storefront" value="1" {{ !empty($settings['social_hub_show_storefront']) ? 'checked' : '' }} style="opacity:0;width:0;height:0;">
+                            <span class="slider" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background-color:#cbd5e1;transition:.3s;border-radius:24px;"></span>
                         </label>
+                    </div>
+
+                    {{-- Instagram --}}
+                    <div class="form-group mb-3">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                            <label class="form-label mb-0" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                                <span>📸</span> Instagram Profile / Handle
+                            </label>
+                            <label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;margin:0;font-size:0.74rem;font-weight:600;color:#334155;">
+                                <input type="checkbox" name="social_instagram_enabled" value="1" {{ !empty($settings['social_instagram_enabled']) ? 'checked' : '' }} style="width:15px;height:15px;accent-color:#0f172a;">
+                                <span>Show Link</span>
+                            </label>
+                        </div>
                         <input type="text" name="social_instagram" class="form-control" value="{{ $settings['social_instagram'] }}" placeholder="https://instagram.com/pistisofficial or @pistisofficial">
                     </div>
 
+                    {{-- TikTok --}}
                     <div class="form-group mb-3">
-                        <label class="form-label" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
-                            <span>🎵</span> TikTok Profile / Handle
-                        </label>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                            <label class="form-label mb-0" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                                <span>🎵</span> TikTok Profile / Handle
+                            </label>
+                            <label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;margin:0;font-size:0.74rem;font-weight:600;color:#334155;">
+                                <input type="checkbox" name="social_tiktok_enabled" value="1" {{ !empty($settings['social_tiktok_enabled']) ? 'checked' : '' }} style="width:15px;height:15px;accent-color:#0f172a;">
+                                <span>Show Link</span>
+                            </label>
+                        </div>
                         <input type="text" name="social_tiktok" class="form-control" value="{{ $settings['social_tiktok'] }}" placeholder="https://tiktok.com/@pistisofficial or @pistisofficial">
                     </div>
 
+                    {{-- WhatsApp --}}
                     <div class="form-group mb-3">
-                        <label class="form-label" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
-                            <span>✖</span> X (Twitter) Profile / Handle
-                        </label>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                            <label class="form-label mb-0" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                                <span>💬</span> WhatsApp Concierge / Phone Number
+                            </label>
+                            <label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;margin:0;font-size:0.74rem;font-weight:600;color:#334155;">
+                                <input type="checkbox" name="social_whatsapp_enabled" value="1" {{ !empty($settings['social_whatsapp_enabled']) ? 'checked' : '' }} style="width:15px;height:15px;accent-color:#0f172a;">
+                                <span>Show Link</span>
+                            </label>
+                        </div>
+                        <input type="text" name="social_whatsapp" class="form-control" value="{{ $settings['social_whatsapp'] }}" placeholder="+1 234 567 8900 or https://wa.me/...">
+                    </div>
+
+                    {{-- X (Twitter) --}}
+                    <div class="form-group mb-3">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                            <label class="form-label mb-0" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                                <span>✖</span> X (Twitter) Profile / Handle
+                            </label>
+                            <label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;margin:0;font-size:0.74rem;font-weight:600;color:#334155;">
+                                <input type="checkbox" name="social_twitter_enabled" value="1" {{ !empty($settings['social_twitter_enabled']) ? 'checked' : '' }} style="width:15px;height:15px;accent-color:#0f172a;">
+                                <span>Show Link</span>
+                            </label>
+                        </div>
                         <input type="text" name="social_twitter" class="form-control" value="{{ $settings['social_twitter'] }}" placeholder="https://x.com/pistisofficial or @pistisofficial">
                     </div>
 
+                    {{-- YouTube --}}
                     <div class="form-group mb-3">
-                        <label class="form-label" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
-                            <span>▶</span> YouTube Channel URL
-                        </label>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                            <label class="form-label mb-0" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                                <span>▶</span> YouTube Channel URL
+                            </label>
+                            <label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;margin:0;font-size:0.74rem;font-weight:600;color:#334155;">
+                                <input type="checkbox" name="social_youtube_enabled" value="1" {{ !empty($settings['social_youtube_enabled']) ? 'checked' : '' }} style="width:15px;height:15px;accent-color:#0f172a;">
+                                <span>Show Link</span>
+                            </label>
+                        </div>
                         <input type="text" name="social_youtube" class="form-control" value="{{ $settings['social_youtube'] }}" placeholder="https://youtube.com/@pistisofficial">
                     </div>
 
+                    {{-- Pinterest --}}
                     <div class="form-group mb-3">
-                        <label class="form-label" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
-                            <span>📌</span> Pinterest Profile URL
-                        </label>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                            <label class="form-label mb-0" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                                <span>📌</span> Pinterest Profile URL
+                            </label>
+                            <label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;margin:0;font-size:0.74rem;font-weight:600;color:#334155;">
+                                <input type="checkbox" name="social_pinterest_enabled" value="1" {{ !empty($settings['social_pinterest_enabled']) ? 'checked' : '' }} style="width:15px;height:15px;accent-color:#0f172a;">
+                                <span>Show Link</span>
+                            </label>
+                        </div>
                         <input type="text" name="social_pinterest" class="form-control" value="{{ $settings['social_pinterest'] }}" placeholder="https://pinterest.com/pistisofficial">
                     </div>
 
+                    {{-- Facebook --}}
                     <div class="form-group mb-3">
-                        <label class="form-label" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
-                            <span>💬</span> WhatsApp Concierge / Phone Number
-                        </label>
-                        <input type="text" name="social_whatsapp" class="form-control" value="{{ $settings['social_whatsapp'] }}" placeholder="+1 234 567 8900 or https://wa.me/...">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                            <label class="form-label mb-0" style="font-weight:600;font-size:0.8rem;display:flex;align-items:center;gap:6px;">
+                                <span>🌐</span> Facebook Page URL
+                            </label>
+                            <label style="display:inline-flex;align-items:center;gap:5px;cursor:pointer;margin:0;font-size:0.74rem;font-weight:600;color:#334155;">
+                                <input type="checkbox" name="social_facebook_enabled" value="1" {{ !empty($settings['social_facebook_enabled']) ? 'checked' : '' }} style="width:15px;height:15px;accent-color:#0f172a;">
+                                <span>Show Link</span>
+                            </label>
+                        </div>
+                        <input type="text" name="social_facebook" class="form-control" value="{{ $settings['social_facebook'] ?? '' }}" placeholder="https://facebook.com/pistisofficial">
                     </div>
 
                     <div class="form-group mb-0">
