@@ -490,9 +490,9 @@
                     @endif
                     @if(auth()->user()->hasPermission('social_media'))
                         <li>
-                            <a href="{{ route('admin.settings.index') }}#social-settings" title="Floating Social Media & Handles">
+                            <a href="{{ route('admin.settings.index') }}#social-settings" title="Social Media Handles & Event QR Code">
                                 <span class="icon">📱</span> <span class="menu-label">Social Media</span>
-                                <span class="sidebar-badge" style="background:#0f172a;color:#ffffff;font-size:0.6rem;padding:2px 6px;border-radius:10px;font-weight:700;letter-spacing:0.04em;">FLOATING</span>
+                                <span class="sidebar-badge" style="background:#0f172a;color:#ffffff;font-size:0.6rem;padding:2px 6px;border-radius:10px;font-weight:700;letter-spacing:0.04em;">QR & LINKS</span>
                             </a>
                         </li>
                     @endif

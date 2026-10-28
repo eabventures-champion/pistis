@@ -201,6 +201,9 @@
     </a>
 </div>
 
+{{-- Event Social Media QR Code & Connect Hub Module --}}
+@include('admin.components.social-qr-card', ['prefix' => 'dash', 'socialInfo' => $socialInfo])
+
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
     {{-- Recent Orders --}}
     <div class="card">
@@ -248,6 +251,15 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+@include('admin.components.social-qr-scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initSocialQr('dash', '{{ $socialInfo["connect_url"] }}');
+});
+</script>
+@endpush
 
 
 

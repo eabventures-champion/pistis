@@ -342,6 +342,17 @@
                 </div>
             </div>
 
+            {{-- Event QR Code & Connect Hub Card --}}
+            @include('admin.components.social-qr-card', [
+                'prefix' => 'settings',
+                'storeName' => $settings['store_name'] ?? 'Pistis',
+                'primaryHandle' => $settings['social_primary_handle'] ?? '@wearpistis',
+                'tagline' => $settings['social_floating_tagline'] ?? 'Official Atelier & Runway Archive',
+                'instagram' => $settings['social_instagram'] ?? '',
+                'tiktok' => $settings['social_tiktok'] ?? '',
+                'whatsapp' => $settings['social_whatsapp'] ?? '',
+            ])
+
             {{-- Payment Gateway --}}
             <div class="card mb-4">
                 <div class="card-header">
@@ -637,9 +648,11 @@
     function updateLiveAdminPreview() {
         const handleInput = document.getElementById('admin_primary_handle');
         const previewHandle = document.getElementById('preview_handle');
-        if (handleInput && previewHandle) {
-            const val = handleInput.value.trim();
-            previewHandle.textContent = val !== '' ? val : '@pistisofficial';
+        const qrDisplayHandle = document.getElementById('settings_display_handle');
+        if (handleInput) {
+            const val = handleInput.value.trim() !== '' ? handleInput.value.trim() : '@wearpistis';
+            if (previewHandle) previewHandle.textContent = val;
+            if (qrDisplayHandle) qrDisplayHandle.textContent = val;
         }
     }
 
@@ -655,7 +668,14 @@
                 : '<span style="color:#ef4444;">○ Feature Disabled</span>';
         }
     }
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof initSocialQr === 'function') {
+            initSocialQr('settings', '{{ route("social.connect") }}');
+        }
+    });
 </script>
+
+@include('admin.components.social-qr-scripts')
 
 <style>
 .switch { position: relative; display: inline-block; width: 44px; height: 24px; }

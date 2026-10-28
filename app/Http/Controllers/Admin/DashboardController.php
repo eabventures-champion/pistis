@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\Setting;
 use App\Models\ShopifySyncLog;
 
 class DashboardController extends Controller
@@ -35,6 +36,16 @@ class DashboardController extends Controller
             ->take(10)
             ->get();
 
-        return view('admin.dashboard', compact('stats', 'recentOrders', 'recentSyncLogs'));
+        $socialInfo = [
+            'store_name' => Setting::get('store_name', 'Pistis'),
+            'primary_handle' => Setting::get('social_primary_handle', '@wearpistis'),
+            'tagline' => Setting::get('social_floating_tagline', 'Official Atelier & Runway Archive'),
+            'instagram' => Setting::get('social_instagram', ''),
+            'tiktok' => Setting::get('social_tiktok', ''),
+            'whatsapp' => Setting::get('social_whatsapp', ''),
+            'connect_url' => route('social.connect'),
+        ];
+
+        return view('admin.dashboard', compact('stats', 'recentOrders', 'recentSyncLogs', 'socialInfo'));
     }
 }

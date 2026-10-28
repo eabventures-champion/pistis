@@ -28,6 +28,11 @@ use Illuminate\Support\Facades\Route;
 // ─── Storefront ──────────────────────────────────────────────────────
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Dynamic Event Social Hub & Connect (for QR code scanning & multi-platform social access)
+Route::get('/connect', [HomeController::class, 'socialConnect'])->name('social.connect');
+Route::get('/social', fn() => redirect()->route('social.connect'));
+Route::get('/links', fn() => redirect()->route('social.connect'));
+
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/shop/{slug}', [ShopController::class, 'show'])->name('shop.show');
 
